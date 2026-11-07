@@ -33,6 +33,7 @@ def to_passage(document, score: float) -> dict:
         "title": meta["title"],
         "source_path": meta["source_path"],
         "domain": meta["domain"],
+        "technology": meta.get("technology", []),
         "page": meta.get("page"),
         "section": meta.get("section"),
         "text": document.page_content,
@@ -42,7 +43,10 @@ def to_passage(document, score: float) -> dict:
 
 def search(query: str, mode: str, k: int = config.CANDIDATES_PER_SEARCH, domains: list[str] | None = None,
            collection: str = config.COLLECTION_NAME, model_name: str = config.EMBEDDING_MODEL) -> list[dict]:
-    """Single search with one method: 'semantic' (dense embeddings) or 'bm25' (sparse vectors)."""
+    """Single search with one method: 'semantic' (dense embeddings) or 'bm25' (sparse vectors).
+    A blank query finds nothing: the dense search would otherwise return arbitrary passages."""
+    if not query.strip():
+        return []
     store = get_vector_store(MODES[mode], collection=collection, model_name=model_name)
     results = store.similarity_search_with_score(query, k=k, filter=domain_filter(domains))
     return [to_passage(doc, score) for doc, score in results]
@@ -84,7 +88,7 @@ def hybrid_search(queries: list[str], domains: list[str] | None = None, use_rera
         for mode in MODES:
             ranked_lists.append(search(query, mode, domains=domains, collection=collection, model_name=model_name))
     fused = reciprocal_rank_fusion(ranked_lists)
-    if not use_reranker:
+    if not use_reranker or not fused:
         return fused[:top_k]
     candidates = fused[:config.RERANK_CANDIDATES]
     return rerank(rerank_query or queries[0], candidates)[:top_k]
@@ -100,6 +104,7 @@ def search_with_strategy(query: str, strategy: str, top_k: int = 10, collection:
 
 
 def evidence_is_sufficient(passages: list[dict]) -> bool:
-    """Enough passages judged relevant by the reranker (thresholds in config)."""
-    strong = [p for p in passages if p.get("rerank_score", 0.0) >= config.EVIDENCE_MIN_SCORE]
+    """Enough passages judged relevant by the reranker (thresholds in config). A passage
+    without a score is not evidence: the threshold is negative, so 0.0 would pass it."""
+    strong = [p for p in passages if p.get("rerank_score", float("-inf")) >= config.EVIDENCE_MIN_SCORE]
     return len(strong) >= config.EVIDENCE_MIN_PASSAGES
