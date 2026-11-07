@@ -87,8 +87,10 @@ def chunk_pdf(path: Path, info: dict) -> list[Document]:
 
 
 def read_markdown(path: Path) -> tuple[dict, str]:
-    """Split a Markdown guide into its YAML front matter and its body."""
-    _, front_matter, body = path.read_text(encoding="utf-8").split("---", 2)
+    """Split a Markdown guide into its YAML front matter and its body. Only a line made of
+    "---" is a delimiter: a value of the front matter may contain dashes ("--- FAIL: ...")."""
+    text = path.read_text(encoding="utf-8-sig")
+    _, front_matter, body = re.split(r"^---[ \t]*$", text, maxsplit=2, flags=re.MULTILINE)
     return yaml.safe_load(front_matter), body
 
 

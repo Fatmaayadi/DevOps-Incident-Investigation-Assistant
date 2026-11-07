@@ -1,6 +1,6 @@
 from incident_assistant import config
 from incident_assistant.documents import (chunk_markdown, clean_text, document_metadata, is_useful_chunk,
-                                          remove_repeated_lines)
+                                          read_markdown, remove_repeated_lines)
 
 CRASHLOOP = config.KNOWLEDGE_BASE_DIR / "markdown" / "kubernetes" / "k8s-crashloopbackoff.md"
 
@@ -33,6 +33,21 @@ def test_markdown_chunks_keep_section_and_skip_references():
     assert first.metadata["doc_id"] == "md-k8s-crashloopbackoff"
     assert first.page_content.startswith("Kubernetes Pod in CrashLoopBackOff > ")
     assert first.metadata["page"] is None
+
+
+def test_front_matter_ends_at_a_delimiter_line_not_at_dashes_inside_a_value(tmp_path):
+    guide = tmp_path / "guide.md"
+    guide.write_text('---\ndoc_id: md-test\nerror_messages:\n  - "--- FAIL: TestDeploy"\ndomain: ci-cd\n---\n'
+                     "## Overview\nBefore the rule.\n\n---\n\nAfter the rule.\n", encoding="utf-8")
+    meta, body = read_markdown(guide)
+    assert meta == {"doc_id": "md-test", "error_messages": ["--- FAIL: TestDeploy"], "domain": "ci-cd"}
+    assert body == "\n## Overview\nBefore the rule.\n\n---\n\nAfter the rule.\n"
+
+
+def test_front_matter_is_read_from_a_file_with_a_byte_order_mark(tmp_path):
+    guide = tmp_path / "guide.md"
+    guide.write_text("---\ndoc_id: md-test\n---\n## Overview\nText\n", encoding="utf-8-sig")
+    assert read_markdown(guide) == ({"doc_id": "md-test"}, "\n## Overview\nText\n")
 
 
 def test_document_metadata_for_markdown_and_pdf():
