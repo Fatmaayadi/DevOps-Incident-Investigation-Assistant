@@ -47,6 +47,9 @@ def create_collection(client: QdrantClient, collection: str = config.COLLECTION_
         vectors_config={DENSE_VECTOR: models.VectorParams(size=size, distance=models.Distance.COSINE)},
         sparse_vectors_config={SPARSE_VECTOR: models.SparseVectorParams(modifier=models.Modifier.IDF)},
     )
+    # Embedded Qdrant keeps the file of a deleted collection open: on Windows the file survives
+    # the deletion without any error, and create_collection reloads its old points.
+    client.delete(collection_name=collection, points_selector=models.FilterSelector(filter=models.Filter()))
 
 
 def get_vector_store(mode: RetrievalMode, collection: str = config.COLLECTION_NAME,
@@ -86,15 +89,16 @@ def update_index(rebuild: bool = False) -> dict:
     """Compare the files with the registry of indexed hashes and apply the differences."""
     client = get_client()
     collection = config.COLLECTION_NAME
-    if rebuild and client.collection_exists(collection):
+    sources = {s["doc_id"]: s for s in list_source_files()}  # first: a missing file must not cost the index
+    exists = client.collection_exists(collection)
+    if rebuild or not exists:
+        save_registry({})  # before the collection changes: an interrupted run marks nothing as indexed
+    if rebuild and exists:
         client.delete_collection(collection)
-    if not client.collection_exists(collection):
+    if rebuild or not exists:
         create_collection(client, collection)
-        registry = {}
-    else:
-        registry = load_registry()
+    registry = load_registry()
 
-    sources = {s["doc_id"]: s for s in list_source_files()}
     summary = {"added": [], "updated": [], "removed": [], "unchanged": []}
     store = get_vector_store(RetrievalMode.HYBRID, collection=collection)  # HYBRID mode computes both vectors when adding
 
@@ -105,16 +109,21 @@ def update_index(rebuild: bool = False) -> dict:
 
     for doc_id, source in sources.items():
         previous = registry.get(doc_id)
-        if previous and previous["hash"] == source["hash"]:
+        path = str(source["path"].relative_to(config.KNOWLEDGE_BASE_DIR)).replace("\\", "/")
+        if previous and previous["hash"] == source["hash"] and previous["path"] == path:
             summary["unchanged"].append(doc_id)
             continue
-        if previous:
-            delete_document(client, doc_id, collection)
+        # Point ids are random, so only this deletion prevents duplicates, even for a document
+        # unknown to the registry (interrupted run, lost registry). It stays unregistered until
+        # all its chunks are written.
+        registry.pop(doc_id, None)
+        save_registry(registry)
+        delete_document(client, doc_id, collection)
         chunks = chunk_file(source)
         store.add_documents(chunks, batch_size=64)
         registry[doc_id] = {
             "hash": source["hash"],
-            "path": str(source["path"].relative_to(config.KNOWLEDGE_BASE_DIR)).replace("\\", "/"),
+            "path": path,
             "chunks": len(chunks),
             "indexed_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         }
