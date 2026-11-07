@@ -1,0 +1,12 @@
+# Optional: run Qdrant as a server (as in the course labs) instead of the embedded local storage.
+# Then set QDRANT_URL=http://localhost:6333 in .env and run the indexing again.
+services:
+  qdrant:
+    image: qdrant/qdrant:v1.15.4
+    ports:
+      - "6333:6333"
+    volumes:
+      - qdrant_data:/qdrant/storage
+
+volumes:
+  qdrant_data:

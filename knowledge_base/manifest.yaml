@@ -1,0 +1,1615 @@
+# Manifeste du corpus PDF — DevOps Incident Investigation Assistant
+# Généré à partir de l'audit du 2026-11-02 (extraction PyMuPDF de toutes les pages).
+# Les PDF ne sont pas versionnés dans Git ; ce fichier documente chaque décision.
+# included: true  -> indexé dans le RAG
+# reintegrable    -> utile au diagnostic, exclu uniquement pour provenance ou licence (information seulement :
+#                    décision de l'équipe du 2026-11-02, aucun document réintégré)
+# reference_sources -> sources citées comme références, jamais indexées
+# diagnostic_value: high | medium | low | none (jugement de l'équipe sur l'apport au diagnostic d'incidents)
+
+summary:
+  total_files: 105
+  included_files: 6
+  included_pages: 1273
+  excluded_files: 99
+reference_sources:
+- doc_id: web-google-sre-book
+  title: 'Site Reliability Engineering: How Google Runs Production Systems (version en ligne)'
+  authors:
+  - Betsy Beyer
+  - Chris Jones
+  - Jennifer Petoff
+  - Niall Richard Murphy
+  official_url: https://sre.google/sre-book/table-of-contents/
+  license: CC BY-NC-ND 4.0 (mention relevée sur la table des matières le 2026-11-02)
+  domain: sre
+  indexed: false
+  status: 'Référence documentaire uniquement, non indexée : il n''est pas établi que l''extraction et le découpage en chunks
+    soient compatibles avec la clause NoDerivatives. Citée par la fiche de triage d''incident.'
+  chapters:
+  - monitoring-distributed-systems
+  - practical-alerting
+  - being-on-call
+  - effective-troubleshooting
+  - emergency-response
+  - managing-incidents
+  - postmortem-culture
+  - handling-overload
+  - addressing-cascading-failures
+documents:
+- doc_id: pdf-ansible-best-practices
+  path: pdf/ansible/Ansible Best Practices.pdf
+  title: Ansible Best Practices (slides)
+  authors: []
+  pages: 67
+  sha256: 57f28f6379c7dbbbeceaa5f05b48e4862d6245cd259ba4b15336964cbd9668f9
+  domain: ansible
+  language: en
+  diagnostic_value: low
+  included: false
+  exclusion_reasons:
+  - Texte inexploitable sans OCR (PDF scanné ou diapositives sans texte).
+  - 'Provenance et licence non vérifiables : ni licence libre, ni édition offerte par un sponsor, ni source officielle identifiée.'
+  reintegrable: false
+- doc_id: pdf-ansible-configuration-management-2nd-edition
+  path: pdf/ansible/Ansible Configuration Management, 2nd Edition.pdf
+  title: Ansible Configuration Management, 2nd Edition
+  authors:
+  - Daniel Hall
+  pages: 122
+  sha256: a52f94c32f8888dffecc023d33490e88cc0585c77151a2faf3d43bda5f8eb46d
+  domain: ansible
+  language: en
+  diagnostic_value: low
+  included: false
+  exclusion_reasons:
+  - 'Provenance incertaine : le fichier porte le filigrane d''un site de téléchargement non officiel (it-ebooks).'
+  - Redondant avec un document retenu ou une fiche prévue, ou contenu dépassé.
+  reintegrable: false
+- doc_id: pdf-ansible-for-devops
+  path: pdf/ansible/Ansible for devops.pdf
+  title: Ansible for DevOps
+  authors:
+  - Jeff Geerling
+  pages: 455
+  sha256: b806f98e44e878df1b54654324b69c652e22e009dfb0a5af400a2831002d1042
+  domain: ansible
+  language: en
+  diagnostic_value: medium
+  included: false
+  exclusion_reasons:
+  - 'Provenance et licence non vérifiables : ni licence libre, ni édition offerte par un sponsor, ni source officielle identifiée.'
+  reintegrable: true
+  note: Exemplaire Leanpub (livre payant) ; réintégrable si l'équipe dispose d'une copie achetée.
+- doc_id: pdf-ansible-playbook-essentials
+  path: pdf/ansible/Ansible Playbook Essentials.pdf
+  title: Ansible Playbook Essentials
+  authors:
+  - Gourav Shah
+  pages: 168
+  sha256: 5471cbf7b093603e9456f4fed79fc4bfec0b0e9693b808e2aa22908dd4cad089
+  domain: ansible
+  language: en
+  diagnostic_value: low
+  included: false
+  exclusion_reasons:
+  - 'Provenance incertaine : le fichier porte le filigrane d''un site de téléchargement non officiel (it-ebooks).'
+  - Redondant avec un document retenu ou une fiche prévue, ou contenu dépassé.
+  reintegrable: false
+- doc_id: pdf-ansible-up-and-running
+  path: pdf/ansible/Ansible_ Up and Running.pdf
+  title: 'Ansible: Up and Running'
+  authors:
+  - Lorin Hochstein
+  pages: 332
+  sha256: 83c1e4f39a64eb2f621ab23f4be8029d28237eefa6daee2d7183688e65cdafee
+  domain: ansible
+  language: en
+  diagnostic_value: medium
+  included: false
+  exclusion_reasons:
+  - 'Provenance incertaine : le fichier porte le filigrane d''un site de téléchargement non officiel (it-ebooks).'
+  reintegrable: true
+- doc_id: pdf-ansibleworksquickstart
+  path: pdf/ansible/AnsibleWorksQuickStart.pdf
+  title: AnsibleWorks Quick-Start (slides, 2013)
+  authors:
+  - Tim Gerla
+  pages: 52
+  sha256: ee5060654ac3740a95261a9413b978d4abccda75a5fa24bc4fc2099c2dfc3408
+  domain: ansible
+  language: en
+  diagnostic_value: none
+  included: false
+  exclusion_reasons:
+  - Texte inexploitable sans OCR (PDF scanné ou diapositives sans texte).
+  - Hors sujet ou sans contenu utile au diagnostic d'incidents.
+  reintegrable: false
+- doc_id: pdf-application-lifecycle-on-aws
+  path: pdf/aws/Application Lifecycle on AWS.pdf
+  title: Application Lifecycle on AWS
+  authors: []
+  pages: 93
+  sha256: c840f069fdb03d380ad077f61a7bb507e8b3e121abaa731e3b6ac8c5226a50f4
+  domain: aws
+  language: en
+  diagnostic_value: none
+  included: false
+  exclusion_reasons:
+  - Texte inexploitable sans OCR (PDF scanné ou diapositives sans texte).
+  reintegrable: false
+- doc_id: pdf-aws-cli-ebook
+  path: pdf/aws/aws-cli ebook.pdf
+  title: aws-cli (extrait de Stack Overflow Documentation)
+  authors: []
+  pages: 24
+  sha256: bcdcfd91168746bf02cbb2094d166b6446416dc5efd35838d3d41c894a71ce74
+  domain: aws
+  language: en
+  diagnostic_value: low
+  included: false
+  exclusion_reasons:
+  - Redondant avec un document retenu ou une fiche prévue, ou contenu dépassé.
+  reintegrable: false
+  note: Licence CC BY-SA ; liste de commandes sans procédure de diagnostic.
+- doc_id: pdf-build-e2e-data-driven-applications
+  path: pdf/aws/build-e2e-data-driven-applications.pdf
+  title: Architectural Patterns to Build End-to-End Data Driven Applications on AWS
+  authors:
+  - Amazon Web Services
+  pages: 34
+  sha256: a6698e25020e2671d6ca38b2c6d3a766b07a3b868cfb3459c1afe71d1c250af6
+  domain: aws
+  language: en
+  diagnostic_value: none
+  included: false
+  exclusion_reasons:
+  - Source officielle, mais orientée architecture ou présentation, sans procédure de diagnostic.
+  reintegrable: false
+- doc_id: pdf-build-static-websites-aws
+  path: pdf/aws/build-static-websites-aws.pdf
+  title: Hosting Static Websites on AWS
+  authors:
+  - Amazon Web Services
+  pages: 49
+  sha256: 0c4b2229558258acb1a66d9f97543ed7525580a4fcd5fae5698c2956ebbc7ef5
+  domain: aws
+  language: en
+  diagnostic_value: none
+  included: false
+  exclusion_reasons:
+  - Source officielle, mais orientée architecture ou présentation, sans procédure de diagnostic.
+  reintegrable: false
+- doc_id: pdf-day-one-amazon-web-services
+  path: pdf/aws/DAY_ONE_AMAZON WEB SERVICES.pdf
+  title: 'Day One: Amazon Web Services with vSRX Cookbook'
+  authors:
+  - Chirag Patel
+  - et al.
+  pages: 132
+  sha256: b72e48e9faa704f8f4790f0dab941a260755268e08d1c91c08893f11e603ca40
+  domain: aws
+  language: en
+  diagnostic_value: low
+  included: false
+  exclusion_reasons:
+  - Hors sujet ou sans contenu utile au diagnostic d'incidents.
+  - 'Provenance et licence non vérifiables : ni licence libre, ni édition offerte par un sponsor, ni source officielle identifiée.'
+  reintegrable: false
+- doc_id: pdf-implementing-devops-on-aws-2017
+  path: pdf/aws/Implementing_DevOps_on_AWS_(2017).PDF
+  title: Implementing DevOps on AWS
+  authors:
+  - Veselin Kantsev
+  pages: 309
+  sha256: 00f258068ec8d1d535588f4bb53e8de3b7803353727110b3d7e16be9f729487e
+  domain: aws
+  language: en
+  diagnostic_value: low
+  included: false
+  exclusion_reasons:
+  - 'Provenance et licence non vérifiables : ni licence libre, ni édition offerte par un sponsor, ni source officielle identifiée.'
+  reintegrable: false
+- doc_id: pdf-microservices-on-aws
+  path: pdf/aws/microservices-on-aws.pdf
+  title: Implementing Microservices on AWS
+  authors:
+  - Amazon Web Services
+  pages: 45
+  sha256: 02a65a9cea95877d1f9c636e3d909df99fc9cf2f086aae1a7f12093369123ef2
+  domain: aws
+  language: en
+  diagnostic_value: low
+  included: false
+  exclusion_reasons:
+  - Source officielle, mais orientée architecture ou présentation, sans procédure de diagnostic.
+  reintegrable: false
+- doc_id: pdf-security-practices-eks
+  path: pdf/aws/Security Practices EKS.pdf
+  title: Security Practices for Multi-Tenant SaaS Applications using Amazon EKS
+  authors:
+  - Amazon Web Services
+  pages: 18
+  sha256: 212c5679a46cf748d15a85207480d92cee812a5bdaf088cdfc2aa51d2dd19642
+  domain: aws
+  language: en
+  diagnostic_value: low
+  included: false
+  exclusion_reasons:
+  - Source officielle, mais orientée architecture ou présentation, sans procédure de diagnostic.
+  reintegrable: false
+- doc_id: pdf-azure-devops
+  path: pdf/azure/Azure DevOps.pdf
+  title: Azure DevOps (presentation)
+  authors:
+  - Matteo Cappelletti
+  pages: 16
+  sha256: 2f6ef2db0ee2601dceeca229e7319cc06986777315670e052a71bedbf159d6a0
+  domain: azure
+  language: en
+  diagnostic_value: none
+  included: false
+  exclusion_reasons:
+  - Hors sujet ou sans contenu utile au diagnostic d'incidents.
+  reintegrable: false
+- doc_id: pdf-azure-fundamentals
+  path: pdf/azure/Azure Fundamentals.pdf
+  title: Azure Fundamentals (AZ-900)
+  authors:
+  - Hendrik Bulens
+  pages: 141
+  sha256: 6e728472adf128caea4f2c8adcf59b8cb238fd127a194770ea47e443811453cc
+  domain: azure
+  language: en
+  diagnostic_value: none
+  included: false
+  exclusion_reasons:
+  - Hors sujet ou sans contenu utile au diagnostic d'incidents.
+  reintegrable: false
+- doc_id: pdf-hands-on-kubernetes-with-azure
+  path: pdf/azure/Hands On Kubernetes with Azure.pdf
+  title: Hands-on Kubernetes on Azure, Third Edition
+  authors:
+  - Nills Franssens
+  - Shivakumar Gopalakrishnan
+  - Gunther Lenz
+  pages: 527
+  sha256: f3c86cf679bdfc242e97ea4ae1a7f9a729a55662a05f7ca0b85e1ffbf5e576ad
+  domain: azure
+  language: en
+  diagnostic_value: medium
+  included: false
+  exclusion_reasons:
+  - 'Provenance et licence non vérifiables : ni licence libre, ni édition offerte par un sponsor, ni source officielle identifiée.'
+  reintegrable: true
+- doc_id: pdf-042021-e-book-cicd-buyers-guide-1-bfbb94547d
+  path: pdf/cicd/042021_e_Book_CICD_Buyers_Guide_1_bfbb94547d.pdf
+  title: The CI/CD Buyer's Guide
+  authors:
+  - Harness
+  pages: 34
+  sha256: 47c584b66f46d2d9eeb677b4a540d7689ae0b99e8d729e6a3484d6385cc1d6ff
+  domain: ci-cd
+  language: en
+  diagnostic_value: none
+  included: false
+  exclusion_reasons:
+  - Hors sujet ou sans contenu utile au diagnostic d'incidents.
+  reintegrable: false
+- doc_id: pdf-cicd-project-on-aws
+  path: pdf/cicd/CICD PROJECT ON AWS .pdf
+  title: CI/CD on Amazon Web Services (whitepaper, 2016)
+  authors:
+  - Dinesh Kumar Shanmugasundaram
+  pages: 23
+  sha256: b5c7ad6b13cacc2a0895f197e3bd699364091ce9d13ef6db461cd5bcabcd7927
+  domain: ci-cd
+  language: en
+  diagnostic_value: low
+  included: false
+  exclusion_reasons:
+  - Source officielle, mais orientée architecture ou présentation, sans procédure de diagnostic.
+  - 'Provenance et licence non vérifiables : ni licence libre, ni édition offerte par un sponsor, ni source officielle identifiée.'
+  reintegrable: false
+- doc_id: pdf-deploy-on-aws-gitlab
+  path: pdf/cicd/Deploy on AWS-Gitlab.pdf
+  title: How to deploy on AWS from GitLab
+  authors:
+  - GitLab
+  pages: 42
+  sha256: a4dc3a5b3bb9e18fcb58f296c3ccb4c9e386cffa18d751f8773b0c68f0d8dc73
+  domain: ci-cd
+  language: en
+  diagnostic_value: low
+  included: false
+  exclusion_reasons:
+  - Source officielle, mais orientée architecture ou présentation, sans procédure de diagnostic.
+  reintegrable: false
+  note: Publication de GitLab orientée déploiement ; les échecs de jobs seront couverts par une fiche fondée sur GitLab Docs.
+- doc_id: pdf-jenkins-from-scratch
+  path: pdf/cicd/Jenkins From Scratch.pdf
+  title: Jenkins From Scratch
+  authors:
+  - Mohamed ElEmam
+  pages: 95
+  sha256: 1e8fd0376dfd1faedbfede40d618ee1472296f82e36f8f40c3c6c77c6bd83de1
+  domain: ci-cd
+  language: en
+  diagnostic_value: low
+  included: false
+  exclusion_reasons:
+  - Hors sujet ou sans contenu utile au diagnostic d'incidents.
+  - 'Provenance et licence non vérifiables : ni licence libre, ni édition offerte par un sponsor, ni source officielle identifiée.'
+  reintegrable: false
+- doc_id: pdf-learn-github-actions
+  path: pdf/cicd/Learn-GitHub-Actions.pdf
+  title: Learn GitHub Actions (slides)
+  authors: []
+  pages: 86
+  sha256: c35b4ff3b6dfad1cbccff83fe39e85f18706007f22b6bc45121ca171dba7fca5
+  domain: ci-cd
+  language: en
+  diagnostic_value: low
+  included: false
+  exclusion_reasons:
+  - Texte inexploitable sans OCR (PDF scanné ou diapositives sans texte).
+  - 'Provenance et licence non vérifiables : ni licence libre, ni édition offerte par un sponsor, ni source officielle identifiée.'
+  reintegrable: false
+- doc_id: pdf-learning-groovy
+  path: pdf/cicd/Learning Groovy.pdf
+  title: Groovy (extrait de Stack Overflow Documentation)
+  authors: []
+  pages: 53
+  sha256: 67b6ee3f26fa63416c397195da9992902cb86e380741211eb3dbc2f4fadb6bc3
+  domain: ci-cd
+  language: en
+  diagnostic_value: none
+  included: false
+  exclusion_reasons:
+  - Hors sujet ou sans contenu utile au diagnostic d'incidents.
+  reintegrable: false
+- doc_id: pdf-practicing-continuous-integration-continuous-delivery
+  path: pdf/cicd/practicing-continuous-integration-continuous-delivery.pdf
+  title: Practicing Continuous Integration and Continuous Delivery on AWS
+  authors:
+  - Amazon Web Services
+  pages: 55
+  sha256: c42b02571d648e2eec047d6b44341244e4777ab65d4b3be69e02cf72562e8da2
+  domain: ci-cd
+  language: en
+  diagnostic_value: low
+  included: false
+  exclusion_reasons:
+  - Source officielle, mais orientée architecture ou présentation, sans procédure de diagnostic.
+  reintegrable: false
+- doc_id: pdf-thenewstack-ci-cd
+  path: pdf/cicd/TheNewStack_CI_CD.pdf
+  title: CI/CD with Kubernetes
+  authors:
+  - The New Stack
+  pages: 119
+  sha256: fdf74ceaf0807628f623eced52df58181b3396ecfda08ac347ed25f63a6aa165
+  domain: ci-cd
+  language: en
+  diagnostic_value: low
+  included: false
+  exclusion_reasons:
+  - Source officielle, mais orientée architecture ou présentation, sans procédure de diagnostic.
+  - 'Provenance et licence non vérifiables : ni licence libre, ni édition offerte par un sponsor, ni source officielle identifiée.'
+  reintegrable: false
+- doc_id: pdf-building-and-enterprise-cloud-with-dummies
+  path: pdf/cloud/Building and Enterprise Cloud with Dummies.pdf
+  title: Building an Enterprise Cloud For Dummies (Tintri edition)
+  authors:
+  - Lawrence C. Miller
+  pages: 29
+  sha256: 62fa9f49ea816eb6b739c9b510256be85e7c404e8d512bdfd8c4c8d24cd212ab
+  domain: cloud
+  language: en
+  diagnostic_value: none
+  included: false
+  exclusion_reasons:
+  - Hors sujet ou sans contenu utile au diagnostic d'incidents.
+  reintegrable: false
+- doc_id: pdf-load-balancing-in-th-cloud
+  path: pdf/cloud/load balancing in th cloud.pdf
+  title: Load Balancing in the Cloud
+  authors: []
+  pages: 40
+  sha256: 99d5eb6bdbea3e5a2d24f8a8a023c384b18aeb283a8f7d7dbc7d679ea558eb91
+  domain: cloud
+  language: en
+  diagnostic_value: low
+  included: false
+  exclusion_reasons:
+  - Hors sujet ou sans contenu utile au diagnostic d'incidents.
+  - 'Provenance et licence non vérifiables : ni licence libre, ni édition offerte par un sponsor, ni source officielle identifiée.'
+  reintegrable: false
+- doc_id: pdf-microservices-dell
+  path: pdf/cloud/microservices_dell.pdf
+  title: 'Microservices & Docker: from theory to practice (slides)'
+  authors:
+  - Tom Van Cutsem
+  - Nico Janssens
+  pages: 63
+  sha256: 42b6e7fe131c6098ba86f44297a1ff612b136c626b7273f6693a3d4bd8dc3adb
+  domain: cloud
+  language: en
+  diagnostic_value: none
+  included: false
+  exclusion_reasons:
+  - Hors sujet ou sans contenu utile au diagnostic d'incidents.
+  reintegrable: false
+- doc_id: pdf-overview-aws-cloud-adoption-framework
+  path: pdf/cloud/overview-aws-cloud-adoption-framework.pdf
+  title: An Overview of the AWS Cloud Adoption Framework
+  authors:
+  - Amazon Web Services
+  pages: 42
+  sha256: 492d33df7352572b31f86ac30f9561059d3e76df3791873911300d27419990d6
+  domain: cloud
+  language: en
+  diagnostic_value: none
+  included: false
+  exclusion_reasons:
+  - Source officielle, mais orientée architecture ou présentation, sans procédure de diagnostic.
+  reintegrable: false
+- doc_id: pdf-overview-deployment-options
+  path: pdf/cloud/overview-deployment-options.pdf
+  title: Overview of Deployment Options on AWS
+  authors:
+  - Amazon Web Services
+  pages: 43
+  sha256: 5e140dbe2315d26b48e59b99a261bcbbea7ae0ab91b1680c258ee62a3960a40e
+  domain: cloud
+  language: en
+  diagnostic_value: low
+  included: false
+  exclusion_reasons:
+  - Source officielle, mais orientée architecture ou présentation, sans procédure de diagnostic.
+  reintegrable: false
+- doc_id: pdf-api-driven-devops
+  path: pdf/devops/api-driven-devops.pdf
+  title: API-Driven DevOps
+  authors:
+  - Nordic APIs
+  pages: 106
+  sha256: 599684daca2b02fd3e367c940d28cb3355ba98bd652824188258ad71c85833fd
+  domain: devops
+  language: en
+  diagnostic_value: none
+  included: false
+  exclusion_reasons:
+  - Hors sujet ou sans contenu utile au diagnostic d'incidents.
+  - 'Provenance et licence non vérifiables : ni licence libre, ni édition offerte par un sponsor, ni source officielle identifiée.'
+  reintegrable: false
+- doc_id: pdf-devops-in-pratice
+  path: pdf/devops/DevOps in Pratice.pdf
+  title: DevOps in Practice (O'Reilly report)
+  authors:
+  - J. Paul Reed
+  pages: 36
+  sha256: d6facf4455a49480b66c3d41db2b1a34b97fb603947e0947b5e0dd5fbb6760a7
+  domain: devops
+  language: en
+  diagnostic_value: none
+  included: false
+  exclusion_reasons:
+  - Hors sujet ou sans contenu utile au diagnostic d'incidents.
+  reintegrable: false
+- doc_id: pdf-devops-tools-guide
+  path: pdf/devops/Devops Tools Guide.pdf
+  title: DevOps Tools Guide
+  authors: []
+  pages: 55
+  sha256: 94373158dc7e0b13856f67d2a37a3d2dcbc6954db8bcec80aa9570b87e5026bd
+  domain: devops
+  language: en
+  diagnostic_value: low
+  included: false
+  exclusion_reasons:
+  - Hors sujet ou sans contenu utile au diagnostic d'incidents.
+  - 'Provenance et licence non vérifiables : ni licence libre, ni édition offerte par un sponsor, ni source officielle identifiée.'
+  reintegrable: false
+- doc_id: pdf-devops-document-vinay-hegde
+  path: pdf/devops/devops-document-vinay_hegde.pdf
+  title: DevOps-Notes Documentation
+  authors:
+  - Vinay Hegde
+  pages: 137
+  sha256: 11a0449c308b665f02fc613ba6f6d485e0e7b82cb05821361f269a64b3a29291
+  domain: devops
+  language: en
+  diagnostic_value: low
+  included: false
+  exclusion_reasons:
+  - Redondant avec un document retenu ou une fiche prévue, ou contenu dépassé.
+  - 'Provenance et licence non vérifiables : ni licence libre, ni édition offerte par un sponsor, ni source officielle identifiée.'
+  reintegrable: false
+- doc_id: pdf-devops-error-troubleshooting-guide-by-devops-shack
+  path: pdf/devops/DevOps-Error-Troubleshooting-Guide-by-DevOps-Shack.pdf
+  title: DevOps Error Troubleshooting Guide
+  authors:
+  - DevOps Shack
+  pages: 33
+  sha256: 6d6e3a60f1a8fc8a9ac82f7a95d499cca5a719d07cc4821d56ca79ed2f8bff60
+  domain: devops
+  language: en
+  diagnostic_value: medium
+  included: false
+  exclusion_reasons:
+  - Contenu de diagnostic très résumé (une ligne par cause), sans référence vérifiable.
+  - 'Provenance et licence non vérifiables : ni licence libre, ni édition offerte par un sponsor, ni source officielle identifiée.'
+  reintegrable: false
+  note: Utilisé seulement comme liste de contrôle pour vérifier que les fiches couvrent les erreurs courantes ; non indexé.
+- doc_id: pdf-devops-handbook
+  path: pdf/devops/devops-handbook.pdf
+  title: The DevOps Handbook (promotional excerpt)
+  authors:
+  - Gene Kim
+  - Jez Humble
+  - Patrick Debois
+  - John Willis
+  pages: 130
+  sha256: 888f6c038007da72e7ed4039092fc4f5799be3f4748c3af047ddba1b9d709370
+  domain: devops
+  language: en
+  diagnostic_value: none
+  included: false
+  exclusion_reasons:
+  - Hors sujet ou sans contenu utile au diagnostic d'incidents.
+  reintegrable: false
+  note: Mention « Promo - Not for distribution or sale ».
+- doc_id: pdf-ibm-agile-dummies
+  path: pdf/devops/IBM Agile Dummies.pdf
+  title: Agile For Dummies, IBM Limited Edition
+  authors:
+  - Scott W. Ambler
+  - Matthew Holitza
+  pages: 74
+  sha256: 4776a633dab1d63f5e25552b7831109329688962d64e096e251262ac0432056f
+  domain: devops
+  language: en
+  diagnostic_value: none
+  included: false
+  exclusion_reasons:
+  - Hors sujet ou sans contenu utile au diagnostic d'incidents.
+  reintegrable: false
+- doc_id: pdf-introduction-devops
+  path: pdf/devops/introduction-devops.pdf
+  title: Introduction au DevOps (slides)
+  authors:
+  - Guillaume Leroy
+  pages: 67
+  sha256: 39d3837664c074e4426539ab6ff7989f09c97afd60b3cd1879e9166810a364f8
+  domain: devops
+  language: fr
+  diagnostic_value: none
+  included: false
+  exclusion_reasons:
+  - Texte inexploitable sans OCR (PDF scanné ou diapositives sans texte).
+  - Document en français, peu compatible avec le modèle d'embeddings anglophone retenu.
+  - Hors sujet ou sans contenu utile au diagnostic d'incidents.
+  reintegrable: false
+- doc_id: pdf-livre-blanc-devops-cellenza
+  path: pdf/devops/Livre_Blanc_DevOps_Cellenza.pdf
+  title: DevOps — de la vision à l'implémentation (livre blanc)
+  authors:
+  - Cellenza
+  pages: 52
+  sha256: 7040262db26dd35fbfa6b92b1a654b5483afea3cdc3a1737320e69c70d813e04
+  domain: devops
+  language: fr
+  diagnostic_value: none
+  included: false
+  exclusion_reasons:
+  - Hors sujet ou sans contenu utile au diagnostic d'incidents.
+  - Document en français, peu compatible avec le modèle d'embeddings anglophone retenu.
+  reintegrable: false
+- doc_id: pdf-practical-devops
+  path: pdf/devops/Practical DevOps.pdf
+  title: Practical DevOps
+  authors:
+  - Joakim Verona
+  pages: 240
+  sha256: e918cae10d7570e1745d08ec0d725c7bd8736d6aa0a1f2e36981bf50f0383e04
+  domain: devops
+  language: en
+  diagnostic_value: low
+  included: false
+  exclusion_reasons:
+  - Hors sujet ou sans contenu utile au diagnostic d'incidents.
+  - 'Provenance et licence non vérifiables : ni licence libre, ni édition offerte par un sponsor, ni source officielle identifiée.'
+  reintegrable: false
+- doc_id: pdf-site-reliability-engineering
+  path: pdf/devops/Site Reliability Engineering.pdf
+  title: 'Site Reliability Engineering: How Google Runs Production Systems'
+  authors:
+  - Betsy Beyer
+  - Chris Jones
+  - Jennifer Petoff
+  - Niall Richard Murphy
+  pages: 550
+  sha256: 425700ca584ad439f3426dd1f5796c1b8a2bdb8c6af69453ec7cfc35ab424f93
+  domain: devops
+  language: en
+  diagnostic_value: high
+  included: false
+  exclusion_reasons:
+  - 'Provenance incertaine : le fichier porte le filigrane d''un site de téléchargement non officiel (allitebooks).'
+  reintegrable: true
+  note: 'La version en ligne officielle (sre.google, CC BY-NC-ND 4.0) est conservée comme référence non indexée : voir reference_sources.'
+- doc_id: pdf-state-of-devops-2021
+  path: pdf/devops/State of DevOps 2021.pdf
+  title: State of DevOps 2021
+  authors:
+  - Puppet
+  pages: 45
+  sha256: 837f5d5dc73e006c48f2cd165d0c0430755e55152167ae80e3e58d1e2011b3b5
+  domain: devops
+  language: en
+  diagnostic_value: none
+  included: false
+  exclusion_reasons:
+  - Hors sujet ou sans contenu utile au diagnostic d'incidents.
+  reintegrable: false
+- doc_id: pdf-top-200-questions-devops
+  path: pdf/devops/Top 200 questions DevOps.pdf
+  title: Top 200 DevOps Engineer Interview Questions & Answers
+  authors:
+  - Knowledge Powerhouse
+  pages: 67
+  sha256: 9915b0f5a835f22aeb2c718e657ee1158745f3dcbdf0f126ac64e5c2a709058c
+  domain: devops
+  language: en
+  diagnostic_value: none
+  included: false
+  exclusion_reasons:
+  - Hors sujet ou sans contenu utile au diagnostic d'incidents.
+  reintegrable: false
+- doc_id: pdf-wavestone-devops
+  path: pdf/devops/wavestone devops.pdf
+  title: 'DevOps: the secret of agile start-ups'
+  authors:
+  - Wavestone
+  pages: 52
+  sha256: 5cd14ce62d5e5ee3105b31a9180fa2b0eb9c4aa581aa0ba0e27bb0c07d186e07
+  domain: devops
+  language: en
+  diagnostic_value: none
+  included: false
+  exclusion_reasons:
+  - Hors sujet ou sans contenu utile au diagnostic d'incidents.
+  reintegrable: false
+- doc_id: pdf-containers-on-aws
+  path: pdf/docker/Containers on AWS.pdf
+  title: Containers on AWS (slides)
+  authors:
+  - Amazon Web Services
+  pages: 76
+  sha256: 88660d55dc10e422f77a6aff85ce8bc78ea553a788408a75e57aba35bd8c3406
+  domain: docker
+  language: en
+  diagnostic_value: low
+  included: false
+  exclusion_reasons:
+  - Texte inexploitable sans OCR (PDF scanné ou diapositives sans texte).
+  reintegrable: false
+- doc_id: pdf-containers-dummies
+  path: pdf/docker/containers-dummies.pdf
+  title: Containers For Dummies, HPE and Docker Special Edition
+  authors:
+  - Scott D. Lowe
+  pages: 77
+  sha256: 8ba0e98cb1eafda3e08f7bd13f475f13afc9f9545eeb484a37dadcdc290f11d9
+  domain: docker
+  language: en
+  diagnostic_value: none
+  included: false
+  exclusion_reasons:
+  - Hors sujet ou sans contenu utile au diagnostic d'incidents.
+  reintegrable: false
+- doc_id: pdf-devops-docker
+  path: pdf/docker/DevOps.Docker.pdf
+  title: Formation Docker dans un contexte DevSecOps
+  authors:
+  - Pierre Royer
+  pages: 41
+  sha256: b6bcf314e76144f54a2712da6221f00149e784c85c61546e48b8301c47918d4f
+  domain: docker
+  language: fr
+  diagnostic_value: low
+  included: false
+  exclusion_reasons:
+  - Document en français, peu compatible avec le modèle d'embeddings anglophone retenu.
+  - Redondant avec un document retenu ou une fiche prévue, ou contenu dépassé.
+  reintegrable: false
+- doc_id: pdf-docker-by-federico
+  path: pdf/docker/Docker by federico.pdf
+  title: A very informal introduction to Docker (slides)
+  authors:
+  - Federico Galatolo
+  pages: 43
+  sha256: c5576e310922e114f70075b40a2770d65c9292ff71558b804a334c2ca9a34614
+  domain: docker
+  language: en
+  diagnostic_value: none
+  included: false
+  exclusion_reasons:
+  - Texte inexploitable sans OCR (PDF scanné ou diapositives sans texte).
+  - Hors sujet ou sans contenu utile au diagnostic d'incidents.
+  reintegrable: false
+- doc_id: pdf-docker-deep-dive-zero-to-docker-in-a-single-book-nigel-poult
+  path: pdf/docker/Docker Deep Dive Zero to Docker in a single book (Nigel Poulton) (z-lib.org).pdf
+  title: Docker Deep Dive (2020 Edition)
+  authors:
+  - Nigel Poulton
+  pages: 250
+  sha256: 8625069032bf7adde9fa898e4941282f1df0c3e8429e26e6c5c46f7f811ab312
+  domain: docker
+  language: en
+  diagnostic_value: medium
+  included: false
+  exclusion_reasons:
+  - 'Provenance incertaine : le fichier porte le filigrane d''un site de téléchargement non officiel (z-lib, dans le nom du
+    fichier).'
+  reintegrable: true
+- doc_id: pdf-docker-qna-vijay
+  path: pdf/docker/Docker QnA vijay.pdf
+  title: Docker Q&A
+  authors:
+  - Vijaykumar Biradar
+  pages: 50
+  sha256: a843d585014af670bf77f90e074f914f5c43fbb4be59da5f1161909f12e821f1
+  domain: docker
+  language: en
+  diagnostic_value: low
+  included: false
+  exclusion_reasons:
+  - Hors sujet ou sans contenu utile au diagnostic d'incidents.
+  - 'Provenance et licence non vérifiables : ni licence libre, ni édition offerte par un sponsor, ni source officielle identifiée.'
+  reintegrable: false
+- doc_id: pdf-docker-cookbook
+  path: pdf/docker/Docker-Cookbook.pdf
+  title: Docker Cookbook
+  authors:
+  - Sébastien Goasguen
+  pages: 359
+  sha256: 49d5f8de47cffe2e750c38aaac6100f067d684bda22876f302fe67de34acc794
+  domain: docker
+  language: en
+  diagnostic_value: medium
+  included: false
+  exclusion_reasons:
+  - 'Provenance incertaine : le fichier porte le filigrane d''un site de téléchargement non officiel (allitebooks).'
+  reintegrable: true
+- doc_id: pdf-docker-in-practice
+  path: pdf/docker/Docker-in-Practice.pdf
+  title: Docker in Practice
+  authors:
+  - Ian Miell
+  - Aidan Hobson Sayers
+  pages: 370
+  sha256: 37aec50c30ed35c4dac5e9e9ce919aa8d15f87a7884089534d8e1cfc7ea8e019
+  domain: docker
+  language: en
+  diagnostic_value: medium
+  included: false
+  exclusion_reasons:
+  - 'Provenance incertaine : le fichier porte le filigrane d''un site de téléchargement non officiel (allitebooks).'
+  reintegrable: true
+- doc_id: pdf-docker-tutorial
+  path: pdf/docker/docker-tutorial.pdf
+  title: Docker Tutorial (handout)
+  authors:
+  - Anthony Baire
+  pages: 109
+  sha256: b7ce039997eecfe907543f183b327814f8387a683a44757186068fe936c9fde7
+  domain: docker
+  language: en
+  diagnostic_value: low
+  included: false
+  exclusion_reasons:
+  - Redondant avec un document retenu ou une fiche prévue, ou contenu dépassé.
+  reintegrable: false
+  note: Licence Creative Commons (BY-NC-ND) ; support de cours d'introduction.
+- doc_id: pdf-docker-professional-guide
+  path: pdf/docker/Docker_Professional_Guide.pdf
+  title: Docker — Guide professionnel complet (2026)
+  authors: []
+  pages: 10
+  sha256: cbbd319d532d92c08fdf826fe726405235ef4511624bcc3c3d3f73eb3c6fd3cf
+  domain: docker
+  language: fr
+  diagnostic_value: low
+  included: false
+  exclusion_reasons:
+  - Document en français, peu compatible avec le modèle d'embeddings anglophone retenu.
+  - Redondant avec un document retenu ou une fiche prévue, ou contenu dépassé.
+  - 'Provenance et licence non vérifiables : ni licence libre, ni édition offerte par un sponsor, ni source officielle identifiée.'
+  reintegrable: false
+- doc_id: pdf-docker-up-and-running
+  path: pdf/docker/Docker_Up_and_Running.pdf
+  title: 'Docker: Up and Running'
+  authors:
+  - Karl Matthias
+  - Sean P. Kane
+  pages: 222
+  sha256: 164b0fdd21bf553d0690a070b585b50270075b495a628deb62aa6feea2ce5964
+  domain: docker
+  language: en
+  diagnostic_value: medium
+  included: false
+  exclusion_reasons:
+  - 'Provenance incertaine : le fichier porte le filigrane d''un site de téléchargement non officiel (it-ebooks).'
+  reintegrable: true
+- doc_id: pdf-extending-docker
+  path: pdf/docker/Extending_Docker.pdf
+  title: Extending Docker
+  authors:
+  - Russ McKendrick
+  pages: 334
+  sha256: 8a09a823d1d8a4431a48bca6525b6b101af89990192a6ddf7d1cc0e43f192991
+  domain: docker
+  language: en
+  diagnostic_value: low
+  included: false
+  exclusion_reasons:
+  - 'Provenance incertaine : le fichier porte le filigrane d''un site de téléchargement non officiel (allitebooks).'
+  - Redondant avec un document retenu ou une fiche prévue, ou contenu dépassé.
+  reintegrable: false
+- doc_id: pdf-formation-docker
+  path: pdf/docker/formation_docker.pdf
+  title: Les conteneurs — Docker et Docker Compose (slides)
+  authors:
+  - Thomas Ropars
+  pages: 130
+  sha256: 36781651b31fc393310259be96569a75b6e47835e447056ffd3d9e7915b75e34
+  domain: docker
+  language: fr
+  diagnostic_value: low
+  included: false
+  exclusion_reasons:
+  - Document en français, peu compatible avec le modèle d'embeddings anglophone retenu.
+  - Redondant avec un document retenu ou une fiche prévue, ou contenu dépassé.
+  reintegrable: false
+- doc_id: pdf-intro-to-docker-and-swarm-vikram
+  path: pdf/docker/Intro to Docker and Swarm - Vikram.pdf
+  title: Introduction to Docker & Docker Swarm
+  authors:
+  - Vikram
+  pages: 110
+  sha256: 71a4e10198b575c06317cf5decf22cbb4a6dbab4c44964cf5f7eecf13d6d2059
+  domain: docker
+  language: en
+  diagnostic_value: low
+  included: false
+  exclusion_reasons:
+  - Redondant avec un document retenu ou une fiche prévue, ou contenu dépassé.
+  - 'Provenance et licence non vérifiables : ni licence libre, ni édition offerte par un sponsor, ni source officielle identifiée.'
+  reintegrable: false
+- doc_id: pdf-learning-docker
+  path: pdf/docker/Learning Docker.pdf
+  title: Docker (extrait de Stack Overflow Documentation)
+  authors: []
+  pages: 149
+  sha256: 8b587fdef1d77b140cc111cfc54b2ad370a6170e553fac15aac331c17f5728cb
+  domain: docker
+  language: en
+  diagnostic_value: low
+  included: false
+  exclusion_reasons:
+  - Redondant avec un document retenu ou une fiche prévue, ou contenu dépassé.
+  reintegrable: false
+- doc_id: pdf-learning-docker-networking
+  path: pdf/docker/Learning_Docker_Networking.pdf
+  title: Learning Docker Networking
+  authors:
+  - Rajdeep Dua
+  pages: 277
+  sha256: 0c702f4fe7482e4fb016c90819ff6a890ad238303ccbe75fc23d8dff228aca67
+  domain: docker
+  language: en
+  diagnostic_value: low
+  included: false
+  exclusion_reasons:
+  - 'Provenance incertaine : le fichier porte le filigrane d''un site de téléchargement non officiel (allitebooks).'
+  - Redondant avec un document retenu ou une fiche prévue, ou contenu dépassé.
+  reintegrable: false
+- doc_id: pdf-monitoring-docker
+  path: pdf/docker/Monitoring_Docker.pdf
+  title: Monitoring Docker
+  authors:
+  - Russ McKendrick
+  pages: 259
+  sha256: 7a4da4f786ecd04a8b2baf823debc0d4538e21c6c80994dcf55e5d140bcdd47d
+  domain: docker
+  language: en
+  diagnostic_value: low
+  included: false
+  exclusion_reasons:
+  - Redondant avec un document retenu ou une fiche prévue, ou contenu dépassé.
+  - 'Provenance et licence non vérifiables : ni licence libre, ni édition offerte par un sponsor, ni source officielle identifiée.'
+  reintegrable: false
+- doc_id: pdf-orchestrating-docker
+  path: pdf/docker/Orchestrating_Docker.pdf
+  title: Orchestrating Docker
+  authors:
+  - Shrikrishna Holla
+  pages: 154
+  sha256: fbd807360ca14385e41f1f3f8f88ca9c03cf2e0465f7b754c13ee2dc474f6a7a
+  domain: docker
+  language: en
+  diagnostic_value: low
+  included: false
+  exclusion_reasons:
+  - Redondant avec un document retenu ou une fiche prévue, ou contenu dépassé.
+  - 'Provenance et licence non vérifiables : ni licence libre, ni édition offerte par un sponsor, ni source officielle identifiée.'
+  reintegrable: false
+- doc_id: pdf-pro-docker
+  path: pdf/docker/Pro_Docker.pdf
+  title: Pro Docker
+  authors:
+  - Deepak Vohra
+  pages: 265
+  sha256: de6d447dc9fa2819fdb789d3e84e3905b6e0c8b067ed267bb423cd0584c50d56
+  domain: docker
+  language: en
+  diagnostic_value: low
+  included: false
+  exclusion_reasons:
+  - 'Provenance incertaine : le fichier porte le filigrane d''un site de téléchargement non officiel (allitebooks).'
+  - Redondant avec un document retenu ou une fiche prévue, ou contenu dépassé.
+  reintegrable: false
+- doc_id: pdf-securing-docker
+  path: pdf/docker/Securing_Docker.pdf
+  title: Securing Docker
+  authors:
+  - Scott Gallagher
+  pages: 126
+  sha256: d1b30e25c471b5f34e14dcc0a9b8b72afcd8ff32ece092518173a9d2f8376c0d
+  domain: docker
+  language: en
+  diagnostic_value: low
+  included: false
+  exclusion_reasons:
+  - 'Provenance incertaine : le fichier porte le filigrane d''un site de téléchargement non officiel (allitebooks).'
+  - Redondant avec un document retenu ou une fiche prévue, ou contenu dépassé.
+  reintegrable: false
+- doc_id: pdf-using-docker
+  path: pdf/docker/Using_Docker.pdf
+  title: Using Docker
+  authors:
+  - Adrian Mouat
+  pages: 355
+  sha256: d799e4edbf2d5d9bb1242c358f838de10d628b57956aac392568a19efdc64067
+  domain: docker
+  language: en
+  diagnostic_value: medium
+  included: false
+  exclusion_reasons:
+  - 'Provenance incertaine : le fichier porte le filigrane d''un site de téléchargement non officiel (allitebooks).'
+  reintegrable: true
+- doc_id: pdf-git-interview-questions
+  path: pdf/git/Git Interview Questions.pdf
+  title: Git Interview Questions
+  authors:
+  - InterviewBit
+  pages: 24
+  sha256: dabda6d27bdc6cebcb5831c9102693b56ecad363d00701615063df234b2bc846
+  domain: git
+  language: en
+  diagnostic_value: none
+  included: false
+  exclusion_reasons:
+  - Hors sujet ou sans contenu utile au diagnostic d'incidents.
+  reintegrable: false
+- doc_id: pdf-git-notes-for-professionals
+  path: pdf/git/GIT notes for professionals.pdf
+  title: Git Notes for Professionals
+  authors:
+  - GoalKicker.com
+  pages: 195
+  sha256: 402ac77ebbdc42ac6a36ab09c248c8550f59dc58868bafa996985a740711aa61
+  domain: git
+  language: en
+  diagnostic_value: low
+  included: false
+  exclusion_reasons:
+  - Texte extrait illisible (encodage de police non standard).
+  reintegrable: false
+- doc_id: pdf-github-git-cheatsheet
+  path: pdf/git/GitHub.Git.Cheatsheet.pdf
+  title: Git Cheat Sheet (GitHub Education)
+  authors:
+  - GitHub
+  pages: 2
+  sha256: 469157b16528a7282a0bd38e039b71b8c9696d46740d9c0165aa50706fbc460a
+  domain: git
+  language: en
+  diagnostic_value: low
+  included: false
+  exclusion_reasons:
+  - Redondant avec un document retenu ou une fiche prévue, ou contenu dépassé.
+  reintegrable: false
+  note: Publication officielle de GitHub ; commandes de base, sans diagnostic.
+- doc_id: pdf-progit
+  path: pdf/git/progit.pdf
+  title: Pro Git, 2nd Edition (version 2.1.450)
+  authors:
+  - Scott Chacon
+  - Ben Straub
+  pages: 501
+  sha256: 403f4051cdca2c585361d85f6e87d5dd87d8c544fc91dced007711babe81e8ef
+  domain: git
+  language: en
+  diagnostic_value: high
+  included: true
+  technology:
+  - git
+  - github
+  provenance: open_license
+  license: CC BY-NC-SA 3.0 (déclarée dans le fichier, p. 7, et sur git-scm.com)
+  official_url: https://github.com/progit/progit2/releases/download/2.1.450/progit.pdf
+  url_check: vérifiée le 2026-11-02 (téléchargement accessible ; même version que le fichier local)
+  source_type: book
+- doc_id: pdf-iac-thales
+  path: pdf/infrastructure-as-code/IaC Thales.pdf
+  title: 'Infrastructure as Code: Towards Dynamic and Programmable IT systems (master''s thesis)'
+  authors:
+  - Sotirios Naziris
+  pages: 136
+  sha256: 1b622260f65e4cf5272ac4c7c8f583da977baa6b71c5af34fde16cb988463684
+  domain: iac
+  language: en
+  diagnostic_value: low
+  included: false
+  exclusion_reasons:
+  - Hors sujet ou sans contenu utile au diagnostic d'incidents.
+  reintegrable: false
+- doc_id: pdf-borg-omega-kubernetes
+  path: pdf/kubernetes/borg, omega, kubernetes.pdf
+  title: Borg, Omega, and Kubernetes (ACM Queue)
+  authors:
+  - Brendan Burns
+  - et al.
+  pages: 24
+  sha256: 0679da43280d8c3903eb23b1516b92087c3168430ff2a65e70e0e426a86a5a4b
+  domain: kubernetes
+  language: en
+  diagnostic_value: none
+  included: false
+  exclusion_reasons:
+  - Hors sujet ou sans contenu utile au diagnostic d'incidents.
+  reintegrable: false
+- doc_id: pdf-ckad-preparation
+  path: pdf/kubernetes/CKAD preparation.pdf
+  title: CKAD Test Preparation (slides)
+  authors:
+  - Sébastien Goasguen
+  pages: 74
+  sha256: 5f97ba5121d6f645d4fb7fd8e1a5f239c30988b39d927da678381770bafe2804
+  domain: kubernetes
+  language: en
+  diagnostic_value: low
+  included: false
+  exclusion_reasons:
+  - Texte inexploitable sans OCR (PDF scanné ou diapositives sans texte).
+  reintegrable: false
+- doc_id: pdf-cloud-native-devops-with-kubernetes
+  path: pdf/kubernetes/Cloud Native Devops with Kubernetes.pdf
+  title: Cloud Native DevOps with Kubernetes
+  authors:
+  - John Arundel
+  - Justin Domingus
+  pages: 344
+  sha256: 6fae18e26d5799365bf0a72ebeb07eec20d15179548211ba674ef20ba73643dd
+  domain: kubernetes
+  language: en
+  diagnostic_value: high
+  included: false
+  exclusion_reasons:
+  - 'Provenance et licence non vérifiables : ni licence libre, ni édition offerte par un sponsor, ni source officielle identifiée.'
+  reintegrable: true
+  note: Contenu de diagnostic utile ; réintégrable si l'équipe confirme une source légitime.
+- doc_id: pdf-container-with-docker-and-k8s
+  path: pdf/kubernetes/Container with docker and k8s.pdf
+  title: Containerisation with Docker & Kubernetes (slides)
+  authors:
+  - Heptio
+  pages: 74
+  sha256: 8cc5f37502a9debc6ef6ca6841c7a8f0c552e00cc8a5265c83d2daa7cc35665a
+  domain: kubernetes
+  language: en
+  diagnostic_value: low
+  included: false
+  exclusion_reasons:
+  - Redondant avec un document retenu ou une fiche prévue, ou contenu dépassé.
+  reintegrable: false
+- doc_id: pdf-container-networking-docker-kubernetes
+  path: pdf/kubernetes/Container-Networking-Docker-Kubernetes.pdf
+  title: 'Container Networking: From Docker to Kubernetes'
+  authors:
+  - Michael Hausenblas
+  pages: 72
+  sha256: 41ffabb42696c8826abca0bd4a1de916c1c7315466829f4a6e344ce306bd8cfe
+  domain: kubernetes
+  language: en
+  diagnostic_value: medium
+  included: true
+  technology:
+  - kubernetes
+  - docker
+  - networking
+  provenance: sponsored_free_edition
+  license: Tous droits réservés ; édition « Compliments of NGINX » (p. 1)
+  official_url: null
+  url_check: aucun lien officiel actuel trouvé le 2026-11-02
+  source_type: book
+- doc_id: pdf-ctr-kubernetes-hardening-guidance-1-2-20220829
+  path: pdf/kubernetes/CTR_KUBERNETES_HARDENING_GUIDANCE_1.2_20220829.pdf
+  title: Kubernetes Hardening Guidance, version 1.2
+  authors:
+  - NSA
+  - CISA
+  pages: 66
+  sha256: 5738e33f80064ab3fe465f513a7b698bc88e1538e53d35e43b2cab4171d1d509
+  domain: kubernetes
+  language: en
+  diagnostic_value: medium
+  included: true
+  technology:
+  - kubernetes
+  provenance: official_publication
+  license: Rapport technique public NSA/CISA ; extraits de la documentation Kubernetes sous CC BY 4.0
+  official_url: https://media.defense.gov/2022/Aug/29/2003066362/1/1/0/CTR_KUBERNETES_HARDENING_GUIDANCE_1.2_20220829.PDF
+  url_check: URL trouvée par recherche ; refus des requêtes automatisées (HTTP 403), à vérifier dans un navigateur
+  source_type: book
+- doc_id: pdf-k8s-muhamad-eiemam
+  path: pdf/kubernetes/K8s_muhamad_eiemam.pdf
+  title: Kubernetes From Scratch
+  authors:
+  - Mohamed ElEmam
+  pages: 72
+  sha256: 84a497c76456f2f6705f51602cd866c37abb1460a61afd3d3bf82c2d7e499db6
+  domain: kubernetes
+  language: en
+  diagnostic_value: low
+  included: false
+  exclusion_reasons:
+  - Redondant avec un document retenu ou une fiche prévue, ou contenu dépassé.
+  - 'Provenance et licence non vérifiables : ni licence libre, ni édition offerte par un sponsor, ni source officielle identifiée.'
+  reintegrable: false
+- doc_id: pdf-kubernetes-cheat-sheet
+  path: pdf/kubernetes/Kubernetes Cheat Sheet.pdf
+  title: Kubernetes Cheatsheet
+  authors: []
+  pages: 6
+  sha256: 85bc5700e6ef9c5b987d2c94ffe033e5728563ff6d843803fc38465160363f4d
+  domain: kubernetes
+  language: en
+  diagnostic_value: low
+  included: false
+  exclusion_reasons:
+  - Redondant avec un document retenu ou une fiche prévue, ou contenu dépassé.
+  - 'Provenance et licence non vérifiables : ni licence libre, ni édition offerte par un sponsor, ni source officielle identifiée.'
+  reintegrable: false
+- doc_id: pdf-kubernetes-for-everyone
+  path: pdf/kubernetes/Kubernetes For Everyone.pdf
+  title: Kubernetes For Everyone
+  authors: []
+  pages: 35
+  sha256: 1f355c9c2ae2e3ee279207ff70e6783386260d0c1e07d36b39310fc1e7da8ba6
+  domain: kubernetes
+  language: en
+  diagnostic_value: low
+  included: false
+  exclusion_reasons:
+  - Redondant avec un document retenu ou une fiche prévue, ou contenu dépassé.
+  - 'Provenance et licence non vérifiables : ni licence libre, ni édition offerte par un sponsor, ni source officielle identifiée.'
+  reintegrable: false
+- doc_id: pdf-kubernetes-pdf
+  path: pdf/kubernetes/Kubernetes-PDF.pdf
+  title: Kubernetes (résumé Bookey)
+  authors: []
+  pages: 182
+  sha256: af0428501f18b77b5a1bd4fafc65aabe12abba7923df330a736bd1436794c36d
+  domain: kubernetes
+  language: fr
+  diagnostic_value: none
+  included: false
+  exclusion_reasons:
+  - Document en français, peu compatible avec le modèle d'embeddings anglophone retenu.
+  - Hors sujet ou sans contenu utile au diagnostic d'incidents.
+  reintegrable: false
+- doc_id: pdf-making-the-most-of-helm
+  path: pdf/kubernetes/Making the most of helm.pdf
+  title: Making The Most of Helm 3 (slides)
+  authors:
+  - Dan Garfield
+  - Anna Baker
+  pages: 23
+  sha256: 9b0497e23502e8254263bb412a8ac7a711797b615b5762c7069006a029143835
+  domain: kubernetes
+  language: en
+  diagnostic_value: low
+  included: false
+  exclusion_reasons:
+  - Texte inexploitable sans OCR (PDF scanné ou diapositives sans texte).
+  reintegrable: false
+- doc_id: pdf-o-reilly-kubernetes-patterns
+  path: pdf/kubernetes/O'Reilly Kubernetes Patterns.pdf
+  title: Kubernetes Patterns (1st Edition)
+  authors:
+  - Bilgin Ibryam
+  - Roland Huß
+  pages: 266
+  sha256: e75e5431637d9d4b0931b8a0808319b1f25492d4d354243acc4dbe3821150933
+  domain: kubernetes
+  language: en
+  diagnostic_value: high
+  included: true
+  technology:
+  - kubernetes
+  provenance: sponsored_free_edition
+  license: Tous droits réservés ; édition « Compliments of Red Hat » (p. 1-2)
+  official_url: https://developers.redhat.com/e-books
+  url_check: catalogue Red Hat Developer ; accès réservé aux membres, non vérifiable par script (HTTP 403)
+  source_type: book
+- doc_id: pdf-o-reilly-kubernetes-up-and-running
+  path: pdf/kubernetes/O'Reilly Kubernetes Up and Running.pdf
+  title: 'Kubernetes: Up and Running, Second Edition'
+  authors:
+  - Brendan Burns
+  - Joe Beda
+  - Kelsey Hightower
+  pages: 277
+  sha256: a8763d1e2272886c2f661cfa3172d5c6727e185462e7f7df7c73cc3c2a9c1c73
+  domain: kubernetes
+  language: en
+  diagnostic_value: high
+  included: true
+  technology:
+  - kubernetes
+  provenance: sponsored_free_edition
+  license: Tous droits réservés ; édition distribuée gratuitement par Microsoft Azure (encart du sponsor p. 2)
+  official_url: null
+  url_check: ancien lien de téléchargement Azure inactif (HTTP 404) le 2026-11-02
+  source_type: book
+- doc_id: pdf-the-kubernetes-book-nigel-poulton
+  path: pdf/kubernetes/The Kubernetes Book (Nigel Poulton) (z-lib.org).pdf
+  title: The Kubernetes Book
+  authors:
+  - Nigel Poulton
+  pages: 243
+  sha256: 08771a487586adf017c8f00ed46dbdff39c070f1394b588b65e770f6f066d0b7
+  domain: kubernetes
+  language: en
+  diagnostic_value: medium
+  included: false
+  exclusion_reasons:
+  - 'Provenance incertaine : le fichier porte le filigrane d''un site de téléchargement non officiel (z-lib, dans le nom du
+    fichier).'
+  reintegrable: true
+- doc_id: pdf-the-definitive-kubectl-cheatsheet
+  path: pdf/kubernetes/the-definitive-kubectl-cheatsheet.pdf
+  title: The Definitive kubectl Cheat Sheet
+  authors:
+  - thechief.io
+  pages: 23
+  sha256: 91ac02bba5fbbbb6ea79979d8e2eb7116ce7f3ac1e3aebeff12eed6dc76fe5c7
+  domain: kubernetes
+  language: en
+  diagnostic_value: low
+  included: false
+  exclusion_reasons:
+  - Redondant avec un document retenu ou une fiche prévue, ou contenu dépassé.
+  - 'Provenance et licence non vérifiables : ni licence libre, ni édition offerte par un sponsor, ni source officielle identifiée.'
+  reintegrable: false
+- doc_id: pdf-2020712201111807richard-blum-christine-bresnahan
+  path: pdf/linux/2020712201111807Richard_Blum,_Christine_Bresnahan.pdf
+  title: Linux Command Line and Shell Scripting Bible, Third Edition
+  authors:
+  - Richard Blum
+  - Christine Bresnahan
+  pages: 818
+  sha256: 95f1a02ccbf6e43d6b52f8e4285954d26570de908792d9526817cfc8cefef002
+  domain: linux
+  language: en
+  diagnostic_value: low
+  included: false
+  exclusion_reasons:
+  - 'Provenance et licence non vérifiables : ni licence libre, ni édition offerte par un sponsor, ni source officielle identifiée.'
+  reintegrable: false
+  note: Référence de commandes et de scripting, peu de diagnostic.
+- doc_id: pdf-linux-shell-scripting-cookbook
+  path: pdf/linux/Linux Shell Scripting Cookbook.pdf
+  title: Linux Shell Scripting Cookbook
+  authors:
+  - Sarath Lakshman
+  pages: 360
+  sha256: cbe8dba0c6ff317204092ac2efbf9b50e072187de64b1ad2b364f13f09ae2c48
+  domain: linux
+  language: en
+  diagnostic_value: low
+  included: false
+  exclusion_reasons:
+  - 'Provenance incertaine : le fichier porte le filigrane d''un site de téléchargement non officiel (it-ebooks).'
+  - Redondant avec un document retenu ou une fiche prévue, ou contenu dépassé.
+  reintegrable: false
+- doc_id: pdf-pro-bash-programming
+  path: pdf/linux/Pro Bash Programming.pdf
+  title: Pro Bash Programming
+  authors:
+  - Chris F. A. Johnson
+  pages: 257
+  sha256: 06cdde7883d5bc1761e0a2016da047aba0647beb213be7e868707317b1acc29e
+  domain: linux
+  language: en
+  diagnostic_value: none
+  included: false
+  exclusion_reasons:
+  - 'Provenance incertaine : le fichier porte le filigrane d''un site de téléchargement non officiel (it-ebooks).'
+  - Hors sujet ou sans contenu utile au diagnostic d'incidents.
+  reintegrable: false
+- doc_id: pdf-shell-scripting
+  path: pdf/linux/Shell Scripting.pdf
+  title: 'Shell Scripting: Expert Recipes for Linux, Bash, and More'
+  authors:
+  - Steve Parker
+  pages: 603
+  sha256: 70a38a7de8e95312f85b66451c80b5272aecb8a502213d52a296f23ece4bc6dc
+  domain: linux
+  language: en
+  diagnostic_value: low
+  included: false
+  exclusion_reasons:
+  - 'Provenance incertaine : le fichier porte le filigrane d''un site de téléchargement non officiel (it-ebooks).'
+  - Redondant avec un document retenu ou une fiche prévue, ou contenu dépassé.
+  reintegrable: false
+- doc_id: pdf-wiley-linux-command-line-and-shell-scripting-bible-may-2008
+  path: pdf/linux/Wiley.Linux.Command.Line.and.Shell.Scripting.Bible.May.2008.pdf
+  title: Linux Command Line and Shell Scripting Bible (1st Edition)
+  authors:
+  - Richard Blum
+  pages: 843
+  sha256: ed6ce7ff16656c34ca2b9fd8517e38ffdd9316e43f84156ab760cafb4662d1bf
+  domain: linux
+  language: en
+  diagnostic_value: low
+  included: false
+  exclusion_reasons:
+  - Redondant avec un document retenu ou une fiche prévue, ou contenu dépassé.
+  - 'Provenance et licence non vérifiables : ni licence libre, ni édition offerte par un sponsor, ni source officielle identifiée.'
+  reintegrable: false
+  note: Première édition (2008) d'un ouvrage également présent en 3e édition.
+- doc_id: pdf-getting-started-with-openshift
+  path: pdf/openshift/Getting_Started_with_OpenShift.pdf
+  title: Getting Started with OpenShift
+  authors:
+  - Steven Pousty
+  - Katie J. Miller
+  pages: 105
+  sha256: 955a739e24c8697a11c803a81994a5402e96dc6327551e47dc6929047526a05d
+  domain: openshift
+  language: en
+  diagnostic_value: none
+  included: false
+  exclusion_reasons:
+  - 'Provenance incertaine : le fichier porte le filigrane d''un site de téléchargement non officiel (allitebooks).'
+  - Redondant avec un document retenu ou une fiche prévue, ou contenu dépassé.
+  reintegrable: false
+  note: Décrit une ancienne génération d'OpenShift.
+- doc_id: pdf-implementing-openshift
+  path: pdf/openshift/Implementing_OpenShift.pdf
+  title: Implementing OpenShift
+  authors:
+  - Adam Miller
+  pages: 116
+  sha256: c6527ce68a9501cc98755e277f9ff6409585300c1516e40527c6904d7ebaaa86
+  domain: openshift
+  language: en
+  diagnostic_value: none
+  included: false
+  exclusion_reasons:
+  - 'Provenance incertaine : le fichier porte le filigrane d''un site de téléchargement non officiel (allitebooks).'
+  - Redondant avec un document retenu ou une fiche prévue, ou contenu dépassé.
+  reintegrable: false
+  note: Décrit une ancienne génération d'OpenShift.
+- doc_id: pdf-learning-openshift
+  path: pdf/openshift/Learning_OpenShift.pdf
+  title: Learning OpenShift
+  authors:
+  - Grant Shipley
+  pages: 304
+  sha256: 57ae0e94d058af22c8658cb957a1a807f9a8c83cb9be3e9f8f64410f1bec73eb
+  domain: openshift
+  language: en
+  diagnostic_value: none
+  included: false
+  exclusion_reasons:
+  - 'Provenance incertaine : le fichier porte le filigrane d''un site de téléchargement non officiel (allitebooks).'
+  - Redondant avec un document retenu ou une fiche prévue, ou contenu dépassé.
+  reintegrable: false
+  note: Décrit une ancienne génération d'OpenShift.
+- doc_id: pdf-openshift-in-action
+  path: pdf/openshift/OpenShift_in_Action.pdf
+  title: OpenShift in Action
+  authors:
+  - Jamie Duncan
+  - John Osborne
+  pages: 320
+  sha256: c0efc7310087d8a7f97c5528a5d5ccc9e0f91e8a65190d06d5b51067126e7250
+  domain: openshift
+  language: en
+  diagnostic_value: low
+  included: false
+  exclusion_reasons:
+  - 'Provenance incertaine : le fichier porte le filigrane d''un site de téléchargement non officiel (allitebooks).'
+  reintegrable: false
+- doc_id: pdf-python-for-cloud
+  path: pdf/python/Python for cloud.pdf
+  title: Python For Cloud EP 1 (slides)
+  authors:
+  - Sandip Das
+  pages: 22
+  sha256: 507770b2725b6c2414eabad71cbf382886f398d1fabd447e2bd84b1e31e2d17d
+  domain: python
+  language: en
+  diagnostic_value: none
+  included: false
+  exclusion_reasons:
+  - Hors sujet ou sans contenu utile au diagnostic d'incidents.
+  reintegrable: false
+- doc_id: pdf-python-for-devops-learn-ruthlessly-effective-automation-orig
+  path: pdf/python/python-for-devops-learn-ruthlessly-effective-automation-original-retailnbsped-149205769x-978-1492057697.pdf
+  title: Python for DevOps
+  authors:
+  - Noah Gift
+  - Kennedy Behrman
+  - Alfredo Deza
+  - Grig Gheorghiu
+  pages: 768
+  sha256: 36c1c63657199c75ec5f6188d23e43be256480bd9b76aac75a54b6d69ceeefc6
+  domain: python
+  language: en
+  diagnostic_value: low
+  included: false
+  exclusion_reasons:
+  - Hors sujet ou sans contenu utile au diagnostic d'incidents.
+  - 'Provenance et licence non vérifiables : ni licence libre, ni édition offerte par un sponsor, ni source officielle identifiée.'
+  reintegrable: false
+- doc_id: pdf-pythonnotesforprofessionals
+  path: pdf/python/PythonNotesForProfessionals.pdf
+  title: Python Notes for Professionals
+  authors:
+  - GoalKicker.com
+  pages: 856
+  sha256: f5e2868ad977858fa0fa3eb123282f15a06f6eb4dd2b7c3a883e1dd1e138f61f
+  domain: python
+  language: en
+  diagnostic_value: none
+  included: false
+  exclusion_reasons:
+  - Hors sujet ou sans contenu utile au diagnostic d'incidents.
+  reintegrable: false
+- doc_id: pdf-iac-terraform
+  path: pdf/terraform/IaC_Terraform.pdf
+  title: Automating AWS Infrastructure Creation with Terraform (slides)
+  authors: []
+  pages: 59
+  sha256: b67cc99e0b16640fc1041074d906340197ed3c82c519ef04d8f0882a8794ccfa
+  domain: terraform
+  language: en
+  diagnostic_value: low
+  included: false
+  exclusion_reasons:
+  - Texte inexploitable sans OCR (PDF scanné ou diapositives sans texte).
+  reintegrable: false
+- doc_id: pdf-terraform-cheatsheet-1
+  path: pdf/terraform/terraform-cheatsheet-1.pdf
+  title: The essential Terraform Cheatsheet
+  authors:
+  - Justin O'Connor
+  pages: 1
+  sha256: 7942db00aaffc009c76a8e9a324c9ade247b8da7971c5cce4d19fd7986770468
+  domain: terraform
+  language: en
+  diagnostic_value: low
+  included: false
+  exclusion_reasons:
+  - Redondant avec un document retenu ou une fiche prévue, ou contenu dépassé.
+  - 'Provenance et licence non vérifiables : ni licence libre, ni édition offerte par un sponsor, ni source officielle identifiée.'
+  reintegrable: false
+- doc_id: pdf-terraform-installation-guide
+  path: pdf/terraform/Terraform-Installation-Guide.pdf
+  title: Terraform Installation Guide (HashiCorp Validated Designs)
+  authors:
+  - HashiCorp
+  pages: 88
+  sha256: 4c70255d671be934d47941225289231c9f4633fbb876e060d8de4eee05ebd800
+  domain: terraform
+  language: en
+  diagnostic_value: low
+  included: false
+  exclusion_reasons:
+  - Source officielle, mais orientée architecture ou présentation, sans procédure de diagnostic.
+  reintegrable: false
+  note: Publication officielle consacrée à l'installation de Terraform Enterprise.
+- doc_id: pdf-terraform
+  path: pdf/terraform/Terraform.pdf
+  title: The Terraform Book (v1.5.0, 2019)
+  authors:
+  - James Turnbull
+  pages: 91
+  sha256: 3fa34808cf2b423e0735980be2cc38918dcce840d1673de2eb7b0890f7e2cc4e
+  domain: terraform
+  language: en
+  diagnostic_value: medium
+  included: true
+  technology:
+  - terraform
+  provenance: open_license
+  license: CC BY-NC-ND 3.0 (déclarée dans le fichier, page de copyright)
+  official_url: null
+  url_check: aucune source officielle de téléchargement trouvée le 2026-11-02
+  source_type: book
+  note: 'Fichier de 91 pages, probablement un extrait. Écrit pour Terraform 0.12 : certaines commandes peuvent avoir évolué.'
+- doc_id: pdf-terraform-cli-cheat-sheet
+  path: 'pdf/terraform/Terraform     CLI     Cheat     Sheet.pdf'
+  title: Terraform CLI Cheat Sheet
+  authors: []
+  pages: 2
+  sha256: c0d200a53526cb776893cba28744b8c25b72a7fe1e39bb4f56cb55ee2d62fb10
+  domain: terraform
+  language: en
+  diagnostic_value: low
+  included: false
+  exclusion_reasons:
+  - Redondant avec un document retenu ou une fiche prévue, ou contenu dépassé.
+  - 'Provenance et licence non vérifiables : ni licence libre, ni édition offerte par un sponsor, ni source officielle identifiée.'
+  reintegrable: false
+  note: Le nom du fichier contient des caractères U+2029 (séparateur de paragraphe) à la place des espaces.
+- doc_id: pdf-mastering-nginx
+  path: pdf/web-servers/Mastering Nginx.pdf
+  title: Mastering NGINX
+  authors:
+  - Dimitri Aivaliotis
+  pages: 322
+  sha256: 481a0b14aff7e96a3e45bbc552f7c461ab5688903296db2ccd15121bbfd29c97
+  domain: networking
+  language: en
+  diagnostic_value: medium
+  included: false
+  exclusion_reasons:
+  - 'Provenance incertaine : le fichier porte le filigrane d''un site de téléchargement non officiel (it-ebooks).'
+  reintegrable: true
+- doc_id: pdf-nginx-essentials
+  path: pdf/web-servers/Nginx Essentials.pdf
+  title: Nginx Essentials
+  authors:
+  - Valery Kholodkov
+  pages: 151
+  sha256: b1e27947ca68b8bc56d75ecee35b90bbada59999283fd0e45116612d63da74ee
+  domain: networking
+  language: en
+  diagnostic_value: medium
+  included: false
+  exclusion_reasons:
+  - 'Provenance incertaine : le fichier porte le filigrane d''un site de téléchargement non officiel (it-ebooks).'
+  reintegrable: true
+- doc_id: pdf-nginx-module-extension
+  path: pdf/web-servers/Nginx Module Extension.pdf
+  title: Nginx Module Extension
+  authors:
+  - Usama Dar
+  pages: 129
+  sha256: d6bd6b653c165fecc3bbce3612b6d88a9fdaf4efeb7a6ba675247d7cfc3a5220
+  domain: networking
+  language: en
+  diagnostic_value: none
+  included: false
+  exclusion_reasons:
+  - 'Provenance incertaine : le fichier porte le filigrane d''un site de téléchargement non officiel (it-ebooks).'
+  - Hors sujet ou sans contenu utile au diagnostic d'incidents.
+  reintegrable: false
