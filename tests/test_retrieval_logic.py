@@ -175,3 +175,21 @@ def test_retrieval_metrics():
     assert reciprocal_rank(docs, {"a"}) == 0.5
     assert reciprocal_rank(docs, {"z"}) == 0.0
     assert recall_at_k(docs, set(), 5) == 0.0
+
+
+def test_metrics_with_no_passage_or_no_expected_document():
+    assert recall_at_k([], {"a"}, 5) == precision_at_k([], {"a"}, 5) == reciprocal_rank([], {"a"}) == 0.0
+    assert recall_at_k(["a"], set(), 5) == precision_at_k(["a"], set(), 5) == reciprocal_rank(["a"], set()) == 0.0
+
+
+def test_metrics_at_the_limits_of_k():
+    assert precision_at_k(["a"], {"a"}, 5) == pytest.approx(1 / 5)   # the denominator stays k
+    assert recall_at_k(["a"], {"a"}, 5) == 1.0
+    assert recall_at_k(["a"], {"a"}, 0) == precision_at_k(["a"], {"a"}, 0) == 0.0
+
+
+def test_several_passages_of_a_document_count_once_for_recall_but_each_for_precision():
+    docs = ["a", "a", "x"]
+    assert recall_at_k(docs, {"a", "b"}, 3) == 0.5
+    assert precision_at_k(docs, {"a", "b"}, 3) == pytest.approx(2 / 3)
+    assert reciprocal_rank(docs, {"a", "b"}) == 1.0

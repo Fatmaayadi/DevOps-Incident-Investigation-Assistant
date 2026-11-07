@@ -11,10 +11,33 @@ import random
 
 from evaluation.run_retrieval_benchmark import RESULTS
 
+STRATEGIES = ("semantic", "hybrid")
+
 
 def load(tag: str) -> dict:
     with open(RESULTS / f"retrieval_per_question_{tag}.csv", encoding="utf-8") as f:
         return {(r["setting"], r["strategy"], r["id"]): r for r in csv.DictReader(f)}
+
+
+def load_summary(tag: str) -> dict:
+    return json.loads((RESULTS / f"retrieval_summary_{tag}.json").read_text(encoding="utf-8"))
+
+
+def check_provenance(base_summary: dict, tuned_summary: dict, base: dict, tuned: dict):
+    """Refuse a comparison that would not measure the fine-tuning: both runs must use their own
+    collection and embedding model, the same RRF setting, and the same questions per strategy."""
+    for field in ("collection", "embedding_model"):
+        if base_summary[field] == tuned_summary[field]:
+            raise ValueError(f"baseline and finetuned results use the same {field}: {base_summary[field]}")
+    if base_summary["rrf_k"] != tuned_summary["rrf_k"]:
+        raise ValueError(f"different rrf_k: {base_summary['rrf_k']} and {tuned_summary['rrf_k']}")
+    for strategy in STRATEGIES:
+        for name, summary in (("baseline", base_summary), ("finetuned", tuned_summary)):
+            if not any(r["setting"] == "raw" and r["strategy"] == strategy for r in summary["results"]):
+                raise ValueError(f"{name} summary has no raw results for strategy {strategy}")
+        questions = [{k[2] for k in rows if k[:2] == ("raw", strategy)} for rows in (base, tuned)]
+        if not questions[0] or questions[0] != questions[1]:
+            raise ValueError(f"baseline and finetuned results do not cover the same questions for {strategy}")
 
 
 def bootstrap_ci(differences: list[float], rounds: int = 10000, seed: int = 42) -> tuple[float, float]:
@@ -25,8 +48,9 @@ def bootstrap_ci(differences: list[float], rounds: int = 10000, seed: int = 42) 
 
 def main():
     base, tuned = load("baseline"), load("finetuned")
+    check_provenance(load_summary("baseline"), load_summary("finetuned"), base, tuned)
     report = {}
-    for strategy in ("semantic", "hybrid"):
+    for strategy in STRATEGIES:
         keys = [k for k in tuned if k[0] == "raw" and k[1] == strategy]
         diffs = [float(tuned[k]["mrr"]) - float(base[k]["mrr"]) for k in keys]
         recall_diffs = [float(tuned[k]["recall@5"]) - float(base[k]["recall@5"]) for k in keys]

@@ -96,11 +96,17 @@ def evaluate(incidents, strategies, setting, query_map, collection, model, tag) 
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--raw-only", action="store_true")
-    parser.add_argument("--strategies", nargs="+", default=list(STRATEGIES))
+    parser.add_argument("--strategies", nargs="+", default=list(STRATEGIES), choices=STRATEGIES)
     parser.add_argument("--collection", default=config.COLLECTION_NAME)
     parser.add_argument("--model", default=config.EMBEDDING_MODEL)
     parser.add_argument("--tag", default="baseline")
+    parser.add_argument("--overwrite", action="store_true", help="replace the existing results of this tag")
     args = parser.parse_args()
+    # A run with --raw-only or fewer strategies would replace a complete result file with a partial one.
+    existing = [p.name for p in (RESULTS / f"retrieval_per_question_{args.tag}.csv",
+                                 RESULTS / f"retrieval_summary_{args.tag}.json") if p.exists()]
+    if existing and not args.overwrite:
+        parser.error(f"{', '.join(existing)} already exist: use another --tag, or --overwrite to replace them")
 
     incidents = load_incidents("test")
     print(f"{len(incidents)} answerable test incidents")
