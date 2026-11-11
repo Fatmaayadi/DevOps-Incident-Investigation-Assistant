@@ -1,0 +1,50 @@
+# Corpus PDF : jamais versionné (licences et provenances variables).
+# Le contenu et les décisions sont documentés dans knowledge_base/manifest.yaml.
+knowledge_base/pdf/
+*.pdf
+*.PDF
+
+# Secrets et configuration locale
+.env
+**/.env
+*.env.local
+.streamlit/secrets.toml
+.env.*
+!.env.example
+
+# Journaux bruts : ils contiennent l'identifiant d'organisation Groq
+evaluation/results/final_runs_log.txt
+evaluation/results/generation_run_log*.txt
+evaluation/results/generation_v2_answers_log*.txt
+
+# Journal brut de la génération des paires
+finetuning/data/generation_log.txt
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+*.egg-info/
+
+# Index et données générées localement (reconstruits par l'ingestion)
+storage/
+qdrant_storage/
+
+# Modèles et artefacts d'entraînement (fine-tuning)
+finetuning/output/
+*.safetensors
+*.bin
+*.gguf
+checkpoints/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
