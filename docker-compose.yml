@@ -1,12 +1,64 @@
-# Optional: run Qdrant as a server (as in the course labs) instead of the embedded local storage.
-# Then set QDRANT_URL=http://localhost:6333 in .env and run the indexing again.
+# Streamlit interface + Qdrant server.
+#
+# First start:
+#   1. copy .env.example to .env and set GROQ_API_KEY (the key stays in .env, never in the image)
+#   2. docker compose build
+#   3. docker compose --profile init run --rm indexer     # builds the index (first time ~5 min on CPU)
+#   4. docker compose up -d                               # http://localhost:8501
+# Later: run step 3 again after changing knowledge_base/ (only changed files are indexed).
+# Full rebuild: docker compose --profile init run --rm indexer python -m incident_assistant.indexing --rebuild
+#
+# The knowledge base is read from ./knowledge_base (mounted read-only). The 6 PDFs of the manifest
+# are not in Git: place them in knowledge_base/pdf/ or mark them "included: false" (see README).
+#
+# Qdrant alone, for the local Python setup (QDRANT_URL=http://localhost:6333 in .env):
+#   docker compose up -d qdrant
+
+x-assistant: &assistant
+  build: .
+  image: incident-assistant:local
+  env_file:
+    - path: .env
+      required: false   # without a key the interface starts but cannot investigate
+  environment:
+    QDRANT_URL: http://qdrant:6333   # overrides the value of .env (localhost is the host, not Qdrant)
+  volumes:
+    - ./knowledge_base:/app/knowledge_base:ro
+    - assistant_storage:/app/storage          # registry.json of the incremental indexing
+    - model_cache:/home/app/.cache            # Hugging Face and FastEmbed models, downloaded once
+  depends_on:
+    qdrant:
+      condition: service_healthy
+
 services:
   qdrant:
     image: qdrant/qdrant:v1.15.4
     ports:
-      - "6333:6333"
+      - "127.0.0.1:6333:6333"   # local access only: this Qdrant has no authentication
     volumes:
       - qdrant_data:/qdrant/storage
+    healthcheck:
+      # The image has no curl or wget: HTTP request to /readyz through bash.
+      test: ["CMD", "bash", "-c", "exec 3<>/dev/tcp/127.0.0.1/6333 && printf 'GET /readyz HTTP/1.0\\r\\n\\r\\n' >&3 && grep -q '200 OK' <&3"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+
+  app:
+    <<: *assistant
+    ports:
+      - "8501:8501"
+    restart: unless-stopped
+
+  indexer:
+    <<: *assistant
+    profiles: ["init"]
+    command: ["python", "-m", "incident_assistant.indexing"]
+    restart: "no"
 
 volumes:
   qdrant_data:
+  assistant_storage:
+  model_cache:

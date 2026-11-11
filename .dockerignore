@@ -1,0 +1,38 @@
+# Secrets: never in the build context, so never in the image.
+.env
+.env.*
+!.env.example
+**/.env
+.streamlit/secrets.toml
+
+# Local environments, caches and version control
+.venv/
+venv/
+__pycache__/
+**/__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.git/
+.github/
+.vscode/
+.idea/
+
+# Local index and generated data (Qdrant runs in its own container with a volume)
+storage/
+qdrant_storage/
+
+# PDFs: never copied into the image (licences); mounted at run time by docker-compose.yml
+knowledge_base/pdf/
+*.pdf
+*.PDF
+
+# Not needed by the interface: experiments, results, models, tests, documents
+evaluation/
+finetuning/
+tests/
+docs/
+*.safetensors
+*.bin
+*.gguf
+checkpoints/
