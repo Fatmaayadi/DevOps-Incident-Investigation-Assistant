@@ -89,7 +89,9 @@ python scripts/mcp_agent_demo.py "How do I release a stale Terraform state lock?
 #    ou avec l'inspecteur officiel : npx @modelcontextprotocol/inspector python -m incident_assistant.mcp_server
 ```
 
-**Important** : par défaut, Qdrant fonctionne en mode embarqué (`storage/qdrant`). Ce mode n'accepte **qu'un seul processus à la fois**. Fermez Streamlit avant de lancer le serveur MCP, les tests ou un benchmark. Pour plusieurs processus simultanés, lancez Qdrant en serveur (`docker compose up -d`), mettez `QDRANT_URL=http://localhost:6333` dans `.env` et réindexez.
+**Important** : par défaut, Qdrant fonctionne en mode embarqué (`storage/qdrant`). Ce mode n'accepte **qu'un seul processus à la fois**. Fermez Streamlit avant de lancer le serveur MCP, les tests ou un benchmark. Pour plusieurs processus simultanés, lancez Qdrant en serveur (`docker compose up -d qdrant`), mettez `QDRANT_URL=http://localhost:6333` dans `.env` et réindexez.
+
+**Docker** : l'interface et Qdrant peuvent aussi tourner entièrement en conteneurs. La procédure (construction, indexation initiale, démarrage) est en tête de [docker-compose.yml](docker-compose.yml).
 
 ## Tests
 

@@ -1,0 +1,127 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main, "feature/**"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  PYTHON_VERSION: "3.13"
+  TORCH_VERSION: "2.15.0"   # keep equal to the Dockerfile
+
+jobs:
+  checks:
+    name: Syntax, configuration and secrets
+    runs-on: ubuntu-latest
+    outputs:
+      has_package: ${{ steps.detect.outputs.has_package }}
+      has_tests: ${{ steps.detect.outputs.has_tests }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Detect the parts of the project present in this branch
+        id: detect
+        run: |
+          has() { [ -e "$1" ] && echo true || echo false; }
+          echo "has_package=$(has incident_assistant/__init__.py)" >> "$GITHUB_OUTPUT"
+          echo "has_tests=$(ls tests/test_*.py >/dev/null 2>&1 && echo true || echo false)" >> "$GITHUB_OUTPUT"
+          for path in incident_assistant tests scripts evaluation finetuning knowledge_base/manifest.yaml knowledge_base/markdown evaluation/datasets; do
+            [ -e "$path" ] && echo "present: $path" || echo "::notice::$path is not in this branch yet: the steps that need it are skipped."
+          done
+
+      - name: Python syntax
+        run: |
+          dirs=()
+          for d in app incident_assistant scripts evaluation finetuning tests; do [ -d "$d" ] && dirs+=("$d"); done
+          python -m compileall -q "${dirs[@]}"
+
+      - name: No secret in the repository
+        run: |
+          if git ls-files | grep -E '(^|/)\.env$'; then echo "::error::a .env file is versioned"; exit 1; fi
+          if git grep -nIE 'gsk_[A-Za-z0-9]{20,}' -- . ':!*.example'; then echo "::error::a Groq API key is versioned"; exit 1; fi
+          echo "no .env file and no Groq key in the versioned files"
+
+      - name: Docker Compose file is valid
+        run: docker compose config --quiet
+
+  tests:
+    name: Unit tests
+    needs: checks
+    if: needs.checks.outputs.has_package == 'true' && needs.checks.outputs.has_tests == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: requirements.txt
+
+      - name: Install the dependencies
+        run: |
+          pip install --index-url https://download.pytorch.org/whl/cpu "torch==${TORCH_VERSION}"
+          pip install -r requirements.txt
+          pip install --no-deps -e .
+
+      - name: Run the tests that need neither the index nor the LLM
+        run: |
+          # Some data is not versioned: the PDFs (licences), and possibly the guides and the
+          # evaluation dataset. The tests that read them are deselected, with a notice.
+          deselect=(
+            --deselect tests/test_documents.py::test_document_metadata_for_markdown_and_pdf
+            --deselect tests/test_knowledge_base.py::test_no_indexed_file_comes_from_the_evaluation_folder
+          )
+          echo "::notice::PDFs are never versioned: 2 tests that read them are deselected."
+          if [ ! -d knowledge_base/markdown ]; then
+            echo "::notice::knowledge_base/markdown is not versioned in this branch: guide tests deselected."
+            deselect+=(--deselect tests/test_documents.py::test_markdown_chunks_keep_section_and_skip_references
+                       --ignore tests/test_knowledge_base.py)
+          elif [ ! -d evaluation/datasets ]; then
+            echo "::notice::evaluation/datasets is not versioned in this branch: dataset test deselected."
+            deselect+=(--deselect tests/test_knowledge_base.py::test_evaluation_dataset_is_separate_and_consistent)
+          fi
+          python -m pytest -m "not integration" "${deselect[@]}" -ra
+
+  docker:
+    name: Docker image and Compose stack
+    needs: checks
+    if: needs.checks.outputs.has_package == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Build the image
+        run: docker compose build
+
+      - name: No .env file in the image
+        run: docker run --rm --entrypoint sh incident-assistant:local -c 'test ! -e /app/.env && ! ls -A /app | grep -q "^\.env"'
+
+      - name: Start Qdrant and the interface, wait for the healthchecks
+        run: docker compose up -d --wait --wait-timeout 300
+
+      - name: The interface reaches Qdrant
+        run: |
+          docker compose exec -T app python -c "from incident_assistant.indexing import get_client; print(get_client().get_collections())"
+          curl --fail --silent http://localhost:8501/_stcore/health
+
+      - name: Logs
+        if: failure()
+        run: docker compose logs --no-color
+
+      - name: Stop
+        if: always()
+        run: docker compose down -v
