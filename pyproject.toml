@@ -1,0 +1,20 @@
+[project]
+name = "incident-assistant"
+version = "0.1.0"
+description = "DevOps Incident Investigation Assistant - AI Engineering course project"
+requires-python = ">=3.11"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["incident_assistant"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+markers = [
+    "integration: needs the indexed knowledge base and the local models",
+    "llm: calls the Groq API (needs GROQ_API_KEY)",
+]
