@@ -1,0 +1,42 @@
+{
+  "validation_questions": 70,
+  "answerable": 50,
+  "out_of_scope": 20,
+  "v1_rule": {
+    "score": "reranker",
+    "min_passages": 2,
+    "threshold": -0.22,
+    "accept_rate_answerable": 0.88,
+    "reject_rate_out_of_scope": 1.0
+  },
+  "best_reranker_rule": {
+    "score": "reranker",
+    "min_passages": 3,
+    "threshold": -2.86,
+    "balanced_accuracy": 0.96,
+    "accept_rate_answerable": 0.92,
+    "reject_rate_out_of_scope": 1.0
+  },
+  "best_cosine_rule": {
+    "score": "cosine",
+    "min_passages": 2,
+    "threshold": 0.43,
+    "balanced_accuracy": 0.975,
+    "accept_rate_answerable": 1.0,
+    "reject_rate_out_of_scope": 0.95
+  },
+  "test_set_offline_check": {
+    "v1_rule": {
+      "accept_rate_answerable": 0.771,
+      "reject_rate_out_of_scope": 1.0
+    },
+    "best_reranker_rule": {
+      "accept_rate_answerable": 0.833,
+      "reject_rate_out_of_scope": 1.0
+    },
+    "best_cosine_rule": {
+      "accept_rate_answerable": 0.917,
+      "reject_rate_out_of_scope": 0.6
+    }
+  }
+}

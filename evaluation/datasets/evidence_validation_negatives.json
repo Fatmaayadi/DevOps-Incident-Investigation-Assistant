@@ -1,0 +1,26 @@
+{
+  "description": "Out-of-scope incidents used ONLY to tune the evidence check (validation set, never used in the benchmark). Topics deliberately different from the out-of-scope questions of incidents_eval.json.",
+  "created": "2026-11-02",
+  "incidents": [
+    "Our RabbitMQ queue keeps growing and consumers acknowledge messages very slowly.",
+    "Redis starts evicting keys even though maxmemory looks large enough.",
+    "PostgreSQL streaming replication lag on the standby keeps increasing during the night batch.",
+    "MySQL reports frequent deadlocks on the orders table since the last release.",
+    "Cassandra read requests time out with too many tombstones scanned.",
+    "Our Spark job fails because executors are lost after a few minutes.",
+    "Airflow DAGs stay in queued state and the scheduler does not start tasks.",
+    "HashiCorp Vault is sealed after a restart and applications cannot read secrets.",
+    "The Consul cluster keeps losing its leader and services flap between healthy and critical.",
+    "Istio sidecar injection does not happen for pods in our new namespace.",
+    "Prometheus TSDB compaction fails and the disk usage of the data directory explodes.",
+    "Azure Functions have very long cold starts after we moved to the consumption plan.",
+    "A Ceph OSD is marked down and the cluster health shows degraded placement groups.",
+    "Our ZFS pool reports a degraded state after a disk replacement.",
+    "VMware vMotion of a virtual machine fails at 20 percent with a network error.",
+    "The Android Gradle build fails with a duplicate class error after updating a library.",
+    "Xcode code signing fails on the build server with a provisioning profile error.",
+    "Our Jenkins agent shows as offline right after it connects to the controller.",
+    "Memcached hit ratio dropped to 10 percent after we added two nodes.",
+    "The Hadoop NameNode stays in safe mode after the cluster restart."
+  ]
+}

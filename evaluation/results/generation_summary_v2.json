@@ -1,0 +1,40 @@
+{
+  "date": "2026-11-05 17:58",
+  "tag": "v2",
+  "analyzer_model": "openai/gpt-oss-120b",
+  "investigator_model": "openai/gpt-oss-120b",
+  "judge": "qwen/qwen3.8-27b",
+  "evidence_rule": ">= 3 passages with reranker score >= -2.86",
+  "questions_scored": 53,
+  "questions_total": 53,
+  "status_counts": {
+    "ok": 39,
+    "insufficient_evidence": 12,
+    "needs_clarification": 2
+  },
+  "mean_seconds_per_question": 20.1,
+  "correctness": {
+    "mean": 0.8949,
+    "n": 46
+  },
+  "faithfulness": {
+    "mean": 0.6791,
+    "n": 47
+  },
+  "context_relevance": {
+    "mean": 0.6601,
+    "n": 51
+  },
+  "citation_validity": {
+    "mean": 1.0,
+    "n": 47
+  },
+  "source_match": {
+    "mean": 0.9074,
+    "n": 45
+  },
+  "abstention": {
+    "mean": 1.0,
+    "n": 5
+  }
+}

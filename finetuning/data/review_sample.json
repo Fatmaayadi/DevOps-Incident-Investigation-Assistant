@@ -1,0 +1,361 @@
+{
+  "summary": {
+    "reviewer": "Claude (AI assistant used by the team) - to be confirmed by a team member",
+    "reviewed": 50,
+    "correct": 34,
+    "main_problem": "pairs built on 'Related Concepts' sections (link lists) and on index/front-matter pages",
+    "correct_rate": 0.68
+  },
+  "pairs": [
+    {
+      "question": "I keep getting a connection refused error when trying to reach my API, but the logs show the server is up. What could be wrong?",
+      "passage": "Connection Refused vs Connection Timed Out > Related Concepts\n- **DNS before TCP**: see `md-net-dns-resolution-failure`.\n- **HTTP errors from proxies when the upstream refuses or times out**: see `md-net-http-502-503-504`.\n- **TLS errors after the TCP connection succeeds**: see `md-net-tls-certificate-errors`.\n- **AWS-specific checks** (security groups, network ACLs, internet gateway): see `md-aws-ec2-unreachable`.",
+      "chunk_id": "md-net-connection-refused-timeout#9",
+      "verdict": "incorrect",
+      "comment": "passage is a Related Concepts link list"
+    },
+    {
+      "question": "Why does my Docker client complain about permission denied on ~/.docker/config.json after using sudo docker?",
+      "passage": "Docker: permission denied on the daemon socket / Cannot connect to the Docker daemon > Possible Causes\n| Cause | Explanation |\n|---|---|\n| **User not in the `docker` group** | Only root, or members of `docker`, can use the socket [R1] |\n| **Group membership not yet applied** | After `usermod`, you must \"log out and log back in so that your group membership is re-evaluated\", or use `newgrp docker`. In a VM, a restart may be needed [R1] |\n| **Daemon not running** | Start it and try again [R2] |\n| **`DOCKER_HOST` points to another daemon** | If `DOCKER_HOST` is set, the client connects to that host; if it is set by mistake, unset it [R2] |\n| **Remote daemon unreachable** | Firewall or network outage between the client and the remote host [R2] |\n| **`~/.docker` owned by root** | Caused by earlier use of `sudo docker` [R1] |",
+      "chunk_id": "md-docker-daemon-permission-denied#2",
+      "verdict": "correct",
+      "comment": ""
+    },
+    {
+      "question": "I’m trying to set up a sidecar pattern for a Spring Boot service but I’m confused about the controller and adapter roles.",
+      "passage": "security of, 155\nsimilarities to ConfigMaps, 151\nvalue encoding for, 152\nSelf Awareness, 117-121, 138, 180\nAdapter, 138\nController, 180\nService Discovery, 7, 81, 99-115\nSingleton Service, 81\nservice meshes, 210, 219, 222, 230\nServices\nautoscaling (see Elastic Scale)\nbasics of, 7\ncapacity planning, 16\ncontroller for exposing, 179\ndiscovery (see Service Discovery)\nshell script-based controller, 183\nSidecar, 4, 6, 128, 131-134, 135, 139, 230\nAdapter, 135\nAmbassador, 139\nImage Builder, 230\nInit Container, 128\nSIGKILL signal, 42\nSIGTERM signal, 42\nSingleton Service, 21, 79-86, 96, 177\nController, 177\nPredictable Demands, 21\nStateful Service, 96\nSource-to-Image (S2I), 225-229, 234\nSpring Boot, 148, 153\nstate reconciliation, 176\nStateful Service, 81, 82, 87-97, 110, 205\nElastic Scale, 205\nService Discovery, 110\nSingleton Service, 81, 82\nstatic pods mechanism, 76\nStrimzi operator, 201\nsystem maintenance, 69\nT\ntaints and tolerations, 54, 58\nTekton Pipelines, 230\nTiller, 166",
+      "chunk_id": "pdf-o-reilly-kubernetes-patterns#554",
+      "verdict": "incorrect",
+      "comment": "passage is a book index page"
+    },
+    {
+      "question": "I ran git log -g and got a list of reflog entries, but I can’t find the commit I just reverted to—how to interpret the output?",
+      "passage": "To see reflog information formatted like the git log output, you can run git log -g:\n$ git log -g master\ncommit 734713bc047d87bf7eac9674765ae793478c50d3\nReflog: master@{0} (Scott Chacon <schacon@gmail.com>)\nReflog message: commit: Fix refs handling, add gc auto, update tests\nAuthor: Scott Chacon <schacon@gmail.com>\nDate: Fri Jan 2 18:32:33 2009 -0800\n Fix refs handling, add gc auto, update tests\ncommit d921970aadf03b3cf0e71becdaab3147ba71cdef\nReflog: master@{1} (Scott Chacon <schacon@gmail.com>)\nReflog message: merge phedders/rdocs: Merge made by recursive.\nAuthor: Scott Chacon <schacon@gmail.com>\nDate: Thu Dec 11 15:08:43 2008 -0800\n Merge commit 'phedders/rdocs'\nIt’s important to note that reflog information is strictly local — it’s a log only of what you’ve done in\nyour repository. The references won’t be the same on someone else’s copy of the repository; also,\nright after you initially clone a repository, you’ll have an empty reflog, as no activity has occurred",
+      "chunk_id": "pdf-progit#469",
+      "verdict": "correct",
+      "comment": ""
+    },
+    {
+      "question": "I’m trying to clone a repo from a corporate server but SSH keys aren’t set up; what’s the easiest way to pull over HTTPS?",
+      "passage": "with a username and password is also a big advantage over SSH, since users don’t have to generate\nSSH keys locally and upload their public key to the server before being able to interact with it. For\nless sophisticated users, or users on systems where SSH is less common, this is a major advantage in\nusability. It is also a very fast and efficient protocol, similar to the SSH one.\nYou can also serve your repositories read-only over HTTPS, which means you can encrypt the\ncontent transfer; or you can go so far as to make the clients use specific signed SSL certificates.\nAnother nice thing is that HTTP and HTTPS are such commonly used protocols that corporate\nfirewalls are often set up to allow traffic through their ports.\nThe Cons\nGit over HTTPS can be a little more tricky to set up compared to SSH on some servers. Other than\nthat, there is very little advantage that other protocols have over Smart HTTP for serving Git\ncontent.",
+      "chunk_id": "pdf-progit#229",
+      "verdict": "correct",
+      "comment": ""
+    },
+    {
+      "question": "The certificate shows as expired in openssl but my app still connects. Why is that?",
+      "passage": "TLS Handshake and Certificate Verification Errors > Interpretation of Results\n| Observation | Meaning | Next step |\n|---|---|---|\n| curl error 60, and the issuer is your company's CA | The client does not trust that CA [R1, R2] | Add the CA to the client trust store, or use `--cacert` [R1] |\n| `-showcerts` shows only the leaf certificate | The server may not send its intermediate certificates (team inference) | Configure the full chain on the server |\n| `notAfter` is in the past | Certificate expired [R4] | Renew and deploy the certificate |\n| The URL name is absent from `subjectAltName` | Hostname mismatch [R1, R6] | Use a covered name, or reissue the certificate |\n| Different certificate with and without `-servername` | SNI-based selection on the server (team inference) | Make sure clients send the right name |\n| Docker registry error only on one host | That host lacks the CA in `certs.d` [R5] | Install `ca.crt` in the registry's directory |",
+      "chunk_id": "md-net-tls-certificate-errors#6",
+      "verdict": "incorrect",
+      "comment": "question premise not addressed by passage"
+    },
+    {
+      "question": "What could cause a service to start but not be reachable on the network?",
+      "passage": "systemd Service Fails to Start or Keeps Failing > Related Concepts\n- **Disk full preventing a service from writing**: see `md-linux-disk-full`.\n- **The same \"process exits, supervisor restarts it\" pattern in containers**: see `md-docker-container-exits` and `md-k8s-crashloopbackoff`.\n- **Service running but not reachable**: see `md-net-connection-refused-timeout`.",
+      "chunk_id": "md-linux-systemd-service-failure#10",
+      "verdict": "incorrect",
+      "comment": "passage is a Related Concepts link list"
+    },
+    {
+      "question": "I’m seeing my secrets appear on the node’s disk and I’m worried about security—how are Kubernetes secrets actually protected?",
+      "passage": "files, you can also individually select every key that should be exposed and the file‐\nname under which it should be available. Refer to the ConfigMap documentation for\nmore details.\nHow Secure Are Secrets?\nSecrets hold Base64-encoded data, and decode it prior passing it to a Pod either as\nenvironment variables or mounted volume. This is very often confused as a security\nfeature. Base64 encoding is not an encryption method, and from a security perspec‐\ntive, it is considered the same as plain text. Base64 encoding in Secrets allows storing\nbinary data, so why are Secrets considered more secure than ConfigMaps? There are a\nnumber of other implementation details of Secrets that make them secure. Constant\nimprovements are occurring in this area, but the main implementation details cur‐\nrently are as follows:\n• A Secret is distributed only to nodes running Pods that need access to the Secret.\n• On the nodes, Secrets are stored in memory in a tmpfs and never written to",
+      "chunk_id": "pdf-o-reilly-kubernetes-patterns#355",
+      "verdict": "correct",
+      "comment": ""
+    },
+    {
+      "question": "A pod with a PersistentVolumeClaim is Pending forever; how can I check if the claim is bound?",
+      "passage": "Kubernetes Pod Stuck in Pending (FailedScheduling) > Investigation Steps\n1. **Read the scheduler message.** `kubectl describe pod` lists the events; the `FailedScheduling` message says why each node was rejected [R1, R2].\n2. **If the message mentions insufficient resources**, compare the Pod's requests with the nodes' **allocatable** resources and the requests already allocated on each node [R3].\n3. **If no resource is mentioned**, check the Pod's `nodeSelector`, affinity rules and tolerations against the node labels and taints [R4, R5].\n4. **Check `hostPort`** usage and the number of replicas compared with the number of nodes [R1].\n5. **Check the PersistentVolumeClaims** used by the Pod: are they `Bound`? [R6]\n6. **Look at all recent events of the namespace.** Events are namespaced, so pass the namespace explicitly [R2].",
+      "chunk_id": "md-k8s-pod-pending-failedscheduling#4",
+      "verdict": "correct",
+      "comment": ""
+    },
+    {
+      "question": "I’m deploying a new container image in Kubernetes but I’m not sure how to safely roll it out to a few users first before full deployment.",
+      "passage": "U/OO/168286-21 | PP-22-0324 | August 2022 Ver. 1.2 iv \nFor additional security hardening guidance, see the Center for Internet Security \nKubernetes benchmarks, the Docker and Kubernetes Security Technical \nImplementation Guides, the Cybersecurity and Infrastructure Security Agency (CISA) \nanalysis report, and Kubernetes documentation [1], [2], [3], [6].",
+      "chunk_id": "pdf-ctr-kubernetes-hardening-guidance-1-2-20220829#7",
+      "verdict": "incorrect",
+      "comment": "passage is the document front matter"
+    },
+    {
+      "question": "I can curl the app on the host but nothing works from another machine, and containers can't talk to each other by name.",
+      "passage": "Docker Networking: published port not reachable, containers cannot reach each other, DNS in containers > Overview\nOn a Docker host, each container on a bridge network has its own network namespace and IP address. Three rules explain most networking incidents: \n1. **Ports are private unless published.** \"All ports of containers on bridge networks are accessible from the Docker host and other containers connected to the same network. Ports are not accessible from outside the host\" unless they are published with `-p`/`--publish` [R1]. For example, `-p 8080:80` maps port 8080 on the host to port 80 in the container [R1].\n2. **Name resolution between containers needs a user-defined network.** \"User-defined bridges provide automatic DNS resolution between containers\". On the default bridge, containers can only reach each other by IP address, unless the legacy `--link` option is used [R2].\n3. **`127.0.0.1` inside a container is the container itself.** A container \"uses its own network namespace, and resolves loopback addresses such as `127.0.0.1` to itself\" [R4].",
+      "chunk_id": "md-docker-networking-ports#0",
+      "verdict": "correct",
+      "comment": ""
+    },
+    {
+      "question": "I keep getting 'permission denied' when I try to run docker commands as a normal user, even though I'm in the docker group.",
+      "passage": "Docker: permission denied on the daemon socket / Cannot connect to the Docker daemon > Prevention\n- Treat membership of the `docker` group as administrative access. The documentation warns that \"the `docker` group grants root-level privileges to the user\" [R1], and that \"only trusted users should be allowed to control your Docker daemon\" [R3].\n- Do not make the socket world-writable as a shortcut (team recommendation, consistent with [R1, R3]).\n- Use rootless mode, or an on-demand Docker-enabled shell, for single-user workstations where ambient access to the socket should be limited [R1, R4].",
+      "chunk_id": "md-docker-daemon-permission-denied#7",
+      "verdict": "incorrect",
+      "comment": "passage (Prevention) does not answer"
+    },
+    {
+      "question": "Which commands should I run to find out which process is holding onto a deleted file and consuming disk space?",
+      "passage": "Linux Disk Full: No space left on device > Diagnostic Commands\n```shell\n# Usage per filesystem, human-readable, with filesystem type\ndf -h -T\n\n# Inode usage per filesystem\ndf -i\n\n# Biggest directories under /var, staying on the same filesystem, one level deep\nsudo du -x -h --max-depth=1 /var | sort -h\n\n# Total size of a directory\ndu -s -h /var/log\n\n# Deleted files still held open by a process\nsudo lsof +L1\n\n# Disk space used by the systemd journal\njournalctl --disk-usage\n``` \nSources: `df -h`, `-i`, `-T` [R2]; `du -x`, `-h`, `--max-depth`, `-s` [R3]; `lsof +L1` [R5]; `journalctl --disk-usage` [R6]. Piping `du` into `sort -h` is a team addition to rank the results.",
+      "chunk_id": "md-linux-disk-full#4",
+      "verdict": "correct",
+      "comment": ""
+    },
+    {
+      "question": "I want to run a pod only on nodes that have a specific label, but I’m not sure how to enforce that. How can I restrict scheduling to those nodes?",
+      "passage": "nodeName\nThe simplest form of hardwiring a Pod to a node. This field should ideally be\npopulated by the scheduler, which is driven by policies rather than manual node\nassignment. Assigning a Pod to a node limits greatly where a Pod can be sched‐\nuled. This throws us back in to the pre-Kubernetes era when we explicitly speci‐\nfied the nodes to run our applications.\nnodeSelector\nSpecification of a map of key-value pairs. For the Pod to be eligible to run on a\nnode, the Pod must have the indicated key-value pairs as the label on the node.\nHaving put some meaningful labels on the Pod and the node (which you should\ndo anyway), a node selector is one of the simplest acceptable mechanisms for\ncontrolling the scheduler choices.\nDefault scheduling alteration\nThe default scheduler is responsible for the placement of new Pods onto nodes\nwithin the cluster, and it does it reasonably. However, it is possible to alter the",
+      "chunk_id": "pdf-o-reilly-kubernetes-patterns#162",
+      "verdict": "correct",
+      "comment": ""
+    },
+    {
+      "question": "I want to package immutable configuration data with my application; what's a good way to do that?",
+      "passage": "itself. Immutability here means that we can’t change the configuration after the appli‐\ncation has started, in order to ensure that we always have a well-defined state for our\nconfiguration data. In addition, Immutable Configuration can be put under version\ncontrol, and follow a change control process.\nSolution\nTo address the preceding concerns, we can put all environment-specific configuration\ndata into a single, passive data image that we can distribute as a regular container\nimage. During runtime, the application and the data image are linked together so that\nthe application can extract the configuration from the data image. With this\napproach, it is easy to craft different configuration data images for various environ‐\n157",
+      "chunk_id": "pdf-o-reilly-kubernetes-patterns#362",
+      "verdict": "correct",
+      "comment": ""
+    },
+    {
+      "question": "My NodePort service shows client IPs as the node's IP instead of the real client IP, how can I preserve the original source address?",
+      "passage": "netes to pick a Pod on the node where the connection was opened by adding\nexternalTrafficPolicy: Local to the Service definition. When this option is\nset, Kubernetes does not allow connecting to Pods located on other nodes, which\ncan be an issue. To resolve that, you have to either make sure there are Pods\nplaced on every node (e.g., by using Daemon Services ), or make sure the client\nknows which nodes have healthy Pods placed on them.\nSource addresses\nThere are some peculiarities around the source addresses of packets sent to dif‐\nferent types of Services. Specifically, when we use type NodePort, client addresses\nare source NAT’ d, which means the source IP addresses of the network packets\ncontaining the client IP address are replaced with the node’s internal addresses.\nFor example, when a client application sends a packet to node 1, it replaces the\nsource address with its node address and replaces the destination address with",
+      "chunk_id": "pdf-o-reilly-kubernetes-patterns#271",
+      "verdict": "correct",
+      "comment": ""
+    },
+    {
+      "question": "My user is in the docker group but still can’t run docker commands. What might be missing?",
+      "passage": "Docker: permission denied on the daemon socket / Cannot connect to the Docker daemon > Diagnostic Commands\n```shell\n# Does the client reach a daemon?\ndocker info\n\n# Is the daemon service active? (systemd hosts)\nsudo systemctl is-active docker\n\n# Which daemon is the client configured to use?\nenv | grep DOCKER_HOST\n\n# Groups of the current user in this session\nid\n\n# Is dockerd running?\nps aux | grep dockerd\n``` \nSources: `docker info`, `systemctl is-active docker`, `env | grep DOCKER_HOST`, checking the `dockerd` process with `ps` [R2]. `id` is a standard Linux command added by the team to display the session's groups.",
+      "chunk_id": "md-docker-daemon-permission-denied#4",
+      "verdict": "correct",
+      "comment": ""
+    },
+    {
+      "question": "I need to expose multiple services on the same external IP using a single load balancer; how do I configure an Ingress to route paths to different services?",
+      "passage": "implementation, this definition allocates an externally accessible IP address and\nexposes the random-generator Service on port 80. But this is not very different from\na Service with type: LoadBalancer, which requires an external IP address per Ser‐\nvice definition. The real power of Ingress comes from reusing a single external load\nbalancer and IP to service multiple Services and reduce the infrastructure costs.\nA simple fan-out configuration for routing a single IP address to multiple Services\nbased on HTTP URI paths looks like Example 12-9.\nExample 12-9. An Ingress definition with mappings\napiVersion: networking.k8s.io/v1beta1\nkind: Ingress\nmetadata:\n name: random-generator\n annotations:\n nginx.ingress.kubernetes.io/rewrite-target: /\nspec:\n rules: \n - http:\n paths:\n - path: / \n backend:\n serviceName: random-generator\n servicePort: 8080\nSolution | 111",
+      "chunk_id": "pdf-o-reilly-kubernetes-patterns#277",
+      "verdict": "correct",
+      "comment": ""
+    },
+    {
+      "question": "I removed some pods but the replica count is still higher than desired; how can I bring the number of replicas back down?",
+      "passage": "bring the numbers back to the desired replicas count. Removing duplicates on\nnodes can also help with the spread of Pods evenly on more nodes when schedul‐\ning policies and cluster topology have changed after the initial placement.\n56 | Chapter 6: Automated Placement",
+      "chunk_id": "pdf-o-reilly-kubernetes-patterns#158",
+      "verdict": "correct",
+      "comment": ""
+    },
+    {
+      "question": "I need to copy a configuration file into a shared volume when a pod starts, but my init container isn’t getting the file. How can I set up an init container to copy the file correctly?",
+      "passage": "for the base image, which is still small but allows us to use plain Unix cp command\nfor this task.\nSo how does the initialization of shared volumes with configuration work under the\nhood? Let’s have a look at an example. First, we need to create a configuration image\nagain with a Dockerfile, as in Example 20-5.\nExample 20-5. Development configuration image\nFROM busybox\nADD dev.properties /config-src/demo.properties\nENTRYPOINT [ \"sh\", \"-c\", \"cp /config-src/* $1\", \"--\" ] \nUsing a shell here in order to resolve wildcards\nThe only difference from the vanilla Docker case in Example 20-1 is that we have a\ndifferent base image and we add an ENTRYPOINT that copies the properties file to the\ndirectory given as an argument when Docker image starts. This image can now be\nreferenced in an init container within a Deployment’s .template.spec (see\nExample 20-6).\nExample 20-6. Deployment that copies configuration to destination in init container\ninitContainers:\n- image: k8spatterns/config-dev:1",
+      "chunk_id": "pdf-o-reilly-kubernetes-patterns#368",
+      "verdict": "correct",
+      "comment": ""
+    },
+    {
+      "question": "I’m deploying a DaemonSet for Fluentd but I’m not sure how to ensure it runs on every node. What spec do I need to include?",
+      "passage": "Example 11-1. fluentd.yaml\napiVersion: extensions/v1beta1\nkind: DaemonSet\nmetadata:\n name: fluentd\n labels:\n app: fluentd\nspec:\n template:\n metadata:\n labels:\n app: fluentd\n spec:\n containers:\n - name: fluentd\n image: fluent/fluentd:v0.14.10\n resources:\n limits:\n memory: 200Mi\n requests:\n cpu: 100m\n memory: 200Mi\n volumeMounts:\n - name: varlog\n mountPath: /var/log\n - name: varlibdockercontainers\n mountPath: /var/lib/docker/containers\n readOnly: true\n terminationGracePeriodSeconds: 30\n volumes:\n - name: varlog\n hostPath:\n path: /var/log\n - name: varlibdockercontainers\n hostPath:\n path: /var/lib/docker/containers\nDaemonSets require a unique name across all DaemonSets in a given Kubernetes\nnamespace. Each DaemonSet must include a Pod template spec, which will be used to\ncreate Pods as needed. This is where the similarities between ReplicaSets and Dae‐\nmonSets end. Unlike ReplicaSets, DaemonSets will create Pods on every node in the\ncluster by default unless a node selector is used.",
+      "chunk_id": "pdf-o-reilly-kubernetes-up-and-running#329",
+      "verdict": "correct",
+      "comment": ""
+    },
+    {
+      "question": "My Kubernetes cluster is running out of nodes during a CI pipeline run, and I see the cluster autoscaler kicking in—how can I tune the autoscaler to avoid over‑provisioning?",
+      "passage": "Figure 24-3 summarizes how the CA interacts with cloud providers and Kubernetes\nfor scaling out cluster nodes.\nFigure 24-3. Cluster autoscaling mechanism\nAs you probably figured out by now, scaling Pods and nodes are decoupled but com‐\nplementary procedures. An HPA or VPA can analyze usage metrics, events, and scale\nPods. If the cluster capacity is insufficient, the CA kicks in and increases the capacity.\nThe CA is also helpful when there are irregularities in the cluster load due to batch\nJobs, recurring tasks, continuous integration tests, or other peak tasks that require a\ntemporary increase in the capacity. It can increase and reduce capacity and provide\nsignificant savings on cloud infrastructure costs.\nScaling Levels\nIn this chapter, we explored various techniques for scaling deployed workloads to\nmeet their changing resource needs. While a human operator can manually perform\nmost of the activities listed here, that doesn’t align with the cloud-native mindset. In",
+      "chunk_id": "pdf-o-reilly-kubernetes-patterns#493",
+      "verdict": "correct",
+      "comment": ""
+    },
+    {
+      "question": "During a merge I accidentally added some files and now I want to abort the merge and revert to the pre-merge state. What git command will do that?",
+      "passage": "We use git reset --hard to abort a merge in Aborting a Merge , where we also use git merge\n--abort, which is a bit of a wrapper for the git reset command.\ngit rm\nThe git rm command is used to remove files from the staging area and working directory for Git. It\nis similar to git add in that it stages a removal of a file for the next commit.\nWe cover the git rm command in some detail in Removing Files, including recursively removing\nfiles and only removing files from the staging area but leaving them in the working directory with\n--cached.\nThe only other differing use of git rm in the book is in Removing Objects where we briefly use and\nexplain the --ignore-unmatch when running git filter-branch, which simply makes it not error out\nwhen the file we are trying to remove doesn’t exist. This can be useful for scripting purposes.\ngit mv\nThe git mv command is a thin convenience command to move a file and then run git add on the\nnew file and git rm on the old file.",
+      "chunk_id": "pdf-progit#1085",
+      "verdict": "correct",
+      "comment": ""
+    },
+    {
+      "question": "I keep getting UNREACHABLE when I run my playbook, and the debug output says 'Permission denied (publickey)'. What could be wrong with my SSH key setup?",
+      "passage": "Ansible: host UNREACHABLE, SSH authentication failures and privilege escalation (become) problems > Diagnostic Commands\n```shell\n# Hosts and groups as Ansible sees them, and the variables of one host\nansible-inventory -i inventory.ini --graph\nansible-inventory -i inventory.ini --host web1\n\n# Connection + Python test on a group (expect \"ping\": \"pong\")\nansible myhosts -m ping -i inventory.ini\n\n# Same test with connection debugging and an explicit user and key\nansible web1 -m ping -i inventory.ini -u admin --private-key ~/.ssh/deploy_key -vvvv\n\n# Load an encrypted key into ssh-agent before running Ansible\nssh-agent bash\nssh-add ~/.ssh/id_rsa\n\n# Playbook that needs a sudo password\nansible-playbook -i inventory.ini site.yml -K\n``` \nSources: `ansible-inventory --graph/--host` [R5]; `ansible myhosts -m ping -i inventory.ini` [R10]; `-u`, `--private-key`, `-v` levels [R4]; `ssh-agent`/`ssh-add` [R1]; `-K` [R2].",
+      "chunk_id": "md-ansible-unreachable-become#6",
+      "verdict": "correct",
+      "comment": ""
+    },
+    {
+      "question": "My Terraform plan keeps failing with a state lock error; how can I determine if another process is holding the lock?",
+      "passage": "Terraform init Errors: backend configuration changed, provider installation and dependency lock file > Related Concepts\n- **State locking errors during plan/apply**: see `md-terraform-state-lock`.\n- **AWS permissions for remote state**: see `md-aws-iam-access-denied`.",
+      "chunk_id": "md-terraform-init-errors#10",
+      "verdict": "incorrect",
+      "comment": "passage is a Related Concepts link list"
+    },
+    {
+      "question": "I need a way to run a single instance of my app on each node so that a monitoring agent is present everywhere, but I’m not sure how to enforce that in Kubernetes.",
+      "passage": "also favors consistency over availability and provides the desired strict singleton\nguarantees is the StatefulSet. If ReplicaSets do not provide the desired guarantees for\nyour application, and you have strict singleton requirements, StatefulSets might be\nthe answer. StatefulSets are intended for stateful applications and offer many features,\nincluding stronger singleton guarantees, but they come with increased complexity as\nwell. We discuss concerns around singletons and cover StatefulSets in more detail in\nChapter 11, Stateful Service.\nTypically, singleton applications running in Pods on Kubernetes open outgoing con‐\nnections to message brokers, relational databases, file servers, or other systems run‐\nning on other Pods or external systems. However, occasionally, your singleton Pod\nmay need to accept incoming connections, and the way to enable that on Kubernetes\nis through the Service resource.\nWe cover Kubernetes Services in depth in Chapter 12, Service Discovery, but let’s dis‐",
+      "chunk_id": "pdf-o-reilly-kubernetes-patterns#207",
+      "verdict": "incorrect",
+      "comment": "question asks for DaemonSet, passage is about StatefulSet singletons"
+    },
+    {
+      "question": "When I run `terraform init` it stops after I changed the backend block—what flags do I need to use?",
+      "passage": "Terraform init Errors: backend configuration changed, provider installation and dependency lock file > Overview\n`terraform init` \"initializes a working directory containing Terraform configuration files\". It is the first command to run after writing or cloning a configuration, and \"it is safe to run this command multiple times\" [R1]. It performs three main tasks [R1]: \n1. **Backend initialization**: configure where the state is stored.\n2. **Child module installation**: download the modules referenced in the configuration.\n3. **Plugin installation**: download the providers and record them in the dependency lock file. \nMost `init` failures belong to one of these steps. The command \"will never delete your existing configuration or state\" [R1], so it can be rerun safely while you investigate.",
+      "chunk_id": "md-terraform-init-errors#0",
+      "verdict": "correct",
+      "comment": ""
+    },
+    {
+      "question": "How can I use count indexes in Terraform to assign different private IPs to instances?",
+      "passage": "Setting values with count indexes\nWe can also use the count to allow us to specify different values for an attribute\nfor each iteration of a resource. We do this by referring to the index of a count in\na variable.\nLet’s take a look at how this works. We start by declaring a list variable with a\nvalue for each iteration.\nListing 3.65: Using count indexes in variables.tf\nvariable \"instance_ips\" {\ndescription = \"The IPs to use for our instances\"\ndefault = [\"10.0.1.20\", \"10.0.1.21\" ]\nWe’ve defined a new list variable called instance_ips that contains two IP addresses in our VPC subnet. We’re going to match the index of the count with the\nrelevant element of the list.\nListing 3.66: Looking up the count index\nresource \"aws_instance\" \"web\" {\n. . .\nprivate_ip = var.instance_ips[count.index]\n. . .\ncount = length(var.instance_ips)\nYou can see we’ve updated our aws_instance.web resource to add the private_ip\nVersion: v1.5.0 (0beb4ee) 55",
+      "chunk_id": "pdf-terraform#68",
+      "verdict": "correct",
+      "comment": ""
+    },
+    {
+      "question": "My Git push to a remote fails with a 401 Unauthorized, but my credentials seem correct—what could be causing this?",
+      "passage": "error: Repository lacks these prerequisite commits:\nerror: 7011d3d8fc200abe0ad561c011c3852a4b7bbe95 Third commit - second repo\nHowever, our first bundle is valid, so we can fetch in commits from it. If you want to see what\nbranches are in the bundle that can be imported, there is also a command to just list the heads:\n$ git bundle list-heads ../commits.bundle\n71b84daaf49abed142a373b6e5c59a22dc6560dc refs/heads/master\nThe verify sub-command will tell you the heads as well. The point is to see what can be pulled in, so\nyou can use the fetch or pull commands to import commits from this bundle. Here we’ll fetch the\nmaster branch of the bundle to a branch named other-master in our repository:\n$ git fetch ../commits.bundle master:other-master\nFrom ../commits.bundle\n * [new branch] master -> other-master\nNow we can see that we have the imported commits on the other-master branch as well as any\ncommits we’ve done in the meantime in our own master branch.",
+      "chunk_id": "pdf-progit#681",
+      "verdict": "incorrect",
+      "comment": "question (401 on push) unrelated to passage (bundle error)"
+    },
+    {
+      "question": "How can I determine if my Kubernetes node is under DiskPressure due to inode exhaustion?",
+      "passage": "Linux Disk Full: No space left on device > Investigation Steps\n1. **Identify the full filesystem** and its mount point with `df -h`. Add `-T` to see the filesystem type [R2].\n2. **Check inodes** on the same filesystem with `df -i` [R2].\n3. **Find what uses the space**, one level at a time, without crossing into other filesystems: `du -x` with `--max-depth` and human-readable sizes [R3].\n4. **Look for deleted files that are still open** with `lsof +L1`, which selects \"open files that have been unlinked\" [R5].\n5. **Check the system journal size** with `journalctl --disk-usage` [R6].\n6. **Find the writer**: which service writes there, and since when? Correlate with recent deployments or configuration changes (team recommendation).",
+      "chunk_id": "md-linux-disk-full#3",
+      "verdict": "correct",
+      "comment": ""
+    },
+    {
+      "question": "I need to change the author email on all past commits in my repository. What's the safest way to rewrite the history?",
+      "passage": "GIT_AUTHOR_EMAIL=\"schacon@example.com\";\n git commit-tree \"$@\";\n else\n git commit-tree \"$@\";\n fi' HEAD\nThis goes through and rewrites every commit to have your new address. Because commits contain\nthe SHA-1 values of their parents, this command changes every commit SHA-1 in your history, not\njust those that have the matching email address.\nReset Demystified\nBefore moving on to more specialized tools, let’s talk about the Git reset and checkout commands.\nThese commands are two of the most confusing parts of Git when you first encounter them. They\ndo so many things that it seems hopeless to actually understand them and employ them properly.\nFor this, we recommend a simple metaphor.\nThe Three Trees\nAn easier way to think about reset and checkout is through the mental frame of Git being a content\nmanager of three different trees. By “tree” here, we really mean “collection of files”, not specifically",
+      "chunk_id": "pdf-progit#542",
+      "verdict": "correct",
+      "comment": ""
+    },
+    {
+      "question": "I keep getting 'systemd: unit failed' errors and the service keeps restarting until it stops. What logs should I check to diagnose the issue?",
+      "passage": "Linux Disk Full: No space left on device > Related Concepts\n- **Services that fail to start because they cannot write**: see `md-linux-systemd-service-failure`.\n- **Kubernetes node disk pressure and eviction**: see `md-k8s-oomkilled-resource-limits` for the memory counterpart, and [R7].",
+      "chunk_id": "md-linux-disk-full#8",
+      "verdict": "incorrect",
+      "comment": "passage is a Related Concepts link list"
+    },
+    {
+      "question": "Why does my pre-rebase hook not stop the rebase even though it exits non-zero?",
+      "passage": "You can’t stop the patching process with this script.\nOther Client Hooks\nThe pre-rebase hook runs before you rebase anything and can halt the process by exiting non-zero.\nYou can use this hook to disallow rebasing any commits that have already been pushed. The\nexample pre-rebase hook that Git installs does this, although it makes some assumptions that may\nnot match with your workflow.\nThe post-rewrite hook is run by commands that replace commits, such as git commit --amend and\ngit rebase (though not by git filter-branch). Its single argument is which command triggered the\nrewrite, and it receives a list of rewrites on stdin. This hook has many of the same uses as the postcheckout and post-merge hooks.\nAfter you run a successful git checkout, the post-checkout hook runs; you can use it to set up your\nworking directory properly for your project environment. This may mean moving in large binary\nfiles that you don’t want source controlled, auto-generating documentation, or something along",
+      "chunk_id": "pdf-progit#761",
+      "verdict": "incorrect",
+      "comment": "question contradicts the passage"
+    },
+    {
+      "question": "I have sensitive config data that I’m currently putting into environment variables, but I’m worried about leaks—what’s a safer alternative?",
+      "passage": "independently from the Pod definition. Secret and ConfigMap and their pros and\ncons are explained in detail in Chapter 19, Configuration Resource.\nIn the preceding example, the SEED variable comes from a Secret resource. While that\nis a perfectly valid use of Secret, it is also important to point out that environment\nvariables are not secure. Putting sensitive, readable information into environment\nvariables makes this information easy to read, and it may even leak into logs.\nSolution | 147",
+      "chunk_id": "pdf-o-reilly-kubernetes-patterns#340",
+      "verdict": "correct",
+      "comment": ""
+    },
+    {
+      "question": "I lost a commit and need to recover it—how can I create a branch at the lost commit?",
+      "passage": "Modify repo.rb a bit\nIt looks like the bottom commit is the one you lost, so you can recover it by creating a new branch\nat that commit. For example, you can start a branch named recover-branch at that commit (ab1afef):\n$ git branch recover-branch ab1afef\n$ git log --pretty=oneline recover-branch\nab1afef80fac8e34258ff41fc1b867c702daa24b Modify repo.rb a bit\n484a59275031909e19aadb7c92262719cfcdf19a Create repo.rb\n1a410efbd13591db07496601ebc7a059dd55cfe9 Third commit\n442",
+      "chunk_id": "pdf-progit#980",
+      "verdict": "correct",
+      "comment": ""
+    },
+    {
+      "question": "When I try to push, I get 'Permission denied (publickey)'—my SSH key seems fine but it still fails.",
+      "passage": "Git push rejected: non-fast-forward, protected branch, or Permission denied (publickey) > Symptoms\n- Non-fast-forward [R2]: \n```text\n! [rejected] main -> main (non-fast-forward)\nerror: failed to push some refs to '…'\nTo prevent you from losing history, non-fast-forward updates were rejected\n``` \n- Server-side refusal: the status `remote rejected` [R1].\n- SSH: `Permission denied (publickey).` when pushing, or when testing with `ssh -T` [R4].",
+      "chunk_id": "md-git-push-rejected-ssh#2",
+      "verdict": "correct",
+      "comment": ""
+    },
+    {
+      "question": "My multi-host Kubernetes cluster keeps dropping pods—could this be a networking or data locality issue?",
+      "passage": "between different hosts. Both performance considerations and security\naspects will likely influence your design decisions. Multi-host deployments\nusually become necessary either when the capacity of a single host is insuffi‐\ncient, for resilience reasons, or when one wants to employ distributed sys‐\ntems such as Apache Spark or Apache Kafka.\nDistributed Systems and Data Locality\nThe basic idea behind using a distributed system (for computation or storage) is\nto benefit from parallel processing, usually together with data locality. By data\nlocality I mean the principle of shipping the code to where the data is rather than\nthe (traditional) other way around.\n6 | Chapter 2: Introduction to Container Networking",
+      "chunk_id": "pdf-container-networking-docker-kubernetes#25",
+      "verdict": "incorrect",
+      "comment": "question too vague for the passage"
+    },
+    {
+      "question": "I need to move a large GitHub repo to a new organization and want to ensure all clones and fetches still work after the move.",
+      "passage": "is getting bigger and want to move it into an organization.\nNot only does this move the repository along with all its watchers and stars to another place, it also\nsets up a redirect from your URL to the new place. It will also redirect clones and fetches from Git,\nnot just web requests.\n204",
+      "chunk_id": "pdf-progit#436",
+      "verdict": "correct",
+      "comment": ""
+    },
+    {
+      "question": "I keep getting 502/503/504 errors after a deployment; how can I tell if the load balancer or the backend is at fault?",
+      "passage": "DNS Resolution Failure (application cannot resolve a hostname) > Related Concepts\n- **Service discovery in Kubernetes**: see `md-k8s-service-no-endpoints`. Corpus: *Container Networking: From Docker to Kubernetes*, ch. 5 *Service Discovery* (PDF pp. 37-46).\n- **After resolution succeeds**, connection errors are a different problem: see `md-net-connection-refused-timeout`.\n- **DNS inside Docker containers**: see `md-docker-networking-ports`.",
+      "chunk_id": "md-net-dns-resolution-failure#12",
+      "verdict": "incorrect",
+      "comment": "passage is a Related Concepts link list"
+    },
+    {
+      "question": "After applying a YAML file with kubectl, I need to see what the last applied configuration was. How can I retrieve it?",
+      "passage": "Kubernetes cluster.\nThe apply command also records the history of previous configurations in an anno‐\ntation within the object. Y ou can manipulate these records with the edit-lastapplied, set-last-applied, and view-last-applied commands. For example:\n$ kubectl apply -f myobj.yaml view-last-applied\nwill show you the last state that was applied to the object.\nCreating, Updating, and Destroying Kubernetes Objects | 39",
+      "chunk_id": "pdf-o-reilly-kubernetes-up-and-running#120",
+      "verdict": "correct",
+      "comment": ""
+    },
+    {
+      "question": "My pod is in Pending and I suspect a scheduling issue, how can I diagnose it?",
+      "passage": "Kubernetes Pod in ImagePullBackOff > Related Concepts\n- **Container states and the `Waiting` reason**: [R4]. Restart loops of a container that *did* start are covered in `md-k8s-crashloopbackoff`.\n- **Pods that cannot be scheduled at all** (`Pending`, no node assigned): see `md-k8s-pod-pending-failedscheduling`.\n- **Image registries outside Kubernetes**, for example certificate errors with a private registry: see `md-net-tls-certificate-errors`.",
+      "chunk_id": "md-k8s-imagepullbackoff#11",
+      "verdict": "incorrect",
+      "comment": "passage is a Related Concepts link list"
+    },
+    {
+      "question": "What steps should I follow to set up networking between my Kubernetes containers and expose them to external traffic?",
+      "passage": "This category includes issues dealing with things like base provisioning of\nthe machines—e.g., using Ansible to install Kubernetes components, how to\nset up the communication links between the containers and to the outside\nworld, and most importantly, how to ensure the containers are automatically\ndeployed and are discoverable.\nNow that you know about pets versus cattle, you are ready to have a look at the\noverall container networking stack.\n2 | Chapter 1: Motivation",
+      "chunk_id": "pdf-container-networking-docker-kubernetes#17",
+      "verdict": "incorrect",
+      "comment": "question too vague, passage is generic"
+    },
+    {
+      "question": "I ran 'git push' and nothing happened, but my local branch is set to push to a different remote branch—how do I see which branch is actually pushed?",
+      "passage": "HEAD branch: master\n Remote branches:\n master tracked\n dev-branch tracked\n markdown-strip tracked\n issue-43 new (next fetch will store in remotes/origin)\n issue-45 new (next fetch will store in remotes/origin)\n refs/remotes/origin/issue-11 stale (use 'git remote prune' to remove)\n Local branches configured for 'git pull':\n dev-branch merges with remote dev-branch\n master merges with remote master\n Local refs configured for 'git push':\n dev-branch pushes to dev-branch (up to\ndate)\n markdown-strip pushes to markdown-strip (up to\ndate)\n master pushes to master (up to\ndate)\nThis command shows which branch is automatically pushed to when you run git push while on\ncertain branches. It also shows you which remote branches on the server you don’t yet have, which\nremote branches you have that have been removed from the server, and multiple local branches\nthat are able to merge automatically with their remote-tracking branch when you run git pull.\nRenaming and Removing Remotes",
+      "chunk_id": "pdf-progit#128",
+      "verdict": "correct",
+      "comment": ""
+    },
+    {
+      "question": "Why am I seeing a 13k binary packfile download and what does it mean for my checkout?",
+      "passage": "Now that you have the packfile index, you can see if your object is in it – because the index lists the\nSHA-1s of the objects contained in the packfile and the offsets to those objects. Your object is there,\nso go ahead and get the whole packfile:\n=> GET objects/pack/pack-816a9b2334da9953e530f27bcac22082a9f5b835.pack\n(13k of binary data)\nYou have your tree object, so you continue walking your commits. They’re all also within the\npackfile you just downloaded, so you don’t have to do any more requests to your server. Git checks\nout a working copy of the master branch that was pointed to by the HEAD reference you\ndownloaded at the beginning.\nThe Smart Protocol\nThe dumb protocol is simple but a bit inefficient, and it can’t handle writing of data from the client\nto the server. The smart protocol is a more common method of transferring data, but it requires a\nprocess on the remote end that is intelligent about Git – it can read local data, figure out what the",
+      "chunk_id": "pdf-progit#963",
+      "verdict": "correct",
+      "comment": ""
+    },
+    {
+      "question": "I’m writing a new Kubernetes pattern and need to structure it correctly—what sections should I include?",
+      "passage": "mats used for pattern languages in Writing Software Patterns.\nHow This Book Is Structured\nWe chose a simple pattern format for this book. We do not follow any particular pat‐\ntern description language. For each pattern, we use the following structure:\nName\nEach pattern carries a name, which is also the chapter’s title. The name is the cen‐\nter of the pattern’s language.\nProblem\nThis section gives the broader context and describes the pattern space in detail.\nSolution\nThis section is about how the pattern solves the problem in a Kubernetes-specific\nway. This section also contains cross-references to other patterns that are either\nrelated or part of the given pattern.\nDiscussion\nA discussion about the advantages and disadvantages of the solution for the\ngiven context follows.\nMore Information\nThis final section contains additional information sources related to the pattern.\nWe organized the patterns of this book as follows:",
+      "chunk_id": "pdf-o-reilly-kubernetes-patterns#16",
+      "verdict": "correct",
+      "comment": ""
+    },
+    {
+      "question": "I need to debug a crashing container that has no shell, how can I get a shell to investigate?",
+      "passage": "Kubernetes Pod in CrashLoopBackOff > Possible Solutions\nApply the solution that matches the evidence. Do not change several things at once. \n- **Application or configuration error.** Fix the code or the configuration shown in the previous logs: environment variable, configuration file, mounted volume, external dependency [R1]. The documentation also suggests running the same image locally or in a development environment to debug application-specific issues [R1].\n- **Wrong command or arguments.** Correct `command` / `args` in the Pod template. They override the image defaults and cannot be changed on an existing Pod, so the Pods must be recreated (for a Deployment, by updating its template) [R8].\n- **Process exits with code 0.** Run the application as a long-lived foreground process. If the workload is really a one-shot task, use a Job with `restartPolicy: OnFailure` or `Never` instead of a Deployment [R1].",
+      "chunk_id": "md-k8s-crashloopbackoff#13",
+      "verdict": "correct",
+      "comment": ""
+    },
+    {
+      "question": "After rebasing my feature branch, my push is rejected as non-fast-forward—how do I resolve this?",
+      "passage": "Git push rejected: non-fast-forward, protected branch, or Permission denied (publickey) > Possible Causes\n| **Public key not attached to the GitHub account** | The key's fingerprint is not in the account's SSH keys [R4] |\n| **Using `sudo git push`** | `sudo` does not use the SSH keys generated by your user [R4] |",
+      "chunk_id": "md-git-push-rejected-ssh#4",
+      "verdict": "incorrect",
+      "comment": "passage covers SSH key causes, not non-fast-forward"
+    },
+    {
+      "question": "I want to delete a remote branch that no longer exists locally; what git push command should I use?",
+      "passage": "It requires write access to the other repository and so normally is authenticated somehow.\nWe first look at the git push command in Pushing to Your Remotes . Here we cover the basics of\npushing a branch to a remote repository. In Pushing we go a little deeper into pushing specific\nbranches and in Tracking Branches we see how to set up tracking branches to automatically push\nto. In Deleting Remote Branches we use the --delete flag to delete a branch on the server with git\npush.\nThroughout Contributing to a Project we see several examples of using git push to share work on\nbranches through multiple remotes.\n486",
+      "chunk_id": "pdf-progit#1096",
+      "verdict": "correct",
+      "comment": ""
+    },
+    {
+      "question": "What steps should I take before committing to avoid whitespace errors and keep commits clean?",
+      "passage": "Commit Guidelines\nBefore we start looking at the specific use cases, here’s a quick note about commit messages.\nHaving a good guideline for creating commits and sticking to it makes working with Git and\ncollaborating with others a lot easier. The Git project provides a document that lays out a number\nof good tips for creating commits from which to submit patches — you can read it in the Git source\ncode in the Documentation/SubmittingPatches file.\nFirst, your submissions should not contain any whitespace errors. Git provides an easy way to\ncheck for this — before you commit, run git diff --check , which identifies possible whitespace\nerrors and lists them for you.\nFigure 56. Output of git diff --check\nIf you run that command before committing, you can tell if you’re about to commit whitespace\nissues that may annoy other developers.\nNext, try to make each commit a logically separate changeset. If you can, try to make your changes",
+      "chunk_id": "pdf-progit#290",
+      "verdict": "correct",
+      "comment": ""
+    },
+    {
+      "question": "Why did my container get OOMKilled and then restart in CrashLoopBackOff?",
+      "passage": "Kubernetes Container OOMKilled (memory limits and node memory pressure) > Overview\nA container is reported as `OOMKilled` when it was terminated because it tried to use more memory than allowed. Kubernetes memory limits \"are enforced by the kernel with out of memory (OOM) kills\" [R1]. \nTwo different situations must be distinguished: \n1. **The container exceeded its own memory limit.** The kernel may terminate it. This is enforced reactively: \"terminations only happen when the kernel detects memory pressure\", so a container can briefly use more than its limit before being killed [R1].\n2. **The node itself ran out of memory.** The kubelet first tries to reclaim memory by **evicting** Pods. If the node hits an OOM event before the kubelet can do so, the Linux `oom_killer` chooses which container to kill [R4]. \nWhen a terminated container can be restarted, the kubelet restarts it \"as with any other type of runtime failure\" [R2]. A container that is killed repeatedly therefore often ends up in `CrashLoopBackOff` (see `md-k8s-crashloopbackoff`).",
+      "chunk_id": "md-k8s-oomkilled-resource-limits#0",
+      "verdict": "correct",
+      "comment": ""
+    }
+  ]
+}

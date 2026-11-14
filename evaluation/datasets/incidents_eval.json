@@ -1,0 +1,1329 @@
+{
+  "description": "Evaluation incidents for the DevOps Incident Investigation Assistant. Written by the team, phrased as users would report problems. Never indexed (this folder is outside knowledge_base/). split=calibration questions are only used to tune thresholds; results are reported on split=test.",
+  "version": "1.0",
+  "created": "2026-11-02",
+  "incidents": [
+    {
+      "id": "k8s-001",
+      "split": "test",
+      "domain": "kubernetes",
+      "technologies": [
+        "kubernetes"
+      ],
+      "question": "After we rolled out version 2.4 of our API, all the new pods restart every few minutes and kubectl get pods shows CrashLoopBackOff with a restart count above 20.",
+      "expected_doc_ids": [
+        "md-k8s-crashloopbackoff"
+      ],
+      "expected_causes": [
+        "application error making the container exit",
+        "configuration error (environment variable, missing config file)",
+        "liveness or startup probe failing",
+        "not enough memory"
+      ],
+      "expected_investigation_steps": [
+        "kubectl describe pod to read Last State, reason and exit code",
+        "kubectl logs --previous to read the crashed instance logs",
+        "check what changed in the new version / rollback"
+      ],
+      "answerable": true
+    },
+    {
+      "id": "k8s-002",
+      "split": "calibration",
+      "domain": "kubernetes",
+      "technologies": [
+        "kubernetes"
+      ],
+      "question": "My container starts, runs for about 30 seconds and then gets restarted. The events say the liveness probe failed. The app needs around a minute to warm up its cache.",
+      "expected_doc_ids": [
+        "md-k8s-crashloopbackoff",
+        "pdf-o-reilly-kubernetes-patterns"
+      ],
+      "expected_causes": [
+        "liveness probe kills a slow-starting container",
+        "probe thresholds too short for startup time"
+      ],
+      "expected_investigation_steps": [
+        "read the probe events in kubectl describe pod",
+        "compare initialDelaySeconds/failureThreshold with startup time"
+      ],
+      "answerable": true
+    },
+    {
+      "id": "k8s-003",
+      "split": "test",
+      "domain": "kubernetes",
+      "technologies": [
+        "kubernetes",
+        "docker"
+      ],
+      "question": "We pushed a new tag to our private registry, but the deployment's pods stay in ImagePullBackOff and never start. Other teams can pull public images fine.",
+      "expected_doc_ids": [
+        "md-k8s-imagepullbackoff"
+      ],
+      "expected_causes": [
+        "wrong image name or tag",
+        "private registry without imagePullSecrets",
+        "pull secret missing in the pod's namespace or invalid credentials"
+      ],
+      "expected_investigation_steps": [
+        "kubectl describe pod and read the events",
+        "try docker pull of the exact image reference",
+        "check imagePullSecrets and the secret namespace"
+      ],
+      "answerable": true
+    },
+    {
+      "id": "k8s-004",
+      "split": "test",
+      "domain": "kubernetes",
+      "technologies": [
+        "kubernetes"
+      ],
+      "question": "Our Java worker pod is killed regularly, the last state says OOMKilled with exit code 137, and memory usage grows slowly during the day before each kill.",
+      "expected_doc_ids": [
+        "md-k8s-oomkilled-resource-limits"
+      ],
+      "expected_causes": [
+        "container exceeds its memory limit",
+        "memory leak in the application",
+        "memory limit too low"
+      ],
+      "expected_investigation_steps": [
+        "kubectl describe pod for Last State OOMKilled and limits",
+        "kubectl top pod to see memory usage",
+        "check for a memory leak before raising the limit"
+      ],
+      "answerable": true
+    },
+    {
+      "id": "k8s-005",
+      "split": "test",
+      "domain": "kubernetes",
+      "technologies": [
+        "kubernetes"
+      ],
+      "question": "I scaled a deployment from 3 to 10 replicas and four of the new pods have been Pending for an hour. The event says 0/5 nodes are available: insufficient cpu.",
+      "expected_doc_ids": [
+        "md-k8s-pod-pending-failedscheduling"
+      ],
+      "expected_causes": [
+        "CPU requests do not fit on any node",
+        "cluster capacity exhausted"
+      ],
+      "expected_investigation_steps": [
+        "read the FailedScheduling event",
+        "kubectl describe nodes to compare allocatable and allocated requests"
+      ],
+      "answerable": true
+    },
+    {
+      "id": "k8s-006",
+      "split": "test",
+      "domain": "kubernetes",
+      "technologies": [
+        "kubernetes"
+      ],
+      "question": "A new pod for our GPU workload stays Pending; the scheduler message mentions that nodes had a taint the pod didn't tolerate.",
+      "expected_doc_ids": [
+        "md-k8s-pod-pending-failedscheduling"
+      ],
+      "expected_causes": [
+        "node taint not tolerated by the pod",
+        "nodeSelector or affinity restricting nodes"
+      ],
+      "expected_investigation_steps": [
+        "kubectl describe pod events",
+        "check node taints and pod tolerations"
+      ],
+      "answerable": true
+    },
+    {
+      "id": "k8s-007",
+      "split": "test",
+      "domain": "kubernetes",
+      "technologies": [
+        "kubernetes"
+      ],
+      "question": "Inside the cluster, curl to http://orders-svc returns connection refused even though the orders pods are Running. kubectl get endpointslices for the service shows no endpoints.",
+      "expected_doc_ids": [
+        "md-k8s-service-no-endpoints"
+      ],
+      "expected_causes": [
+        "service selector does not match pod labels",
+        "pods not Ready (readiness probe failing)",
+        "wrong targetPort"
+      ],
+      "expected_investigation_steps": [
+        "compare spec.selector with pod labels",
+        "check EndpointSlices",
+        "call the pod IP directly on the container port"
+      ],
+      "answerable": true
+    },
+    {
+      "id": "k8s-008",
+      "split": "test",
+      "domain": "kubernetes",
+      "technologies": [
+        "kubernetes"
+      ],
+      "question": "A service account used by our CI deploy job gets a forbidden error when it tries to create deployments in the staging namespace. How should the role and binding be set up?",
+      "expected_doc_ids": [
+        "pdf-o-reilly-kubernetes-up-and-running",
+        "pdf-ctr-kubernetes-hardening-guidance-1-2-20220829"
+      ],
+      "expected_causes": [
+        "missing Role/RoleBinding granting create on deployments",
+        "binding in the wrong namespace"
+      ],
+      "expected_investigation_steps": [
+        "check the Roles and RoleBindings of the namespace",
+        "verify which subject the binding applies to"
+      ],
+      "answerable": true
+    },
+    {
+      "id": "k8s-009",
+      "split": "test",
+      "domain": "kubernetes",
+      "technologies": [
+        "kubernetes"
+      ],
+      "question": "After the security team applied network policies, our frontend pods can no longer reach the backend pods in the same namespace. Everything worked yesterday.",
+      "expected_doc_ids": [
+        "pdf-ctr-kubernetes-hardening-guidance-1-2-20220829",
+        "md-k8s-service-no-endpoints"
+      ],
+      "expected_causes": [
+        "a default deny network policy blocks traffic",
+        "no policy allows ingress from the frontend to the backend"
+      ],
+      "expected_investigation_steps": [
+        "list the NetworkPolicies of the namespace",
+        "check which pods are selected and which ingress is allowed"
+      ],
+      "answerable": true
+    },
+    {
+      "id": "k8s-010",
+      "split": "test",
+      "domain": "kubernetes",
+      "technologies": [
+        "kubernetes"
+      ],
+      "question": "We changed a value in a ConfigMap but the running application still uses the old setting. Do we need to restart something?",
+      "expected_doc_ids": [
+        "pdf-o-reilly-kubernetes-up-and-running"
+      ],
+      "expected_causes": [
+        "ConfigMap volume files are updated automatically but the application must reread them (no built-in signal)",
+        "values consumed at startup are not reloaded"
+      ],
+      "expected_investigation_steps": [
+        "check how the ConfigMap is consumed (environment variable or volume)",
+        "make the application reload its configuration or restart the pods"
+      ],
+      "answerable": true
+    },
+    {
+      "id": "net-001",
+      "split": "test",
+      "domain": "networking",
+      "technologies": [
+        "dns",
+        "linux"
+      ],
+      "question": "Our backend logs say it cannot resolve db.internal.example.com, but when I ping the IP address of the database directly it answers. This started after we moved the service to a new VM.",
+      "expected_doc_ids": [
+        "md-net-dns-resolution-failure"
+      ],
+      "expected_causes": [
+        "wrong or unreachable nameserver in /etc/resolv.conf",
+        "missing search domain",
+        "record does not exist in the zone"
+      ],
+      "expected_investigation_steps": [
+        "read /etc/resolv.conf",
+        "dig the name and read the status (NXDOMAIN, SERVFAIL)",
+        "compare getent ahosts with dig"
+      ],
+      "answerable": true
+    },
+    {
+      "id": "net-002",
+      "split": "calibration",
+      "domain": "networking",
+      "technologies": [
+        "kubernetes",
+        "dns",
+        "coredns"
+      ],
+      "question": "From a test pod, nslookup kubernetes.default fails and every service name times out, while IP addresses still work.",
+      "expected_doc_ids": [
+        "md-net-dns-resolution-failure"
+      ],
+      "expected_causes": [
+        "cluster DNS (CoreDNS) pods not running or failing",
+        "kube-dns service without endpoints"
+      ],
+      "expected_investigation_steps": [
+        "check /etc/resolv.conf in the pod",
+        "kubectl get pods -n kube-system -l k8s-app=kube-dns",
+        "read CoreDNS logs"
+      ],
+      "answerable": true
+    },
+    {
+      "id": "net-003",
+      "split": "test",
+      "domain": "networking",
+      "technologies": [
+        "tcp",
+        "linux"
+      ],
+      "question": "curl http://10.0.3.7:8080 fails immediately with connection refused, but ssh to the same machine works fine.",
+      "expected_doc_ids": [
+        "md-net-connection-refused-timeout"
+      ],
+      "expected_causes": [
+        "nothing listening on port 8080",
+        "service listens only on 127.0.0.1",
+        "service crashed or not started"
+      ],
+      "expected_investigation_steps": [
+        "ss -tlnp on the server",
+        "check the listening address",
+        "check the service status"
+      ],
+      "answerable": true
+    },
+    {
+      "id": "net-004",
+      "split": "test",
+      "domain": "networking",
+      "technologies": [
+        "tcp",
+        "firewall"
+      ],
+      "question": "Connections from the app server to the payment API on port 443 hang for two minutes and then fail with a timeout. Other external sites work.",
+      "expected_doc_ids": [
+        "md-net-connection-refused-timeout"
+      ],
+      "expected_causes": [
+        "firewall or security rule dropping packets",
+        "missing route",
+        "server overloaded"
+      ],
+      "expected_investigation_steps": [
+        "curl -v --connect-timeout to measure",
+        "check firewall/security groups and routes along the path"
+      ],
+      "answerable": true
+    },
+    {
+      "id": "net-005",
+      "split": "test",
+      "domain": "networking",
+      "technologies": [
+        "http",
+        "nginx"
+      ],
+      "question": "Right after a deployment our nginx reverse proxy started returning 502 Bad Gateway for every request to /api, while the static pages still load.",
+      "expected_doc_ids": [
+        "md-net-http-502-503-504"
+      ],
+      "expected_causes": [
+        "backend not running or not listening on the expected port",
+        "backend closes connections",
+        "invalid response from upstream"
+      ],
+      "expected_investigation_steps": [
+        "call the backend directly bypassing the proxy",
+        "read the nginx error log",
+        "check the backend port after the deployment"
+      ],
+      "answerable": true
+    },
+    {
+      "id": "net-006",
+      "split": "test",
+      "domain": "networking",
+      "technologies": [
+        "http",
+        "aws-elb"
+      ],
+      "question": "Our report generation endpoint behind an AWS Application Load Balancer returns 504 Gateway Timeout when the report takes more than a minute to build.",
+      "expected_doc_ids": [
+        "md-net-http-502-503-504"
+      ],
+      "expected_causes": [
+        "target did not respond before the idle timeout",
+        "slow backend"
+      ],
+      "expected_investigation_steps": [
+        "measure backend response time",
+        "compare with load balancer idle timeout",
+        "check target_processing_time in access logs"
+      ],
+      "answerable": true
+    },
+    {
+      "id": "net-007",
+      "split": "test",
+      "domain": "networking",
+      "technologies": [
+        "tls",
+        "curl"
+      ],
+      "question": "Since Monday our monitoring script fails with curl error 60 when calling https://intranet.corp.local, although the browser of my colleague shows the page.",
+      "expected_doc_ids": [
+        "md-net-tls-certificate-errors"
+      ],
+      "expected_causes": [
+        "certificate signed by a private CA not trusted by the client",
+        "expired certificate",
+        "incomplete chain"
+      ],
+      "expected_investigation_steps": [
+        "openssl s_client -connect -servername -showcerts",
+        "openssl x509 -dates -issuer",
+        "use --cacert with the internal CA"
+      ],
+      "answerable": true
+    },
+    {
+      "id": "net-008",
+      "split": "test",
+      "domain": "networking",
+      "technologies": [
+        "tls",
+        "aws-elb"
+      ],
+      "question": "Browsers show NET::ERR_CERT_COMMON_NAME_INVALID when users open our site through the load balancer DNS name.",
+      "expected_doc_ids": [
+        "md-net-tls-certificate-errors"
+      ],
+      "expected_causes": [
+        "hostname not covered by the certificate alternate names",
+        "default load balancer DNS name used"
+      ],
+      "expected_investigation_steps": [
+        "read the certificate subjectAltName",
+        "use the custom domain covered by the certificate"
+      ],
+      "answerable": true
+    },
+    {
+      "id": "docker-001",
+      "split": "test",
+      "domain": "docker",
+      "technologies": [
+        "docker"
+      ],
+      "question": "I run my image with docker run -d and the container disappears from docker ps within a second. docker ps -a shows Exited (0).",
+      "expected_doc_ids": [
+        "md-docker-container-exits"
+      ],
+      "expected_causes": [
+        "main process finishes (not a foreground process)",
+        "service started in background (service x start)"
+      ],
+      "expected_investigation_steps": [
+        "docker ps -a to read the exit code",
+        "docker logs",
+        "check CMD/ENTRYPOINT runs in the foreground"
+      ],
+      "answerable": true
+    },
+    {
+      "id": "docker-002",
+      "split": "calibration",
+      "domain": "docker",
+      "technologies": [
+        "docker"
+      ],
+      "question": "docker run fails with exit code 127 and says the container command was not found or does not exist.",
+      "expected_doc_ids": [
+        "md-docker-container-exits"
+      ],
+      "expected_causes": [
+        "command missing from the image or misspelled"
+      ],
+      "expected_investigation_steps": [
+        "inspect the image entrypoint and cmd",
+        "run a shell in the image to check the binary"
+      ],
+      "answerable": true
+    },
+    {
+      "id": "docker-003",
+      "split": "test",
+      "domain": "docker",
+      "technologies": [
+        "docker",
+        "linux"
+      ],
+      "question": "On a fresh Ubuntu server, docker ps works with sudo but as my normal user I get a permission denied error on /var/run/docker.sock.",
+      "expected_doc_ids": [
+        "md-docker-daemon-permission-denied"
+      ],
+      "expected_causes": [
+        "user not in the docker group",
+        "group membership not reloaded"
+      ],
+      "expected_investigation_steps": [
+        "check groups with id",
+        "usermod -aG docker then log out/in or newgrp docker"
+      ],
+      "answerable": true
+    },
+    {
+      "id": "docker-004",
+      "split": "test",
+      "domain": "docker",
+      "technologies": [
+        "docker"
+      ],
+      "question": "docker info says Cannot connect to the Docker daemon. Is the docker daemon running on this host? I am working on my laptop and set up a remote engine last week.",
+      "expected_doc_ids": [
+        "md-docker-daemon-permission-denied"
+      ],
+      "expected_causes": [
+        "DOCKER_HOST points to another host",
+        "daemon not running",
+        "remote host unreachable"
+      ],
+      "expected_investigation_steps": [
+        "env | grep DOCKER_HOST",
+        "systemctl is-active docker"
+      ],
+      "answerable": true
+    },
+    {
+      "id": "docker-005",
+      "split": "test",
+      "domain": "docker",
+      "technologies": [
+        "docker"
+      ],
+      "question": "I started my Flask container with -p 5000:5000 but http://server:5000 does not respond from my laptop, and even curl localhost:5000 on the host fails. Inside the container the app runs on 127.0.0.1.",
+      "expected_doc_ids": [
+        "md-docker-networking-ports"
+      ],
+      "expected_causes": [
+        "application listening on 127.0.0.1 inside the container",
+        "wrong port mapping"
+      ],
+      "expected_investigation_steps": [
+        "docker port to check the mapping",
+        "make the app listen on 0.0.0.0"
+      ],
+      "answerable": true
+    },
+    {
+      "id": "docker-006",
+      "split": "test",
+      "domain": "docker",
+      "technologies": [
+        "docker",
+        "dns"
+      ],
+      "question": "My web container cannot connect to the database container using the hostname db. Both were started with plain docker run without any network option.",
+      "expected_doc_ids": [
+        "md-docker-networking-ports"
+      ],
+      "expected_causes": [
+        "default bridge network has no automatic DNS between containers"
+      ],
+      "expected_investigation_steps": [
+        "docker network inspect",
+        "create a user-defined bridge and attach both containers"
+      ],
+      "answerable": true
+    },
+    {
+      "id": "linux-001",
+      "split": "test",
+      "domain": "linux",
+      "technologies": [
+        "linux"
+      ],
+      "question": "PostgreSQL stopped accepting writes and the logs say No space left on device. df -h shows the root filesystem at 100%.",
+      "expected_doc_ids": [
+        "md-linux-disk-full"
+      ],
+      "expected_causes": [
+        "filesystem full (logs, data)",
+        "journal too large"
+      ],
+      "expected_investigation_steps": [
+        "df -h",
+        "du -x --max-depth to find large directories",
+        "journalctl --disk-usage"
+      ],
+      "answerable": true
+    },
+    {
+      "id": "linux-002",
+      "split": "test",
+      "domain": "linux",
+      "technologies": [
+        "linux"
+      ],
+      "question": "I deleted a 20 GB log file to free space, but df still shows the disk as full.",
+      "expected_doc_ids": [
+        "md-linux-disk-full"
+      ],
+      "expected_causes": [
+        "deleted file still held open by a running process"
+      ],
+      "expected_investigation_steps": [
+        "lsof +L1",
+        "restart the process holding the file"
+      ],
+      "answerable": true
+    },
+    {
+      "id": "linux-003",
+      "split": "test",
+      "domain": "linux",
+      "technologies": [
+        "linux",
+        "systemd"
+      ],
+      "question": "Our custom myapp.service fails right after start; systemctl status shows failed, and I edited the unit file this morning to add an EnvironmentFile.",
+      "expected_doc_ids": [
+        "md-linux-systemd-service-failure"
+      ],
+      "expected_causes": [
+        "EnvironmentFile missing or unreadable",
+        "unit file not reloaded with daemon-reload",
+        "wrong ExecStart path"
+      ],
+      "expected_investigation_steps": [
+        "journalctl -u myapp.service",
+        "systemctl cat myapp.service",
+        "systemd-analyze verify"
+      ],
+      "answerable": true
+    },
+    {
+      "id": "linux-004",
+      "split": "calibration",
+      "domain": "linux",
+      "technologies": [
+        "linux",
+        "systemd"
+      ],
+      "question": "After several quick crashes, systemd refuses to start my service again even though I fixed the config.",
+      "expected_doc_ids": [
+        "md-linux-systemd-service-failure"
+      ],
+      "expected_causes": [
+        "start rate limit reached (StartLimitBurst)"
+      ],
+      "expected_investigation_steps": [
+        "systemctl status",
+        "systemctl reset-failed then restart"
+      ],
+      "answerable": true
+    },
+    {
+      "id": "git-001",
+      "split": "test",
+      "domain": "git",
+      "technologies": [
+        "git",
+        "github"
+      ],
+      "question": "git push origin main is rejected with failed to push some refs; the message mentions non-fast-forward. A colleague pushed this morning.",
+      "expected_doc_ids": [
+        "md-git-push-rejected-ssh",
+        "pdf-progit"
+      ],
+      "expected_causes": [
+        "remote branch contains commits not in the local branch"
+      ],
+      "expected_investigation_steps": [
+        "git fetch and compare branches",
+        "merge or pull then push again"
+      ],
+      "answerable": true
+    },
+    {
+      "id": "git-002",
+      "split": "test",
+      "domain": "git",
+      "technologies": [
+        "git",
+        "github",
+        "ssh"
+      ],
+      "question": "On my new laptop every git clone over SSH from GitHub ends with Permission denied (publickey).",
+      "expected_doc_ids": [
+        "md-git-push-rejected-ssh"
+      ],
+      "expected_causes": [
+        "no SSH key loaded in the agent",
+        "public key not added to the GitHub account",
+        "wrong SSH user"
+      ],
+      "expected_investigation_steps": [
+        "ssh -T git@github.com",
+        "ssh-add -l -E sha256",
+        "ssh -vT to see which keys are tried"
+      ],
+      "answerable": true
+    },
+    {
+      "id": "git-003",
+      "split": "test",
+      "domain": "git",
+      "technologies": [
+        "git"
+      ],
+      "question": "git merge stopped with CONFLICT (content) in two files and now I don't know how to finish the merge.",
+      "expected_doc_ids": [
+        "pdf-progit"
+      ],
+      "expected_causes": [
+        "same lines changed in both branches"
+      ],
+      "expected_investigation_steps": [
+        "git status to see unmerged files",
+        "edit conflict markers, git add, then commit"
+      ],
+      "answerable": true
+    },
+    {
+      "id": "git-004",
+      "split": "test",
+      "domain": "git",
+      "technologies": [
+        "git"
+      ],
+      "question": "After checking out an old commit to test something, git says I am in detached HEAD state and I made two commits there. How do I keep them?",
+      "expected_doc_ids": [
+        "pdf-progit"
+      ],
+      "expected_causes": [
+        "commits made on a detached HEAD are not on any branch"
+      ],
+      "expected_investigation_steps": [
+        "create a branch from the current commit",
+        "use git reflog to find lost commits"
+      ],
+      "answerable": true
+    },
+    {
+      "id": "github-001",
+      "split": "test",
+      "domain": "github",
+      "technologies": [
+        "github-actions"
+      ],
+      "question": "Our GitHub Actions workflow that comments on pull requests fails with Resource not accessible by integration. We recently added a permissions block with contents: read to the workflow.",
+      "expected_doc_ids": [
+        "md-github-actions-failures"
+      ],
+      "expected_causes": [
+        "permissions not specified are set to none",
+        "GITHUB_TOKEN lacks pull-requests/issues write"
+      ],
+      "expected_investigation_steps": [
+        "read the permissions block",
+        "add the minimum missing permission"
+      ],
+      "answerable": true
+    },
+    {
+      "id": "github-002",
+      "split": "test",
+      "domain": "github",
+      "technologies": [
+        "github-actions"
+      ],
+      "question": "The deploy step works on our branches but on pull requests coming from contributors' forks the DEPLOY_TOKEN secret is empty.",
+      "expected_doc_ids": [
+        "md-github-actions-failures"
+      ],
+      "expected_causes": [
+        "secrets are not passed to workflows triggered from forks"
+      ],
+      "expected_investigation_steps": [
+        "check the event that triggered the run",
+        "separate privileged steps from fork-triggered workflows"
+      ],
+      "answerable": true
+    },
+    {
+      "id": "github-003",
+      "split": "calibration",
+      "domain": "github",
+      "technologies": [
+        "github-actions"
+      ],
+      "question": "A workflow pushes a version bump commit using GITHUB_TOKEN, but our release workflow that listens to push events never starts afterwards.",
+      "expected_doc_ids": [
+        "md-github-actions-failures"
+      ],
+      "expected_causes": [
+        "events triggered by GITHUB_TOKEN do not create new workflow runs"
+      ],
+      "expected_investigation_steps": [
+        "use workflow_dispatch or a GitHub App token / PAT"
+      ],
+      "answerable": true
+    },
+    {
+      "id": "gitlab-001",
+      "split": "test",
+      "domain": "gitlab",
+      "technologies": [
+        "gitlab-ci",
+        "gitlab-runner"
+      ],
+      "question": "Our GitLab job has been pending for 30 minutes and the job page says it is stuck. We have one project runner tagged docker.",
+      "expected_doc_ids": [
+        "md-gitlab-ci-job-failures"
+      ],
+      "expected_causes": [
+        "job tags do not match any runner",
+        "runner does not run untagged jobs"
+      ],
+      "expected_investigation_steps": [
+        "compare job tags with runner tags",
+        "check the Run untagged jobs setting"
+      ],
+      "answerable": true
+    },
+    {
+      "id": "gitlab-002",
+      "split": "test",
+      "domain": "gitlab",
+      "technologies": [
+        "gitlab-ci",
+        "docker"
+      ],
+      "question": "In our GitLab pipeline the docker build step fails because the job cannot talk to the Docker daemon. The runner uses the shell executor on a VM.",
+      "expected_doc_ids": [
+        "md-gitlab-ci-job-failures",
+        "md-docker-daemon-permission-denied"
+      ],
+      "expected_causes": [
+        "gitlab-runner user not in the docker group"
+      ],
+      "expected_investigation_steps": [
+        "sudo -u gitlab-runner -H docker info",
+        "add gitlab-runner to the docker group"
+      ],
+      "answerable": true
+    },
+    {
+      "id": "gitlab-003",
+      "split": "test",
+      "domain": "gitlab",
+      "technologies": [
+        "gitlab-ci"
+      ],
+      "question": "A CI variable with our deployment key is empty when the pipeline runs on a feature branch, but it works on main.",
+      "expected_doc_ids": [
+        "md-gitlab-ci-job-failures"
+      ],
+      "expected_causes": [
+        "protected variable only available on protected branches or tags"
+      ],
+      "expected_investigation_steps": [
+        "check the variable's Protect setting",
+        "list the variables in the job"
+      ],
+      "answerable": true
+    },
+    {
+      "id": "tf-001",
+      "split": "test",
+      "domain": "terraform",
+      "technologies": [
+        "terraform",
+        "aws-s3"
+      ],
+      "question": "terraform apply fails saying it cannot acquire the state lock. The previous pipeline run was cancelled in the middle of an apply yesterday.",
+      "expected_doc_ids": [
+        "md-terraform-state-lock"
+      ],
+      "expected_causes": [
+        "stale lock left by an interrupted run",
+        "another run still holding the lock"
+      ],
+      "expected_investigation_steps": [
+        "check no other run is in progress",
+        "terraform force-unlock with the lock ID"
+      ],
+      "answerable": true
+    },
+    {
+      "id": "tf-002",
+      "split": "calibration",
+      "domain": "terraform",
+      "technologies": [
+        "terraform"
+      ],
+      "question": "Two engineers ran terraform plan at the same moment and one of them got a state lock error. Should we just disable locking with -lock=false?",
+      "expected_doc_ids": [
+        "md-terraform-state-lock"
+      ],
+      "expected_causes": [
+        "concurrent run holds the lock"
+      ],
+      "expected_investigation_steps": [
+        "use -lock-timeout instead of disabling locking"
+      ],
+      "answerable": true
+    },
+    {
+      "id": "tf-003",
+      "split": "test",
+      "domain": "terraform",
+      "technologies": [
+        "terraform"
+      ],
+      "question": "We moved our state from local files to an S3 bucket and now terraform init complains about the backend configuration having changed.",
+      "expected_doc_ids": [
+        "md-terraform-init-errors"
+      ],
+      "expected_causes": [
+        "backend configuration changed requires -migrate-state or -reconfigure"
+      ],
+      "expected_investigation_steps": [
+        "terraform init -migrate-state"
+      ],
+      "answerable": true
+    },
+    {
+      "id": "tf-004",
+      "split": "test",
+      "domain": "terraform",
+      "technologies": [
+        "terraform"
+      ],
+      "question": "terraform init on our Mac fails with Failed to install provider: the package doesn't match any of the checksums previously recorded in the dependency lock file. It works on the Linux CI.",
+      "expected_doc_ids": [
+        "md-terraform-init-errors"
+      ],
+      "expected_causes": [
+        "lock file contains checksums for one platform only"
+      ],
+      "expected_investigation_steps": [
+        "terraform providers lock -platform for every platform"
+      ],
+      "answerable": true
+    },
+    {
+      "id": "ansible-001",
+      "split": "test",
+      "domain": "ansible",
+      "technologies": [
+        "ansible",
+        "ssh"
+      ],
+      "question": "ansible all -m ping marks two of our new servers as unreachable, the others answer pong.",
+      "expected_doc_ids": [
+        "md-ansible-unreachable-become"
+      ],
+      "expected_causes": [
+        "wrong remote user or SSH key",
+        "host key not known",
+        "network or SSH port unreachable"
+      ],
+      "expected_investigation_steps": [
+        "ansible-inventory --host to check variables",
+        "ping module with -vvvv"
+      ],
+      "answerable": true
+    },
+    {
+      "id": "ansible-002",
+      "split": "test",
+      "domain": "ansible",
+      "technologies": [
+        "ansible"
+      ],
+      "question": "Our playbook with become: true just hangs on the first task that installs packages and never finishes.",
+      "expected_doc_ids": [
+        "md-ansible-unreachable-become"
+      ],
+      "expected_causes": [
+        "stuck at the sudo password prompt"
+      ],
+      "expected_investigation_steps": [
+        "stop and rerun with -K / --ask-become-pass"
+      ],
+      "answerable": true
+    },
+    {
+      "id": "ansible-003",
+      "split": "calibration",
+      "domain": "ansible",
+      "technologies": [
+        "ansible"
+      ],
+      "question": "Ansible connects with SSH but modules fail because /usr/bin/python is not found on a minimal image.",
+      "expected_doc_ids": [
+        "md-ansible-unreachable-become"
+      ],
+      "expected_causes": [
+        "Python interpreter missing or at another path"
+      ],
+      "expected_investigation_steps": [
+        "set ansible_python_interpreter"
+      ],
+      "answerable": true
+    },
+    {
+      "id": "aws-001",
+      "split": "test",
+      "domain": "aws",
+      "technologies": [
+        "aws",
+        "iam"
+      ],
+      "question": "Our Lambda deployment script gets AccessDenied: user is not authorized to perform iam:PassRole. The same script works from my colleague's machine.",
+      "expected_doc_ids": [
+        "md-aws-iam-access-denied"
+      ],
+      "expected_causes": [
+        "identity-based policy lacks the action",
+        "different credentials used on each machine"
+      ],
+      "expected_investigation_steps": [
+        "aws sts get-caller-identity",
+        "review the identity-based policies"
+      ],
+      "answerable": true
+    },
+    {
+      "id": "aws-002",
+      "split": "test",
+      "domain": "aws",
+      "technologies": [
+        "aws",
+        "iam",
+        "aws-organizations"
+      ],
+      "question": "In our new sandbox account even an admin role gets is not authorized to perform because no service control policy allows the action.",
+      "expected_doc_ids": [
+        "md-aws-iam-access-denied"
+      ],
+      "expected_causes": [
+        "implicit deny by a service control policy"
+      ],
+      "expected_investigation_steps": [
+        "review the SCPs with the organization administrator"
+      ],
+      "answerable": true
+    },
+    {
+      "id": "aws-003",
+      "split": "calibration",
+      "domain": "aws",
+      "technologies": [
+        "aws",
+        "ec2"
+      ],
+      "question": "I just launched an EC2 instance in a new subnet and ssh to its public IP times out.",
+      "expected_doc_ids": [
+        "md-aws-ec2-unreachable",
+        "md-net-connection-refused-timeout"
+      ],
+      "expected_causes": [
+        "security group without SSH rule from my IP",
+        "no route to an internet gateway",
+        "network ACL blocking"
+      ],
+      "expected_investigation_steps": [
+        "check security group inbound rules",
+        "check route table and internet gateway",
+        "check network ACL including ephemeral ports"
+      ],
+      "answerable": true
+    },
+    {
+      "id": "aws-004",
+      "split": "test",
+      "domain": "aws",
+      "technologies": [
+        "aws",
+        "ec2",
+        "ssh"
+      ],
+      "question": "ssh -i mykey.pem to my Ubuntu EC2 instance prints a warning about an unprotected private key file and then Permission denied (publickey).",
+      "expected_doc_ids": [
+        "md-aws-ec2-unreachable"
+      ],
+      "expected_causes": [
+        "private key permissions too open",
+        "wrong username for the AMI"
+      ],
+      "expected_investigation_steps": [
+        "chmod 0400 the key",
+        "use the ubuntu user"
+      ],
+      "answerable": true
+    },
+    {
+      "id": "aws-005",
+      "split": "test",
+      "domain": "aws",
+      "technologies": [
+        "aws",
+        "ec2"
+      ],
+      "question": "One of our EC2 instances stopped answering on every port and the console shows a failed system status check.",
+      "expected_doc_ids": [
+        "md-aws-ec2-unreachable"
+      ],
+      "expected_causes": [
+        "problem with the underlying AWS host requiring AWS involvement"
+      ],
+      "expected_investigation_steps": [
+        "describe-instance-status",
+        "stop and start an EBS-backed instance",
+        "get-console-output"
+      ],
+      "answerable": true
+    },
+    {
+      "id": "sre-001",
+      "split": "test",
+      "domain": "sre",
+      "technologies": [
+        "incident-response"
+      ],
+      "question": "Half of our users get errors since 10 minutes and I am the only one on call. Should I start by looking for the root cause in the logs?",
+      "expected_doc_ids": [
+        "md-sre-incident-triage"
+      ],
+      "expected_causes": [
+        "major outage: mitigate before root cause"
+      ],
+      "expected_investigation_steps": [
+        "stop the bleeding (divert traffic, roll back)",
+        "assess impact",
+        "pull in more people / declare an incident"
+      ],
+      "answerable": true
+    },
+    {
+      "id": "sre-002",
+      "split": "test",
+      "domain": "sre",
+      "technologies": [
+        "incident-response",
+        "monitoring"
+      ],
+      "question": "Latency of our checkout service doubled this afternoon. What should I look at first to understand what is going on?",
+      "expected_doc_ids": [
+        "md-sre-incident-triage"
+      ],
+      "expected_causes": [
+        "recent change (deployment or configuration)",
+        "saturation / overload"
+      ],
+      "expected_investigation_steps": [
+        "check what changed recently",
+        "look at latency, traffic, errors and saturation"
+      ],
+      "answerable": true
+    },
+    {
+      "id": "sre-003",
+      "split": "calibration",
+      "domain": "sre",
+      "technologies": [
+        "incident-response"
+      ],
+      "question": "Several teams are debugging the same outage in parallel on different chat channels and nobody knows who is changing what. How should we organise ourselves?",
+      "expected_doc_ids": [
+        "md-sre-incident-triage"
+      ],
+      "expected_causes": [
+        "unmanaged incident without clear roles"
+      ],
+      "expected_investigation_steps": [
+        "name an incident commander",
+        "separate operations, communication and planning",
+        "keep a live incident document"
+      ],
+      "answerable": true
+    },
+    {
+      "id": "k8s-011",
+      "split": "test",
+      "domain": "kubernetes",
+      "technologies": [
+        "kubernetes"
+      ],
+      "question": "We rolled out a new deployment version and it is clearly broken. What is the fastest way to go back to the previous version while we investigate?",
+      "expected_doc_ids": [
+        "pdf-o-reilly-kubernetes-up-and-running",
+        "md-k8s-crashloopbackoff"
+      ],
+      "expected_causes": [
+        "regression introduced by the new rollout"
+      ],
+      "expected_investigation_steps": [
+        "kubectl rollout history",
+        "kubectl rollout undo deployment"
+      ],
+      "answerable": true
+    },
+    {
+      "id": "docker-007",
+      "split": "calibration",
+      "domain": "docker",
+      "technologies": [
+        "docker",
+        "dns"
+      ],
+      "question": "Containers on my Ubuntu desktop can't resolve our company's internal hostnames and docker prints a warning about a local 127.0.0.1 DNS resolver in resolv.conf.",
+      "expected_doc_ids": [
+        "md-docker-networking-ports",
+        "md-net-dns-resolution-failure"
+      ],
+      "expected_causes": [
+        "host uses dnsmasq on loopback which containers cannot use"
+      ],
+      "expected_investigation_steps": [
+        "ps aux | grep dnsmasq",
+        "specify DNS servers for Docker"
+      ],
+      "answerable": true
+    },
+    {
+      "id": "git-005",
+      "split": "test",
+      "domain": "git",
+      "technologies": [
+        "git"
+      ],
+      "question": "I ran git reset --hard by mistake and my last two commits are gone from the branch. Is there any way to get them back?",
+      "expected_doc_ids": [
+        "pdf-progit"
+      ],
+      "expected_causes": [
+        "commits are no longer reachable from a branch but still exist"
+      ],
+      "expected_investigation_steps": [
+        "git reflog to find the lost commit",
+        "create a branch pointing to that commit"
+      ],
+      "answerable": true
+    },
+    {
+      "id": "k8s-012",
+      "split": "test",
+      "domain": "kubernetes",
+      "technologies": [
+        "kubernetes"
+      ],
+      "question": "During node maintenance all replicas of our critical service were evicted at the same time and the service went down. How can we keep a minimum number of pods running during voluntary disruptions?",
+      "expected_doc_ids": [
+        "pdf-o-reilly-kubernetes-patterns"
+      ],
+      "expected_causes": [
+        "no PodDisruptionBudget defined for the application"
+      ],
+      "expected_investigation_steps": [
+        "define a PodDisruptionBudget with minAvailable or maxUnavailable"
+      ],
+      "answerable": true
+    },
+    {
+      "id": "k8s-013",
+      "split": "test",
+      "domain": "kubernetes",
+      "technologies": [
+        "kubernetes",
+        "cni"
+      ],
+      "question": "On our self-managed cluster, pods on the same node can talk to each other but pods on different nodes cannot reach each other at all.",
+      "expected_doc_ids": [
+        "pdf-container-networking-docker-kubernetes"
+      ],
+      "expected_causes": [
+        "pod network (CNI / multi-host networking) not working between nodes"
+      ],
+      "expected_investigation_steps": [
+        "check the CNI plugin and the multi-host networking setup",
+        "verify the Kubernetes networking requirements (pod-to-pod without NAT)"
+      ],
+      "answerable": true
+    },
+    {
+      "id": "oos-001",
+      "split": "test",
+      "domain": "out_of_scope",
+      "technologies": [
+        "kafka"
+      ],
+      "question": "Our Kafka consumer group keeps rebalancing every few minutes and the lag grows. How do we fix it?",
+      "expected_doc_ids": [],
+      "expected_causes": [],
+      "expected_investigation_steps": [],
+      "answerable": false
+    },
+    {
+      "id": "oos-002",
+      "split": "test",
+      "domain": "out_of_scope",
+      "technologies": [
+        "mongodb"
+      ],
+      "question": "Our MongoDB replica set keeps electing a new primary several times per hour.",
+      "expected_doc_ids": [],
+      "expected_causes": [],
+      "expected_investigation_steps": [],
+      "answerable": false
+    },
+    {
+      "id": "oos-003",
+      "split": "test",
+      "domain": "out_of_scope",
+      "technologies": [
+        "oracle"
+      ],
+      "question": "A long-running Oracle report fails with ORA-01555 snapshot too old.",
+      "expected_doc_ids": [],
+      "expected_causes": [],
+      "expected_investigation_steps": [],
+      "answerable": false
+    },
+    {
+      "id": "oos-004",
+      "split": "test",
+      "domain": "out_of_scope",
+      "technologies": [
+        "windows"
+      ],
+      "question": "After a driver update our Windows Server VM shows a blue screen with IRQL_NOT_LESS_OR_EQUAL at boot.",
+      "expected_doc_ids": [],
+      "expected_causes": [],
+      "expected_investigation_steps": [],
+      "answerable": false
+    },
+    {
+      "id": "oos-005",
+      "split": "test",
+      "domain": "out_of_scope",
+      "technologies": [
+        "elasticsearch"
+      ],
+      "question": "Our Elasticsearch cluster health turned red and several shards are unassigned.",
+      "expected_doc_ids": [],
+      "expected_causes": [],
+      "expected_investigation_steps": [],
+      "answerable": false
+    }
+  ]
+}

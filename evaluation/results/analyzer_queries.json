@@ -1,0 +1,255 @@
+{
+  "k8s-001": [
+    "kubernetes CrashLoopBackOff after deployment",
+    "api pod crashloopbackoff restart count 20"
+  ],
+  "k8s-003": [
+    "Kubernetes ImagePullBackOff private registry authentication",
+    "imagePullSecrets not working after new tag push",
+    "kubectl describe pod ImagePullBackOff private registry",
+    "ImagePullBackOff"
+  ],
+  "k8s-004": [
+    "kubernetes pod OOMKilled java memory leak",
+    "exit code 137 OOMKilled pod memory usage increase",
+    "java heap memory growth causing OOMKilled in Kubernetes",
+    "OOMKilled",
+    "exit code 137"
+  ],
+  "k8s-005": [
+    "kubernetes pods pending insufficient cpu",
+    "kubernetes scaling deployment pending pods due to resource constraints",
+    "kubernetes node capacity insufficient cpu pending pods",
+    "0/5 nodes are available: insufficient cpu"
+  ],
+  "k8s-006": [
+    "kubernetes pod pending taint not tolerated",
+    "kubernetes gpu workload taint tolerations",
+    "kubernetes scheduler pending pod taint"
+  ],
+  "k8s-007": [
+    "kubernetes service endpointslices empty no endpoints",
+    "connection refused curl to service inside cluster pods running but no endpoints",
+    "orders-svc service missing endpoints kubernetes"
+  ],
+  "k8s-008": [
+    "kubernetes service account forbidden creating deployments rolebinding",
+    "kubernetes role for CI service account create deployments in namespace",
+    "kubernetes RBAC allow serviceaccount create deployment staging namespace",
+    "forbidden"
+  ],
+  "k8s-009": [
+    "kubernetes network policy pods cannot communicate same namespace",
+    "allow traffic between frontend and backend pods networkpolicy"
+  ],
+  "k8s-010": [
+    "kubernetes configmap update not reflected in running pods",
+    "how to reload pod after configmap change",
+    "do I need to restart deployment after configmap edit"
+  ],
+  "net-001": [
+    "DNS resolution failure after moving service to new VM",
+    "hostname cannot resolve internal domain linux",
+    "check resolv.conf after VM migration",
+    "cannot resolve db.internal.example.com"
+  ],
+  "net-003": [
+    "curl connection refused but ssh works",
+    "port 8080 connection refused while ssh works",
+    "firewall blocking port 8080 linux",
+    "connection refused"
+  ],
+  "net-004": [
+    "outbound https connection hangs then timeout",
+    "external API port 443 timeout from app server",
+    "network firewall blocking outbound port 443 intermittent"
+  ],
+  "net-005": [
+    "nginx 502 Bad Gateway after deployment upstream error",
+    "nginx reverse proxy /api returning 502 static pages work",
+    "nginx upstream health check failing after deploy",
+    "502 Bad Gateway"
+  ],
+  "net-006": [
+    "AWS ALB 504 Gateway Timeout long request",
+    "increase ALB idle timeout",
+    "ALB timeout for report generation endpoint",
+    "504 Gateway Timeout"
+  ],
+  "net-007": [
+    "curl error 60 SSL certificate verification failure",
+    "curl insecure certificate intranet.corp.local monitoring script",
+    "disable curl certificate verification for internal site",
+    "curl error 60"
+  ],
+  "net-008": [
+    "NET::ERR_CERT_COMMON_NAME_INVALID load balancer DNS name",
+    "TLS certificate common name mismatch load balancer",
+    "browser certificate common name invalid after DNS change",
+    "NET::ERR_CERT_COMMON_NAME_INVALID"
+  ],
+  "docker-001": [
+    "docker container exits immediately after start",
+    "docker run container exits with status 0",
+    "Exited (0)"
+  ],
+  "docker-003": [
+    "add user to docker group ubuntu",
+    "permission denied /var/run/docker.sock docker ps",
+    "permission denied error on /var/run/docker.sock"
+  ],
+  "docker-004": [
+    "docker info cannot connect to the Docker daemon",
+    "docker client remote engine connection issues",
+    "docker daemon not running on host",
+    "Cannot connect to the Docker daemon. Is the docker daemon running on this host?"
+  ],
+  "docker-005": [
+    "docker flask container bind address 127.0.0.1 not reachable",
+    "expose port docker container listen 0.0.0.0 flask",
+    "curl localhost docker container port mapping not working"
+  ],
+  "docker-006": [
+    "docker container hostname resolution default network",
+    "docker run connect to another container by hostname"
+  ],
+  "linux-001": [
+    "postgresql no space left on device write failure",
+    "linux root filesystem 100% postgres cannot write",
+    "free disk space postgresql write error",
+    "No space left on device"
+  ],
+  "linux-002": [
+    "linux deleted file still occupies space df shows full",
+    "open file handles prevent space reclamation unix",
+    "how to free space after deleting large log file"
+  ],
+  "linux-003": [
+    "systemd service fails after adding EnvironmentFile",
+    "systemctl status shows failed after unit file change",
+    "journalctl myapp.service startup error"
+  ],
+  "git-001": [
+    "git push non-fast-forward error",
+    "resolve git push rejected failed to push some refs",
+    "failed to push some refs",
+    "non-fast-forward"
+  ],
+  "git-002": [
+    "git clone ssh permission denied publickey github new laptop",
+    "ssh key not added to ssh-agent git github",
+    "configure ssh keys for github on new machine",
+    "Permission denied (publickey)"
+  ],
+  "git-003": [
+    "git resolve merge conflict content",
+    "how to finish git merge after conflict",
+    "git merge conflict two files resolve",
+    "CONFLICT (content)"
+  ],
+  "git-004": [
+    "git keep commits from detached HEAD",
+    "git create branch from detached HEAD",
+    "git recover commits after detached HEAD"
+  ],
+  "github-001": [
+    "GitHub Actions Resource not accessible by integration comment pull request",
+    "GitHub Actions permissions block read GITHUB_TOKEN comment PR",
+    "GitHub Actions permission scopes for commenting on PR",
+    "Resource not accessible by integration"
+  ],
+  "github-002": [
+    "GitHub Actions secret not available on fork pull request",
+    "DEPLOY_TOKEN empty on fork PR",
+    "GitHub Actions secrets for pull request from fork"
+  ],
+  "gitlab-001": [
+    "gitlab runner job pending for long time",
+    "gitlab runner docker tag job stuck",
+    "gitlab runner not picking up jobs"
+  ],
+  "gitlab-002": [
+    "gitlab runner shell executor cannot connect to docker daemon",
+    "docker build step fails in gitlab ci cannot talk to docker daemon"
+  ],
+  "gitlab-003": [
+    "CI variable empty on feature branch but works on main",
+    "protected variable not available on non\u2011protected branches",
+    "deployment key variable scope CI pipelines"
+  ],
+  "tf-001": [
+    "terraform state lock not released after cancelled apply",
+    "terraform force-unlock state lock",
+    "terraform state lock stuck pipeline cancellation",
+    "cannot acquire the state lock"
+  ],
+  "tf-003": [
+    "terraform init backend configuration changed",
+    "terraform backend s3 reconfigure",
+    "terraform init -reconfigure backend change",
+    "backend configuration having changed"
+  ],
+  "tf-004": [
+    "terraform init checksum mismatch mac",
+    "terraform provider checksum lock file mac vs linux",
+    "Failed to install provider: the package doesn't match any of the checksums previously recorded in the dependency lock file."
+  ],
+  "ansible-001": [
+    "ansible ping unreachable host",
+    "ansible all -m ping unreachable servers",
+    "ansible unreachable host troubleshooting"
+  ],
+  "ansible-002": [
+    "ansible become hangs on package installation task",
+    "ansible playbook first task never completes with become true",
+    "ansible package installation hangs sudo"
+  ],
+  "aws-001": [
+    "AWS AccessDenied iam:PassRole lambda deployment script",
+    "IAM policy required for iam:PassRole",
+    "AWS CLI different credentials AccessDenied PassRole",
+    "AccessDenied: user is not authorized to perform iam:PassRole"
+  ],
+  "aws-002": [
+    "GCP service control policy admin role unauthorized",
+    "Google Cloud service perimeter deny admin actions",
+    "Service Control Policy missing allow for admin role",
+    "no service control policy allows the action"
+  ],
+  "aws-004": [
+    "ssh unprotected private key file permission denied publickey",
+    "aws ec2 ssh key file permissions",
+    "chmod private key 600 ssh",
+    "Permission denied (publickey)"
+  ],
+  "aws-005": [
+    "EC2 failed system status check no response on any port",
+    "AWS EC2 instance stopped answering all ports system status check failed"
+  ],
+  "sre-001": [],
+  "sre-002": [
+    "checkout service latency increase troubleshooting",
+    "microservice latency spike root cause analysis",
+    "high response time investigation best practices"
+  ],
+  "k8s-011": [
+    "how to rollback a deployment to previous version",
+    "fast rollback after failed deployment",
+    "restore previous release quickly"
+  ],
+  "git-005": [
+    "git recover lost commits after git reset --hard",
+    "git reflog restore deleted commits",
+    "undo git reset hard to retrieve recent commits"
+  ],
+  "k8s-012": [
+    "Kubernetes PodDisruptionBudget minimum available pods voluntary eviction",
+    "prevent all replicas evicted during node maintenance",
+    "configure PDB for critical service"
+  ],
+  "k8s-013": [
+    "kubernetes pods cannot communicate across nodes",
+    "CNI plugin cross node pod networking issue",
+    "kubernetes networkpolicy blocks inter node traffic"
+  ]
+}

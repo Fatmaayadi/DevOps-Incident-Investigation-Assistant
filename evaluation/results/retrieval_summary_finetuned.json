@@ -1,0 +1,41 @@
+{
+  "date": "2026-11-02 17:24",
+  "collection": "devops_kb_ft",
+  "embedding_model": "finetuning/output/minilm-devops",
+  "reranker": "cross-encoder/ms-marco-MiniLM-L6-v2",
+  "rrf_k": 60,
+  "results": [
+    {
+      "tag": "finetuned",
+      "setting": "raw",
+      "strategy": "semantic",
+      "questions": 48,
+      "mrr": 0.9448,
+      "recall@1": 0.875,
+      "precision@1": 0.9167,
+      "recall@3": 0.9167,
+      "precision@3": 0.8611,
+      "recall@5": 0.9479,
+      "precision@5": 0.8375,
+      "recall@10": 0.9792,
+      "precision@10": 0.7521,
+      "seconds_per_query": 0.047
+    },
+    {
+      "tag": "finetuned",
+      "setting": "raw",
+      "strategy": "hybrid",
+      "questions": 48,
+      "mrr": 0.9896,
+      "recall@1": 0.9271,
+      "precision@1": 0.9792,
+      "recall@3": 0.9479,
+      "precision@3": 0.9097,
+      "recall@5": 0.9688,
+      "precision@5": 0.8792,
+      "recall@10": 0.9792,
+      "precision@10": 0.7458,
+      "seconds_per_query": 0.218
+    }
+  ]
+}

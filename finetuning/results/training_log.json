@@ -1,0 +1,93 @@
+{
+  "base_model": "sentence-transformers/all-MiniLM-L6-v2",
+  "output_model": "finetuning\\output\\minilm-devops",
+  "train_pairs": 499,
+  "validation_pairs": 58,
+  "hyperparameters": {
+    "epochs": 3,
+    "batch_size": 32,
+    "learning_rate": 2e-05,
+    "warmup_ratio": 0.1,
+    "seed": 42,
+    "loss": "MultipleNegativesRankingLoss"
+  },
+  "training_minutes": 18.9,
+  "device": "cpu",
+  "validation_before": {
+    "val_cosine_accuracy@1": 0.2759,
+    "val_cosine_accuracy@5": 0.6207,
+    "val_cosine_accuracy@10": 0.8103,
+    "val_cosine_precision@5": 0.1241,
+    "val_cosine_precision@10": 0.081,
+    "val_cosine_recall@5": 0.6207,
+    "val_cosine_recall@10": 0.8103,
+    "val_cosine_ndcg@10": 0.5102,
+    "val_cosine_mrr@10": 0.4177,
+    "val_cosine_map@10": 0.4177
+  },
+  "validation_after": {
+    "val_cosine_accuracy@1": 0.3276,
+    "val_cosine_accuracy@5": 0.6207,
+    "val_cosine_accuracy@10": 0.8448,
+    "val_cosine_precision@5": 0.1241,
+    "val_cosine_precision@10": 0.0845,
+    "val_cosine_recall@5": 0.6207,
+    "val_cosine_recall@10": 0.8448,
+    "val_cosine_ndcg@10": 0.5566,
+    "val_cosine_mrr@10": 0.4689,
+    "val_cosine_map@10": 0.4689
+  },
+  "epoch_logs": [
+    {
+      "eval_val_cosine_accuracy@1": 0.3103448275862069,
+      "eval_val_cosine_accuracy@5": 0.6206896551724138,
+      "eval_val_cosine_accuracy@10": 0.7931034482758621,
+      "eval_val_cosine_precision@5": 0.12413793103448276,
+      "eval_val_cosine_precision@10": 0.0793103448275862,
+      "eval_val_cosine_recall@5": 0.6206896551724138,
+      "eval_val_cosine_recall@10": 0.7931034482758621,
+      "eval_val_cosine_ndcg@10": 0.5298082404131177,
+      "eval_val_cosine_mrr@10": 0.44837848932676516,
+      "eval_val_cosine_map@10": 0.44837848932676516,
+      "eval_runtime": 91.244,
+      "eval_samples_per_second": 0.0,
+      "eval_steps_per_second": 0.0,
+      "epoch": 1.0,
+      "step": 16
+    },
+    {
+      "eval_val_cosine_accuracy@1": 0.3275862068965517,
+      "eval_val_cosine_accuracy@5": 0.6206896551724138,
+      "eval_val_cosine_accuracy@10": 0.8275862068965517,
+      "eval_val_cosine_precision@5": 0.12413793103448276,
+      "eval_val_cosine_precision@10": 0.08275862068965516,
+      "eval_val_cosine_recall@5": 0.6206896551724138,
+      "eval_val_cosine_recall@10": 0.8275862068965517,
+      "eval_val_cosine_ndcg@10": 0.5491096833734449,
+      "eval_val_cosine_mrr@10": 0.4641351943076081,
+      "eval_val_cosine_map@10": 0.46413519430760813,
+      "eval_runtime": 91.3541,
+      "eval_samples_per_second": 0.0,
+      "eval_steps_per_second": 0.0,
+      "epoch": 2.0,
+      "step": 32
+    },
+    {
+      "eval_val_cosine_accuracy@1": 0.3275862068965517,
+      "eval_val_cosine_accuracy@5": 0.6206896551724138,
+      "eval_val_cosine_accuracy@10": 0.8448275862068966,
+      "eval_val_cosine_precision@5": 0.12413793103448276,
+      "eval_val_cosine_precision@10": 0.08448275862068964,
+      "eval_val_cosine_recall@5": 0.6206896551724138,
+      "eval_val_cosine_recall@10": 0.8448275862068966,
+      "eval_val_cosine_ndcg@10": 0.5565572652568146,
+      "eval_val_cosine_mrr@10": 0.4689244663382594,
+      "eval_val_cosine_map@10": 0.4689244663382594,
+      "eval_runtime": 102.5951,
+      "eval_samples_per_second": 0.0,
+      "eval_steps_per_second": 0.0,
+      "epoch": 3.0,
+      "step": 48
+    }
+  ]
+}
