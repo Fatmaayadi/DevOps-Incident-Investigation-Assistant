@@ -111,15 +111,15 @@ app/streamlit_app.py     interface Web (question, réponse sourcée, feedback)
 app/pages/1_Dashboard.py dashboard (usage, feedback, benchmarks, incidents)
 scripts/                 ask.py (ligne de commande), démos client MCP et agent MCP, validate_knowledge_base.py
 knowledge_base/          manifest.yaml (PDF retenus / exclus), markdown/ (23 fiches), pdf/ (non versionné), README.md
-evaluation/              datasets/ (63 incidents), métriques, benchmarks, compare_reranking.py, results/, contrôle manuel
+evaluation/              datasets/ (63 incidents), métriques, benchmarks, compare_reranking.py, results/
 finetuning/              génération des paires, entraînement, data/ (paires), results/ (journal d'entraînement)
 tests/                   tests unitaires et d'intégration (pytest)
-docs/                    cahier des charges, rapport technique, scénarios de démonstration, contrôle manuel des évaluations
+docs/                    cahier des charges, rapport technique, scénarios de démonstration
 Dockerfile, docker-compose.yml, .dockerignore    conteneurs
 .github/workflows/ci.yml                         intégration continue
 ```
 
-Documents : [rapport technique](docs/rapport_technique_final.docx) · [cahier des charges](docs/cahier_des_charges_final.docx) · [scénarios de démonstration](docs/demo_scenarios.md) · [contrôle manuel des évaluations](docs/relecture_humaine.md) · [résultats du benchmark](evaluation/results/README.md).
+Documents : [rapport technique](docs/rapport_technique_final.docx) · [cahier des charges](docs/cahier_des_charges_final.docx) · [scénarios de démonstration](docs/demo_scenarios.md) · [résultats du benchmark](evaluation/results/README.md).
 
 ## Installation
 
@@ -195,7 +195,6 @@ python -m incident_assistant.indexing --collection devops_kb_ft --model finetuni
 python -m evaluation.run_retrieval_benchmark --raw-only --collection devops_kb_ft \
        --model finetuning/output/minilm-devops --strategies semantic hybrid --tag finetuned
 python -m evaluation.make_report                    # tableaux + graphiques dans evaluation/results/
-python -m evaluation.review_agreement --prepare     # contrôle manuel (voir docs/relecture_humaine.md)
 
 # Benchmark final (37 questions annotées au niveau des passages de preuve)
 python -m evaluation.run_retrieval_benchmark --dataset evaluation/datasets/benchmark_v1.json --tag bench_v1 --raw-only
