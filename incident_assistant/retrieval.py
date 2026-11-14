@@ -91,6 +91,8 @@ def hybrid_search(queries: list[str], domains: list[str] | None = None, use_rera
     if not use_reranker or not fused:
         return fused[:top_k]
     candidates = fused[:config.RERANK_CANDIDATES]
+    for position, passage in enumerate(candidates, start=1):
+        passage["rrf_rank"] = position   # kept to compare the order before and after reranking
     return rerank(rerank_query or queries[0], candidates)[:top_k]
 
 

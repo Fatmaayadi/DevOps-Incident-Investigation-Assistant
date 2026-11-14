@@ -1,0 +1,62 @@
+{
+  "out_of_scope_questions": 5,
+  "out_of_scope_correct_abstention_rate": 1.0,
+  "answerable_questions": 48,
+  "answerable_false_abstention_rate": 0.271,
+  "answerable_status_insufficient": [
+    "k8s-005",
+    "k8s-008",
+    "net-004",
+    "net-007",
+    "net-008",
+    "docker-005",
+    "gitlab-003",
+    "ansible-002",
+    "sre-002"
+  ],
+  "answerable_status_clarification": [
+    "sre-001"
+  ],
+  "out_of_scope_details": [
+    {
+      "id": "oos-001",
+      "answerable": false,
+      "status": "insufficient_evidence",
+      "documented_causes": 0,
+      "rewrites": 2,
+      "abstains": true
+    },
+    {
+      "id": "oos-002",
+      "answerable": false,
+      "status": "insufficient_evidence",
+      "documented_causes": 0,
+      "rewrites": 2,
+      "abstains": true
+    },
+    {
+      "id": "oos-003",
+      "answerable": false,
+      "status": "insufficient_evidence",
+      "documented_causes": 0,
+      "rewrites": 2,
+      "abstains": true
+    },
+    {
+      "id": "oos-004",
+      "answerable": false,
+      "status": "insufficient_evidence",
+      "documented_causes": 0,
+      "rewrites": 2,
+      "abstains": true
+    },
+    {
+      "id": "oos-005",
+      "answerable": false,
+      "status": "insufficient_evidence",
+      "documented_causes": 0,
+      "rewrites": 2,
+      "abstains": true
+    }
+  ]
+}

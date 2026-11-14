@@ -1,0 +1,46 @@
+{
+  "semantic": {
+    "questions": 48,
+    "mrr_base": 0.9243,
+    "mrr_finetuned": 0.9448,
+    "mrr_difference": 0.0205,
+    "mrr_difference_95ci": [
+      -0.0236,
+      0.067
+    ],
+    "improved": 4,
+    "degraded": 2,
+    "unchanged": 42,
+    "recall@5_difference": -0.0208,
+    "degraded_questions": [
+      "net-001",
+      "gitlab-003"
+    ],
+    "improved_questions": [
+      "net-007",
+      "ansible-002",
+      "sre-001",
+      "sre-002"
+    ]
+  },
+  "hybrid": {
+    "questions": 48,
+    "mrr_base": 0.9896,
+    "mrr_finetuned": 0.9896,
+    "mrr_difference": 0.0,
+    "mrr_difference_95ci": [
+      -0.0312,
+      0.0312
+    ],
+    "improved": 1,
+    "degraded": 1,
+    "unchanged": 46,
+    "recall@5_difference": -0.0104,
+    "degraded_questions": [
+      "gitlab-003"
+    ],
+    "improved_questions": [
+      "k8s-013"
+    ]
+  }
+}

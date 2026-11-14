@@ -1,11 +1,15 @@
 """Web interface of the DevOps Incident Investigation Assistant.
 
-Run: streamlit run app/streamlit_app.py
+Run: streamlit run app/streamlit_app.py   (the Dashboard page is in app/pages/)
 """
 import logging
+import sqlite3
+import time
+import uuid
 
 import streamlit as st
 
+from incident_assistant import feedback
 from incident_assistant.agents import LLMUnavailable
 from incident_assistant.workflow import run_investigation
 
@@ -18,11 +22,24 @@ EXAMPLES = [
     "On a fresh Ubuntu server docker ps gives permission denied on /var/run/docker.sock without sudo.",
     "my app is broken",
 ]
-
+DIAGNOSIS_CHOICES = {"Not evaluated": None, "Correct": "correct", "Partially correct": "partial",
+                     "Incorrect": "incorrect"}
+SOURCE_CHOICES = {"Not evaluated": None, "Relevant": "yes", "Partly relevant": "partly", "Not relevant": "no"}
+STORAGE_ERRORS = (OSError, sqlite3.Error, KeyError)   # the answer stays usable if the database is not
 
 
 def sources(ids: list[str]) -> str:
     return " ".join(f"[{i}]" for i in ids) or "*(not sourced)*"
+
+
+def record_feedback(answer_id: str, rating: str, **details):
+    try:
+        feedback.save_feedback(answer_id, rating, **details)
+        st.session_state.feedback_rating = (answer_id, rating)
+        st.rerun()   # refresh the statistics of the sidebar
+    except STORAGE_ERRORS:
+        logging.exception("feedback not saved")
+        st.warning("Your feedback could not be saved.")
 
 
 st.set_page_config(page_title="DevOps Incident Assistant", layout="wide")
@@ -32,6 +49,8 @@ st.warning("The assistant has no access to your systems. It proposes causes and 
 
 if "incident" not in st.session_state:
     st.session_state.incident = ""
+if "session_id" not in st.session_state:   # one id per browser session, for the usage statistics
+    st.session_state.session_id = uuid.uuid4().hex
 
 with st.sidebar:
     st.header("Examples")
@@ -40,6 +59,16 @@ with st.sidebar:
             st.session_state.incident = example
     st.header("Filter")
     domains = st.multiselect("Search only in these domains (optional)", DOMAINS)
+    st.header("Feedback")
+    try:
+        stats = feedback.feedback_stats()
+    except STORAGE_ERRORS:
+        stats = {"rated": 0}
+    if stats["rated"]:
+        st.caption(f"{stats['up']} 👍 / {stats['down']} 👎 ({stats['rated']} rated answers). "
+                   "Details on the Dashboard page.")
+    else:
+        st.caption("No answer rated yet.")
 
 incident = st.text_area("Describe the incident (English works best)", key="incident", height=120)
 
@@ -47,7 +76,18 @@ if st.button("Investigate", type="primary") and incident.strip():
     with st.spinner("Analysing the incident and searching the documentation..."):
         # On any error no answer is kept: an incomplete investigation is never displayed.
         try:
+            start = time.perf_counter()
             st.session_state.result = run_investigation(incident, domains=domains)
+            seconds = time.perf_counter() - start
+            # The feedback is linked to this answer and to the question really asked,
+            # even if the text area is edited afterwards.
+            st.session_state.answer_id = uuid.uuid4().hex
+            st.session_state.asked_incident = incident
+            try:   # usage log for the dashboard; a storage problem must not hide the answer
+                feedback.log_interaction(st.session_state.answer_id, incident, st.session_state.result["answer"],
+                                         seconds, session_id=st.session_state.session_id, domains=domains)
+            except STORAGE_ERRORS:
+                logging.exception("interaction not recorded")
         except LLMUnavailable as error:   # quota, network or configuration: the message is user-friendly
             st.session_state.result = None
             st.warning(f"No answer was produced. {error}")
@@ -109,9 +149,39 @@ if state:
             location = f"PDF p. {passage['page']}" if passage["page"] else f"section {passage['section']}"
             title = f"[{passage['id']}] {passage['title']} - {location}" + ("  (cited)" if passage["id"] in cited else "")
             with st.expander(title):
-                st.caption(f"{passage['source_path']} | reranker score {passage.get('rerank_score', 0):.2f}")
+                caption = f"{passage['source_path']} | reranker score {passage.get('rerank_score', 0):.2f}"
+                if "rrf_rank" in passage:   # only when the reranker chose the passages
+                    caption += f" | rank before reranking {passage['rrf_rank']}"
+                st.caption(caption)
                 st.text(passage["text"])
 
     with tab_trace:
         for line in state["trace"]:
             st.markdown(f"- {line}")
+
+    answer_id = st.session_state.answer_id
+    st.markdown("**Was this answer useful?**")
+    col_useful, col_not_useful, _ = st.columns([1, 1, 4])
+    if col_useful.button("👍 Useful", key=f"useful_{answer_id}"):
+        record_feedback(answer_id, "up")
+    if col_not_useful.button("👎 Not useful", key=f"not_useful_{answer_id}"):
+        record_feedback(answer_id, "down")
+
+    with st.expander("Detailed feedback (optional)"):
+        with st.form(key=f"feedback_form_{answer_id}"):
+            rating = st.radio("Overall", ["👍 Useful", "👎 Not useful"], horizontal=True)
+            diagnosis = st.radio("Is the diagnosis correct?", list(DIAGNOSIS_CHOICES), horizontal=True)
+            relevance = st.radio("Are the sources relevant?", list(SOURCE_CHOICES), horizontal=True)
+            solutions = [s["solution"] for s in answer["possible_solutions"]]
+            failed = st.selectbox("A proposed solution that did not work", ["None"] + solutions)
+            correction = st.text_area("Correction: what really solved the incident?")
+            comment = st.text_area("Comment")
+            if st.form_submit_button("Send feedback"):
+                record_feedback(answer_id, "up" if rating.startswith("👍") else "down",
+                                diagnosis=DIAGNOSIS_CHOICES[diagnosis], sources_relevant=SOURCE_CHOICES[relevance],
+                                failed_solution=None if failed == "None" else failed,
+                                correction=correction, comment=comment)
+
+    if st.session_state.get("feedback_rating", (None, None))[0] == answer_id:
+        label = "useful" if st.session_state.feedback_rating[1] == "up" else "not useful"
+        st.caption(f"Thank you: this answer is recorded as {label}. You can still change your evaluation.")

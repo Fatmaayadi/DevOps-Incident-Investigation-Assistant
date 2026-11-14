@@ -42,6 +42,17 @@ checkpoints/
 # Jupyter
 .ipynb_checkpoints/
 
+# Caches, temporary files and local debug output
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+*.stackdump
+*.tmp
+*.bak
+*~
+evaluation/results/backup_*/
+
 # OS / IDE
 .DS_Store
 Thumbs.db

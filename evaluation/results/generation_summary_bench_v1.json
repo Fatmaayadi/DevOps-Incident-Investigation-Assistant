@@ -1,0 +1,70 @@
+{
+  "date": "2026-11-14 09:10",
+  "tag": "bench_v1",
+  "analyzer_model": "openai/gpt-oss-120b",
+  "investigator_model": "openai/gpt-oss-120b",
+  "judge": "qwen/qwen3.8-27b",
+  "evidence_rule": ">= 3 passages with reranker score >= -2.86",
+  "dataset": {
+    "path": "evaluation/datasets/benchmark_v1.json",
+    "name": "benchmark_v1.json",
+    "sha256": "cb94b65227bcea511e6fc844bd761236cd3790896628363d54fd7fb94c69f3e2",
+    "version": "1.0",
+    "created": "2026-11-13"
+  },
+  "collection": "devops_kb",
+  "embedding_model": "sentence-transformers/all-MiniLM-L6-v2",
+  "reranker": "cross-encoder/ms-marco-MiniLM-L6-v2",
+  "rerank_passages": false,
+  "final_passages": 6,
+  "candidates_per_search": 20,
+  "rrf_k": 60,
+  "evidence_matching_min_fragment_chars": 60,
+  "questions_scored": 37,
+  "questions_total": 37,
+  "status_counts": {
+    "ok": 26,
+    "insufficient_evidence": 11
+  },
+  "mean_seconds_per_question": 24.8,
+  "correctness": {
+    "mean": 0.8824,
+    "n": 34
+  },
+  "faithfulness": {
+    "mean": 0.6091,
+    "n": 34
+  },
+  "context_relevance": {
+    "mean": 0.527,
+    "n": 37
+  },
+  "citation_validity": {
+    "mean": 1.0,
+    "n": 34
+  },
+  "source_match": {
+    "mean": 0.7426,
+    "n": 34
+  },
+  "abstention": {
+    "mean": 1.0,
+    "n": 3
+  },
+  "criteria_coverage": {
+    "mean": 0.8235,
+    "n": 34
+  },
+  "answer_relevancy": {
+    "mean": 1.0,
+    "n": 34
+  },
+  "context_precision": {
+    "mean": 0.25,
+    "n": 34
+  },
+  "context_recall": {
+    "mean": 0.7206,
+    "n": 34
+  }
+}

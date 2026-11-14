@@ -1,0 +1,2696 @@
+{
+  "description": "Independent benchmark v1 for the DevOps Incident Investigation Assistant: 37 questions (34 answerable, 3 out of scope). Questions and reference answers were drafted with an LLM assistant (Claude) from passages of the indexed knowledge base, then checked automatically against the documents (exact passages, physical pages, Markdown sections) and against the existing datasets. A human review by the team is still required. Never indexed (this folder is outside knowledge_base/). page_number is the physical PDF page (1-based), as stored in the index metadata; printed_page is the number printed on the page. The current scripts only read the fields of incidents_eval.json (expected_doc_ids, expected_causes, answerable...): reference_answer, evidence and page-level references are not used by any script yet.",
+  "version": "1.0",
+  "created": "2026-11-13",
+  "categories": {
+    "kubernetes-workloads": 6,
+    "kubernetes-networking": 3,
+    "kubernetes-security": 3,
+    "git": 4,
+    "ci-cd": 3,
+    "docker": 3,
+    "terraform": 3,
+    "networking": 3,
+    "linux": 2,
+    "aws": 2,
+    "ansible-sre": 2,
+    "out-of-scope": 3
+  },
+  "incidents": [
+    {
+      "id": "bench-k8s-wl-01",
+      "split": "test",
+      "category": "kubernetes-workloads",
+      "domain": "kubernetes",
+      "technologies": [
+        "kubernetes"
+      ],
+      "difficulty": "medium",
+      "question_type": "multi_source",
+      "question": "Our nightly data-export Job keeps failing, and every morning kubectl get pods -l job-name=export lists about a dozen pods in Error state, each with 0 restarts, cluttering the namespace. A colleague's similar Job instead shows a single pod in CrashLoopBackOff with a growing restart count. Why do the two Jobs behave so differently, and which setting should we use?",
+      "reference_answer": "The difference comes from the restartPolicy of the Pod template of each Job. With restartPolicy: Never, the kubelet does not restart the failed container: it declares the Pod failed, and the Job object then creates a replacement Pod. Every failure therefore leaves a new Pod in Error with 0 restarts, which creates a lot of 'junk' in the cluster. With restartPolicy: OnFailure, the failed Pod is rerun in place by the kubelet: the same Pod shows a growing restart count and ends in CrashLoopBackOff, because Kubernetes waits a bit before restarting it to avoid a crash loop eating node resources. Kubernetes: Up and Running recommends restartPolicy: OnFailure so failed Pods are rerun in place. In both cases the real problem is the program exiting with a non-zero code: read the error in the logs of the failed (or previous) container, fix it, and delete the Job to clean up the failed Pods.",
+      "expected_answer_criteria": [
+        "explains that restartPolicy: Never makes the Pod fail and the Job create a replacement Pod, hence many Error pods with 0 restarts",
+        "explains that restartPolicy: OnFailure reruns the same Pod in place, hence a growing restart count and CrashLoopBackOff",
+        "recommends restartPolicy: OnFailure (or at least explains the trade-off)",
+        "states that the underlying cause is the program failing with a non-zero exit code and that the logs must be read"
+      ],
+      "expected_causes": [
+        "restartPolicy: Never in the Job template, so the Job creates a new Pod after each failure",
+        "the job program exits with a non-zero code (bug or error at start-up)"
+      ],
+      "expected_investigation_steps": [
+        "compare the restartPolicy of the two Job templates",
+        "list the Job pods with their status and restart count",
+        "read the logs of a failed pod (kubectl logs, --previous for a restarted container) to find why the program exits"
+      ],
+      "expected_doc_ids": [
+        "pdf-o-reilly-kubernetes-up-and-running",
+        "md-k8s-crashloopbackoff"
+      ],
+      "evidence": [
+        {
+          "doc_id": "pdf-o-reilly-kubernetes-up-and-running",
+          "source_path": "pdf/kubernetes/O'Reilly Kubernetes Up and Running.pdf",
+          "source_pdf": "O'Reilly Kubernetes Up and Running.pdf",
+          "page_number": 164,
+          "printed_page": 144,
+          "section": "Chapter 12. Jobs > Job Patterns > One Shot (Pod failure)",
+          "exact_evidence_passage": "By setting restartPolicy: Never we are telling the kubelet not to restart the Pod on failure, but rather just declare the Pod as failed. The Job object then notices and creates a replacement Pod. If you aren’t careful, this’ll create a lot of “junk” in your cluster. For this reason, we suggest you use restartPolicy: OnFailure so failed Pods are rerun in place.",
+          "explanation": "Explains why restartPolicy: Never produces many failed Pods and recommends OnFailure."
+        },
+        {
+          "doc_id": "pdf-o-reilly-kubernetes-up-and-running",
+          "source_path": "pdf/kubernetes/O'Reilly Kubernetes Up and Running.pdf",
+          "source_pdf": "O'Reilly Kubernetes Up and Running.pdf",
+          "page_number": 163,
+          "printed_page": 143,
+          "section": "Chapter 12. Jobs > Job Patterns > One Shot (Pod failure)",
+          "exact_evidence_passage": "Here we see that the same Pod has restarted four times. Kubernetes is in CrashLoop BackOff for this Pod. It is not uncommon to have a bug someplace that causes a program to crash as soon as it starts.",
+          "explanation": "Shows the OnFailure behaviour: the same Pod is restarted and ends in CrashLoopBackOff because of a crashing program."
+        },
+        {
+          "doc_id": "pdf-o-reilly-kubernetes-up-and-running",
+          "source_path": "pdf/kubernetes/O'Reilly Kubernetes Up and Running.pdf",
+          "source_pdf": "O'Reilly Kubernetes Up and Running.pdf",
+          "page_number": 164,
+          "printed_page": 144,
+          "section": "Chapter 12. Jobs > Job Patterns > One Shot (Pod failure)",
+          "exact_evidence_passage": "restarting the Pod to avoid a crash loop eating resources on the node. This is all handled local to the node by the kubelet without the job being involved at all.",
+          "explanation": "The restart in place (with back-off) is done by the kubelet, not by the Job."
+        },
+        {
+          "doc_id": "md-k8s-crashloopbackoff",
+          "source_path": "markdown/kubernetes/k8s-crashloopbackoff.md",
+          "source_pdf": null,
+          "page_number": null,
+          "printed_page": null,
+          "section": "Possible Causes",
+          "exact_evidence_passage": "Non-zero exit code; error in `kubectl logs --previous`",
+          "explanation": "Typical evidence of an application error: non-zero exit code and the error visible in the previous container logs."
+        }
+      ],
+      "independence_check": {
+        "status": "pass",
+        "checked_on": "2026-11-13",
+        "method": "Compared with the 640 questions of incidents_eval.json (63), evidence_validation_negatives.json (20), train.jsonl (499) and validation.jsonl (58): exact match, cosine similarity of all-MiniLM-L6-v2 embeddings (rejection threshold 0.85, as in finetuning/generate_pairs.py; manual review of every question at 0.70 or more and of the closest neighbours), and difflib lexical ratio.",
+        "exact_duplicate": false,
+        "max_cosine_similarity": 0.675,
+        "closest_existing": "train.jsonl:121",
+        "max_lexical_ratio": 0.33,
+        "evidence_passages_found_in_finetuning_pairs": [
+          "train.jsonl:311",
+          "train.jsonl:44"
+        ],
+        "note": "No manual concern. Some evidence passages also appear in fine-tuning pair passages: this does not affect the base embedding model used by the application, but a comparison with the fine-tuned model would be biased on this question."
+      },
+      "answerable": true
+    },
+    {
+      "id": "bench-k8s-wl-02",
+      "split": "test",
+      "category": "kubernetes-workloads",
+      "domain": "kubernetes",
+      "technologies": [
+        "kubernetes"
+      ],
+      "difficulty": "medium",
+      "question_type": "diagnostic",
+      "question": "Each time we roll out a new version of our Java API, users get connection errors for about a minute even though the new pods show Running almost immediately. The application needs roughly 40 seconds to load its caches before it can answer requests, and the pod spec only defines a liveness probe. What explains the errors and how do we fix it?",
+      "reference_answer": "Kubernetes distinguishes liveness from readiness. Liveness determines whether an application is running properly, and containers that fail liveness checks are restarted; it says nothing about whether the container can already serve traffic. Readiness describes when a container is ready to serve user requests: containers that fail readiness checks are removed from service load balancers, and the Service object tracks which Pods are ready through the readiness check. Applications often need some initialization time (from under a second to several minutes) before they can handle requests. Since the pods have no readiness check, nothing keeps the new pods out of the Service while their caches load, so requests reach pods that cannot answer yet. Fix: add a readiness probe (configured like a liveness probe) that only succeeds once the caches are loaded, and keep the liveness probe for detecting broken processes. When a readiness check fails, the endpoints of the Service change and kube-proxy rewrites its iptables rules so traffic only goes to ready pods.",
+      "expected_answer_criteria": [
+        "distinguishes liveness (restart a broken container) from readiness (ready to serve traffic)",
+        "explains that without a readiness check the new pods receive traffic while still initializing",
+        "recommends adding a readiness probe that succeeds only after initialization",
+        "mentions that pods failing readiness are removed from the Service load balancing / endpoints"
+      ],
+      "expected_causes": [
+        "no readiness probe: new pods receive traffic before the application has finished initializing",
+        "relying only on a liveness probe, which does not control traffic routing"
+      ],
+      "expected_investigation_steps": [
+        "check the probes defined in the pod spec",
+        "check the Service endpoints during a rollout to see which pods receive traffic",
+        "add a readiness probe on an endpoint that reflects the end of initialization and test a rollout"
+      ],
+      "expected_doc_ids": [
+        "pdf-o-reilly-kubernetes-up-and-running"
+      ],
+      "evidence": [
+        {
+          "doc_id": "pdf-o-reilly-kubernetes-up-and-running",
+          "source_path": "pdf/kubernetes/O'Reilly Kubernetes Up and Running.pdf",
+          "source_pdf": "O'Reilly Kubernetes Up and Running.pdf",
+          "page_number": 75,
+          "printed_page": 55,
+          "section": "Chapter 5. Pods > Health Checks > Readiness Probe",
+          "exact_evidence_passage": "Liveness determines if an application is running properly. Containers that fail liveness checks are restarted. Readiness describes when a container is ready to serve user requests. Containers that fail readiness checks are removed from service load balancers.",
+          "explanation": "Defines the difference between liveness and readiness and the effect of readiness on load balancing."
+        },
+        {
+          "doc_id": "pdf-o-reilly-kubernetes-up-and-running",
+          "source_path": "pdf/kubernetes/O'Reilly Kubernetes Up and Running.pdf",
+          "source_pdf": "O'Reilly Kubernetes Up and Running.pdf",
+          "page_number": 98,
+          "printed_page": 78,
+          "section": "Chapter 7. Service Discovery > Readiness Checks",
+          "exact_evidence_passage": "Often, when an application first starts up it isn’t ready to handle requests. There is usually some amount of initialization that can take anywhere from under a second to several minutes. One nice thing the Service object does is track which of your Pods are ready via a readiness check.",
+          "explanation": "Describes the start-up initialization problem and how the Service uses the readiness check."
+        },
+        {
+          "doc_id": "pdf-o-reilly-kubernetes-up-and-running",
+          "source_path": "pdf/kubernetes/O'Reilly Kubernetes Up and Running.pdf",
+          "source_pdf": "O'Reilly Kubernetes Up and Running.pdf",
+          "page_number": 104,
+          "printed_page": 84,
+          "section": "Chapter 7. Service Discovery > Advanced Details > kube-proxy and Cluster IPs",
+          "exact_evidence_passage": "If the set of endpoints for a service changes (due to Pods coming and going or due to a failed readiness check), the set of iptables rules is rewritten.",
+          "explanation": "A failed readiness check removes the pod from the service endpoints used to route traffic."
+        }
+      ],
+      "independence_check": {
+        "status": "pass",
+        "checked_on": "2026-11-13",
+        "method": "Compared with the 640 questions of incidents_eval.json (63), evidence_validation_negatives.json (20), train.jsonl (499) and validation.jsonl (58): exact match, cosine similarity of all-MiniLM-L6-v2 embeddings (rejection threshold 0.85, as in finetuning/generate_pairs.py; manual review of every question at 0.70 or more and of the closest neighbours), and difflib lexical ratio.",
+        "exact_duplicate": false,
+        "max_cosine_similarity": 0.662,
+        "closest_existing": "train.jsonl:319",
+        "max_lexical_ratio": 0.35,
+        "evidence_passages_found_in_finetuning_pairs": [],
+        "note": "No manual concern."
+      },
+      "answerable": true
+    },
+    {
+      "id": "bench-k8s-wl-03",
+      "split": "test",
+      "category": "kubernetes-workloads",
+      "domain": "kubernetes",
+      "technologies": [
+        "kubernetes"
+      ],
+      "difficulty": "medium",
+      "question_type": "diagnostic",
+      "question": "Pods of our new reporting deployment stay Pending with the event 'Insufficient memory', although the two application containers request only 256Mi each and our nodes have about 4Gi of allocatable memory. The pod spec also has an init container that downloads and unpacks a large dataset and requests 6Gi of memory for the few seconds it runs. Why can't the scheduler place the pod, and how should we change the spec?",
+      "reference_answer": "Init containers also affect the way Pod resource requirements are calculated for scheduling, autoscaling and quota management. Because init containers run in sequence before the application containers, which then run in parallel, the effective Pod-level request and limit values are the higher of two values: the highest request/limit of any init container, and the sum of the requests/limits of all application containers. Here the effective memory request is therefore max(6Gi, 2 x 256Mi) = 6Gi (calculation derived from the documented rule). The scheduler places Pods according to their requests (not their limits) and only considers nodes that still have enough capacity for the requested amounts. No node has 6Gi of allocatable memory, so the Pod stays Pending with 'Insufficient memory', although the running application would only need 512Mi. Kubernetes Patterns notes that this setup is not resource-efficient: even if the init container runs for a short time, the capacity it reserves cannot be used by other Pods. Fix: lower the memory request of the init container to what it really needs. Moving the heavy preparation out of the Pod (for example to a separate Job or to the image build) or using nodes with more allocatable memory are other options; these last suggestions are team recommendations, not stated in the source.",
+      "expected_answer_criteria": [
+        "explains that the effective Pod-level request is the higher of the highest init container request and the sum of the application container requests",
+        "concludes that the effective memory request is 6Gi, more than the allocatable memory of any node",
+        "states that the scheduler places Pods according to their requests (not limits or actual usage)",
+        "proposes to reduce the init container request (or move the heavy initialization elsewhere) rather than the application requests"
+      ],
+      "expected_causes": [
+        "the 6Gi memory request of the init container sets the effective Pod-level request",
+        "no node has 6Gi of allocatable memory"
+      ],
+      "expected_investigation_steps": [
+        "kubectl describe pod to read the FailedScheduling event",
+        "compare the requests of the init container with those of the application containers",
+        "compare the effective Pod request with the allocatable memory of the nodes"
+      ],
+      "expected_doc_ids": [
+        "pdf-o-reilly-kubernetes-patterns"
+      ],
+      "evidence": [
+        {
+          "doc_id": "pdf-o-reilly-kubernetes-patterns",
+          "source_path": "pdf/kubernetes/O'Reilly Kubernetes Patterns.pdf",
+          "source_pdf": "O'Reilly Kubernetes Patterns.pdf",
+          "page_number": 147,
+          "printed_page": 127,
+          "section": "Chapter 14. Init Container > Solution",
+          "exact_evidence_passage": "Init containers also affect the way Pod resource requirements are calculated for scheduling, autoscaling, and quota management. Given the ordering in the execution of all containers in a Pod (first, init containers run a sequence, then all application containers run in parallel), the effective Pod-level request and limit values become the highest values of the following two groups: • The highest init container request/limit value • The sum of all application container values for request/limit",
+          "explanation": "Rule that makes the init container request the effective Pod request."
+        },
+        {
+          "doc_id": "pdf-o-reilly-kubernetes-patterns",
+          "source_path": "pdf/kubernetes/O'Reilly Kubernetes Patterns.pdf",
+          "source_pdf": "O'Reilly Kubernetes Patterns.pdf",
+          "page_number": 147,
+          "printed_page": 127,
+          "section": "Chapter 14. Init Container > Solution",
+          "exact_evidence_passage": "A consequence of this behavior is that if you have init containers with high resource demands and application containers with low resource demands, the Pod-level request and limit values affecting the scheduling will be based on the higher value of the init containers. This setup is not resource-efficient. Even if init containers run for a short period of time and there is available capacity on the node for the majority of the time, no other Pod can use it.",
+          "explanation": "Exactly the situation of the question: a demanding init container drives the scheduling."
+        },
+        {
+          "doc_id": "pdf-o-reilly-kubernetes-patterns",
+          "source_path": "pdf/kubernetes/O'Reilly Kubernetes Patterns.pdf",
+          "source_pdf": "O'Reilly Kubernetes Patterns.pdf",
+          "page_number": 39,
+          "printed_page": 19,
+          "section": "Chapter 2. Predictable Demands > Solution > Container Resource Demands",
+          "exact_evidence_passage": "The requests amount (but not limits) is used by the scheduler when placing Pods to nodes. For a given Pod, the scheduler considers only nodes that still have enough capacity to accommodate the Pod and all of its containers by summing up the requested resource amounts.",
+          "explanation": "The scheduler only places the Pod on a node with enough capacity for its requests."
+        }
+      ],
+      "independence_check": {
+        "status": "pass_with_note",
+        "checked_on": "2026-11-13",
+        "method": "Compared with the 640 questions of incidents_eval.json (63), evidence_validation_negatives.json (20), train.jsonl (499) and validation.jsonl (58): exact match, cosine similarity of all-MiniLM-L6-v2 embeddings (rejection threshold 0.85, as in finetuning/generate_pairs.py; manual review of every question at 0.70 or more and of the closest neighbours), and difflib lexical ratio.",
+        "exact_duplicate": false,
+        "max_cosine_similarity": 0.69,
+        "closest_existing": "train.jsonl:60",
+        "max_lexical_ratio": 0.31,
+        "evidence_passages_found_in_finetuning_pairs": [],
+        "note": "Replaced on 2026-11-13 after the qualitative review: the previous scenario (Pod Pending while the cluster looks idle) duplicated train.jsonl:62, a duplicate that the embedding similarity (0.513) had not detected. New scenario checked manually: the closest questions (train.jsonl:60, :59 and :61 about OOMKilled; incidents_eval.json:k8s-006 about taints; train.jsonl:413, a generic Pending question) test other scenarios; no existing question combines init containers with scheduling, and no evidence passage appears in the fine-tuning pairs. Same chapter as bench-k8s-wl-05 (Init Container), different aspect (resource calculation instead of start-up order)."
+      },
+      "answerable": true
+    },
+    {
+      "id": "bench-k8s-wl-04",
+      "split": "test",
+      "category": "kubernetes-workloads",
+      "domain": "kubernetes",
+      "technologies": [
+        "kubernetes"
+      ],
+      "difficulty": "medium",
+      "question_type": "multi_source",
+      "question": "When one of our nodes ran short of memory last night, the kubelet evicted several batch pods, while the payment pods on the same node survived. None of the batch containers declare resources; the payment pods set memory and CPU requests equal to their limits. Is this behaviour expected, and how should we configure the batch pods if we want them to be less exposed?",
+      "reference_answer": "Yes. The requests and limits declared (or omitted) for the containers define the Quality of Service (QoS) class of the Pod, which sets the order in which Pods are killed or evicted under resource pressure. A Pod without any requests and limits is Best-Effort: it has the lowest priority and is most likely killed first when the node runs out of incompressible resources such as memory. A Pod with requests lower than its limits is Burstable and is killed next if no Best-Effort Pods remain. A Pod whose requests equal its limits is Guaranteed: it has the highest priority and is not killed before Best-Effort and Burstable Pods. The batch pods were Best-Effort and the payment pods Guaranteed, so the order observed is the documented one: Kubernetes evicts BestEffort Pods first, then Burstable, and finally Guaranteed. To make the batch pods less exposed, declare memory and CPU requests and limits (Burstable), or requests equal to limits (Guaranteed) for the most critical ones, and check the resulting QoS class in kubectl describe pod.",
+      "expected_answer_criteria": [
+        "identifies the QoS classes: batch pods are Best-Effort, payment pods are Guaranteed",
+        "explains the eviction order under node pressure: Best-Effort first, then Burstable, then Guaranteed",
+        "recommends declaring requests and limits for the batch pods (Burstable or Guaranteed)"
+      ],
+      "expected_causes": [
+        "batch pods without requests or limits are in the Best-Effort QoS class and are evicted first under node memory pressure",
+        "node memory pressure"
+      ],
+      "expected_investigation_steps": [
+        "check the QoS Class of the pods with kubectl describe pod",
+        "check the node conditions and eviction events",
+        "define requests and limits for the batch containers"
+      ],
+      "expected_doc_ids": [
+        "pdf-o-reilly-kubernetes-patterns",
+        "md-k8s-oomkilled-resource-limits"
+      ],
+      "evidence": [
+        {
+          "doc_id": "pdf-o-reilly-kubernetes-patterns",
+          "source_path": "pdf/kubernetes/O'Reilly Kubernetes Patterns.pdf",
+          "source_pdf": "O'Reilly Kubernetes Patterns.pdf",
+          "page_number": 39,
+          "printed_page": 19,
+          "section": "Chapter 2. Predictable Demands > Solution > Quality of Service",
+          "exact_evidence_passage": "Best-Effort Pod that does not have any requests and limits set for its containers. Such a Pod is considered as the lowest priority and is most likely killed first when the node where the Pod is placed runs out of incompressible resources.",
+          "explanation": "Pods without requests and limits are Best-Effort and killed first."
+        },
+        {
+          "doc_id": "pdf-o-reilly-kubernetes-patterns",
+          "source_path": "pdf/kubernetes/O'Reilly Kubernetes Patterns.pdf",
+          "source_pdf": "O'Reilly Kubernetes Patterns.pdf",
+          "page_number": 40,
+          "printed_page": 20,
+          "section": "Chapter 2. Predictable Demands > Solution > Quality of Service",
+          "exact_evidence_passage": "Guaranteed Pod that has an equal amount of request and limit resources. These are the highest-priority Pods and guaranteed not to be killed before Best-Effort and Burstable Pods.",
+          "explanation": "Pods with requests equal to limits are Guaranteed and survive longest."
+        },
+        {
+          "doc_id": "md-k8s-oomkilled-resource-limits",
+          "source_path": "markdown/kubernetes/k8s-oomkilled-resource-limits.md",
+          "source_pdf": null,
+          "page_number": null,
+          "printed_page": null,
+          "section": "Related Concepts",
+          "exact_evidence_passage": "when a node runs out of resources, Kubernetes evicts `BestEffort` Pods first, then `Burstable`, and finally `Guaranteed` [R3].",
+          "explanation": "States the eviction order by QoS class."
+        }
+      ],
+      "independence_check": {
+        "status": "pass",
+        "checked_on": "2026-11-13",
+        "method": "Compared with the 640 questions of incidents_eval.json (63), evidence_validation_negatives.json (20), train.jsonl (499) and validation.jsonl (58): exact match, cosine similarity of all-MiniLM-L6-v2 embeddings (rejection threshold 0.85, as in finetuning/generate_pairs.py; manual review of every question at 0.70 or more and of the closest neighbours), and difflib lexical ratio.",
+        "exact_duplicate": false,
+        "max_cosine_similarity": 0.692,
+        "closest_existing": "train.jsonl:59",
+        "max_lexical_ratio": 0.34,
+        "evidence_passages_found_in_finetuning_pairs": [
+          "train.jsonl:362"
+        ],
+        "note": "No manual concern. Some evidence passages also appear in fine-tuning pair passages: this does not affect the base embedding model used by the application, but a comparison with the fine-tuned model would be biased on this question."
+      },
+      "answerable": true
+    },
+    {
+      "id": "bench-k8s-wl-05",
+      "split": "test",
+      "category": "kubernetes-workloads",
+      "domain": "kubernetes",
+      "technologies": [
+        "kubernetes"
+      ],
+      "difficulty": "medium",
+      "question_type": "diagnostic",
+      "question": "We added an init container that waits until the database migration service is available. Since then, new pods stay at STATUS Init:0/1 for twenty minutes and the main application container never starts, so its logs are empty. How do init containers explain this, and what should we check?",
+      "reference_answer": "Init containers run before the application containers: they are executed in sequence, one by one, and all of them must terminate successfully before the application containers are started. An init container used to delay the start of a Pod while waiting for a dependency may not terminate until that dependency is satisfied. Here the init container keeps waiting for the migration service, so the Pod stays in its initialization phase and the application container is never started, which is why it has no logs. If an init container fails, the whole Pod is restarted (unless it is marked with RestartNever) and all init containers run again, so they should be idempotent. There is no readiness check for init containers. Check the logs and status of the init container itself (not the application container), and verify that the dependency it waits for (the migration service, its address and network access) is really available.",
+      "expected_answer_criteria": [
+        "explains that all init containers must terminate successfully before the application containers start",
+        "explains that an init container waiting for a dependency does not terminate until the dependency is satisfied",
+        "recommends inspecting the init container (logs, status) rather than the application container",
+        "recommends checking the availability of the awaited dependency"
+      ],
+      "expected_causes": [
+        "the init container waits for a dependency (migration service) that is not available, so it never terminates",
+        "application containers only start after all init containers have completed successfully"
+      ],
+      "expected_investigation_steps": [
+        "read the logs of the init container (kubectl logs <pod> -c <init-container>)",
+        "kubectl describe pod to see the state of the init container and the events",
+        "check that the dependency awaited by the init container is reachable"
+      ],
+      "expected_doc_ids": [
+        "pdf-o-reilly-kubernetes-patterns"
+      ],
+      "evidence": [
+        {
+          "doc_id": "pdf-o-reilly-kubernetes-patterns",
+          "source_path": "pdf/kubernetes/O'Reilly Kubernetes Patterns.pdf",
+          "source_pdf": "O'Reilly Kubernetes Patterns.pdf",
+          "page_number": 146,
+          "printed_page": 126,
+          "section": "Chapter 14. Init Container > Solution",
+          "exact_evidence_passage": "All init containers are executed in a sequence, one by one, and all of them have to terminate successfully before the application containers are started up.",
+          "explanation": "Application containers wait for the completion of every init container."
+        },
+        {
+          "doc_id": "pdf-o-reilly-kubernetes-patterns",
+          "source_path": "pdf/kubernetes/O'Reilly Kubernetes Patterns.pdf",
+          "source_pdf": "O'Reilly Kubernetes Patterns.pdf",
+          "page_number": 146,
+          "printed_page": 126,
+          "section": "Chapter 14. Init Container > Solution",
+          "exact_evidence_passage": "except when an init container is used to delay the start of a Pod while waiting for a dependency, in which case it may not terminate until the dependency is satisfied. If an init container fails, the whole Pod is restarted (unless it is marked with RestartNever), causing all init containers to run again.",
+          "explanation": "An init container waiting for a dependency blocks the Pod until the dependency is available; failures restart all init containers."
+        }
+      ],
+      "independence_check": {
+        "status": "pass",
+        "checked_on": "2026-11-13",
+        "method": "Compared with the 640 questions of incidents_eval.json (63), evidence_validation_negatives.json (20), train.jsonl (499) and validation.jsonl (58): exact match, cosine similarity of all-MiniLM-L6-v2 embeddings (rejection threshold 0.85, as in finetuning/generate_pairs.py; manual review of every question at 0.70 or more and of the closest neighbours), and difflib lexical ratio.",
+        "exact_duplicate": false,
+        "max_cosine_similarity": 0.56,
+        "closest_existing": "train.jsonl:17",
+        "max_lexical_ratio": 0.4,
+        "evidence_passages_found_in_finetuning_pairs": [],
+        "note": "No manual concern."
+      },
+      "answerable": true
+    },
+    {
+      "id": "bench-k8s-wl-06",
+      "split": "test",
+      "category": "kubernetes-workloads",
+      "domain": "kubernetes",
+      "technologies": [
+        "kubernetes"
+      ],
+      "difficulty": "medium",
+      "question_type": "diagnostic",
+      "question": "During every rolling update of our order service, a few in-flight requests fail and some temporary files are left behind on the volume. The old pods are killed about 30 seconds after the update starts, and our Node.js process does not handle any signal. What is Kubernetes doing when it stops these containers, and what should we change?",
+      "reference_answer": "Whenever Kubernetes shuts down a container (because its Pod is shutting down, as in a rolling update, or because a failed liveness probe causes a restart), the container first receives a SIGTERM signal. SIGTERM is a gentle request to shut down cleanly: the application should finish its in-flight requests, release open connections and clean up temporary files, as quickly as possible. If the process has not stopped, Kubernetes sends SIGKILL after a grace period of 30 seconds by default; the grace period can be set per Pod with .spec.terminationGracePeriodSeconds. Since the Node.js process ignores SIGTERM, it keeps running until it is killed abruptly by SIGKILL after 30 seconds, losing in-flight requests and leaving temporary files. Fix: handle SIGTERM in the application to stop accepting work, finish in-flight requests and clean up, keep shutdown short, and raise terminationGracePeriodSeconds only if a clean shutdown really needs more than 30 seconds.",
+      "expected_answer_criteria": [
+        "explains that Kubernetes sends SIGTERM first to let the container shut down cleanly",
+        "explains that SIGKILL follows after a grace period of 30 seconds by default",
+        "mentions .spec.terminationGracePeriodSeconds",
+        "recommends handling SIGTERM in the application (finish in-flight requests, clean up)"
+      ],
+      "expected_causes": [
+        "the application ignores SIGTERM and is killed by SIGKILL at the end of the grace period",
+        "the default grace period of 30 seconds is reached"
+      ],
+      "expected_investigation_steps": [
+        "check whether the application handles SIGTERM",
+        "check terminationGracePeriodSeconds in the Pod spec",
+        "observe the shutdown of an old pod during a rollout (events, logs)"
+      ],
+      "expected_doc_ids": [
+        "pdf-o-reilly-kubernetes-patterns"
+      ],
+      "evidence": [
+        {
+          "doc_id": "pdf-o-reilly-kubernetes-patterns",
+          "source_path": "pdf/kubernetes/O'Reilly Kubernetes Patterns.pdf",
+          "source_pdf": "O'Reilly Kubernetes Patterns.pdf",
+          "page_number": 62,
+          "printed_page": 42,
+          "section": "Chapter 5. Managed Lifecycle > SIGTERM Signal",
+          "exact_evidence_passage": "Whenever Kubernetes decides to shut down a container, whether that is because the Pod it belongs to is shutting down or simply a failed liveness probe causes the container to be restarted, the container receives a SIGTERM signal. SIGTERM is a gentle poke for the container to shut down cleanly before Kubernetes sends a more abrupt SIGKILL signal.",
+          "explanation": "Describes the SIGTERM sent at shutdown."
+        },
+        {
+          "doc_id": "pdf-o-reilly-kubernetes-patterns",
+          "source_path": "pdf/kubernetes/O'Reilly Kubernetes Patterns.pdf",
+          "source_pdf": "O'Reilly Kubernetes Patterns.pdf",
+          "page_number": 62,
+          "printed_page": 42,
+          "section": "Chapter 5. Managed Lifecycle > SIGTERM Signal",
+          "exact_evidence_passage": "some other applications may have to complete their in-flight requests, release open connections, and clean up temp files, which can take a slightly longer time.",
+          "explanation": "What a clean shutdown on SIGTERM should do."
+        },
+        {
+          "doc_id": "pdf-o-reilly-kubernetes-patterns",
+          "source_path": "pdf/kubernetes/O'Reilly Kubernetes Patterns.pdf",
+          "source_pdf": "O'Reilly Kubernetes Patterns.pdf",
+          "page_number": 62,
+          "printed_page": 42,
+          "section": "Chapter 5. Managed Lifecycle > SIGKILL Signal",
+          "exact_evidence_passage": "Kubernetes does not send the SIGKILL signal immediately but waits for a grace period of 30 seconds by default after it has issued a SIGTERM signal. This grace period can be defined per Pod using the .spec.terminationGracePeriodSeconds field",
+          "explanation": "Explains the 30-second kill observed and the setting that controls it."
+        }
+      ],
+      "independence_check": {
+        "status": "pass",
+        "checked_on": "2026-11-13",
+        "method": "Compared with the 640 questions of incidents_eval.json (63), evidence_validation_negatives.json (20), train.jsonl (499) and validation.jsonl (58): exact match, cosine similarity of all-MiniLM-L6-v2 embeddings (rejection threshold 0.85, as in finetuning/generate_pairs.py; manual review of every question at 0.70 or more and of the closest neighbours), and difflib lexical ratio.",
+        "exact_duplicate": false,
+        "max_cosine_similarity": 0.677,
+        "closest_existing": "train.jsonl:237",
+        "max_lexical_ratio": 0.35,
+        "evidence_passages_found_in_finetuning_pairs": [],
+        "note": "No manual concern."
+      },
+      "answerable": true
+    },
+    {
+      "id": "bench-k8s-net-01",
+      "split": "test",
+      "category": "kubernetes-networking",
+      "domain": "kubernetes",
+      "technologies": [
+        "kubernetes",
+        "networking"
+      ],
+      "difficulty": "hard",
+      "question_type": "multi_source",
+      "question": "From pods scheduled on node worker-3, requests to the ClusterIP of every Service time out, while the same Services answer normally from pods on the other nodes. Pod-to-pod traffic using pod IPs still works from worker-3. Which component should we suspect, and why?",
+      "reference_answer": "Suspect kube-proxy on worker-3. Cluster IPs are stable virtual IPs that load-balance traffic across the endpoints of a Service, and this is implemented by kube-proxy, a component that runs on every node. kube-proxy watches the Services through the API server and programs iptables rules in the kernel of its host to rewrite the destination of packets sent to a cluster IP towards one of the Service endpoints. If kube-proxy is not running or not working on one node, the iptables rules of that node are missing or stale: traffic to the virtual IPs fails from that node only, while direct pod-to-pod traffic, which does not depend on these rules, keeps working. Check that the kube-proxy pod (often run by a DaemonSet in kube-system) is running on worker-3, read its logs, inspect the node's iptables rules, and restart kube-proxy if needed.",
+      "expected_answer_criteria": [
+        "identifies kube-proxy on the affected node as the likely cause",
+        "explains that cluster IPs are virtual IPs implemented by iptables rules programmed by kube-proxy on each node",
+        "explains why pod IP traffic still works while Service IPs fail on that node only",
+        "proposes to check the kube-proxy pod/DaemonSet and its logs on that node"
+      ],
+      "expected_causes": [
+        "kube-proxy not running or failing on worker-3",
+        "missing or stale iptables rules for the Service virtual IPs on worker-3"
+      ],
+      "expected_investigation_steps": [
+        "check the kube-proxy pod on worker-3 (kubectl get daemonSets / pods -n kube-system) and its logs",
+        "inspect the iptables rules of worker-3",
+        "compare with a healthy node"
+      ],
+      "expected_doc_ids": [
+        "pdf-o-reilly-kubernetes-up-and-running",
+        "pdf-container-networking-docker-kubernetes"
+      ],
+      "evidence": [
+        {
+          "doc_id": "pdf-o-reilly-kubernetes-up-and-running",
+          "source_path": "pdf/kubernetes/O'Reilly Kubernetes Up and Running.pdf",
+          "source_pdf": "O'Reilly Kubernetes Up and Running.pdf",
+          "page_number": 104,
+          "printed_page": 84,
+          "section": "Chapter 7. Service Discovery > Advanced Details > kube-proxy and Cluster IPs",
+          "exact_evidence_passage": "Cluster IPs are stable virtual IPs that load-balance traffic across all of the endpoints in a service. This magic is performed by a component running on every node in the cluster called the kube-proxy",
+          "explanation": "Cluster IPs depend on kube-proxy running on each node."
+        },
+        {
+          "doc_id": "pdf-o-reilly-kubernetes-up-and-running",
+          "source_path": "pdf/kubernetes/O'Reilly Kubernetes Up and Running.pdf",
+          "source_pdf": "O'Reilly Kubernetes Up and Running.pdf",
+          "page_number": 104,
+          "printed_page": 84,
+          "section": "Chapter 7. Service Discovery > Advanced Details > kube-proxy and Cluster IPs",
+          "exact_evidence_passage": "the kube-proxy watches for new services in the cluster via the API server. It then programs a set of iptables rules in the kernel of that host to rewrite the destinations of packets so they are directed at one of the endpoints for that service.",
+          "explanation": "The rules are local to each host, which explains a failure on one node only."
+        },
+        {
+          "doc_id": "pdf-container-networking-docker-kubernetes",
+          "source_path": "pdf/kubernetes/Container-Networking-Docker-Kubernetes.pdf",
+          "source_pdf": "Container-Networking-Docker-Kubernetes.pdf",
+          "page_number": 59,
+          "printed_page": 49,
+          "section": "Chapter 7. Kubernetes Networking > Service Discovery in Kubernetes",
+          "exact_evidence_passage": "This kube-proxy process queries the API server to learn about new services in the cluster and updates the node’s iptables rules accordingly, to provide the necessary routing information.",
+          "explanation": "Confirms from a second source that each node's iptables rules are maintained by its kube-proxy."
+        },
+        {
+          "doc_id": "pdf-o-reilly-kubernetes-up-and-running",
+          "source_path": "pdf/kubernetes/O'Reilly Kubernetes Up and Running.pdf",
+          "source_pdf": "O'Reilly Kubernetes Up and Running.pdf",
+          "page_number": 54,
+          "printed_page": 34,
+          "section": "Chapter 3. Deploying a Kubernetes Cluster > Cluster Components > Kubernetes Proxy",
+          "exact_evidence_passage": "Regardless, the kube-proxy container should be running on all nodes in a cluster.",
+          "explanation": "Basis for checking that kube-proxy runs on the affected node."
+        }
+      ],
+      "independence_check": {
+        "status": "pass",
+        "checked_on": "2026-11-13",
+        "method": "Compared with the 640 questions of incidents_eval.json (63), evidence_validation_negatives.json (20), train.jsonl (499) and validation.jsonl (58): exact match, cosine similarity of all-MiniLM-L6-v2 embeddings (rejection threshold 0.85, as in finetuning/generate_pairs.py; manual review of every question at 0.70 or more and of the closest neighbours), and difflib lexical ratio.",
+        "exact_duplicate": false,
+        "max_cosine_similarity": 0.646,
+        "closest_existing": "train.jsonl:194",
+        "max_lexical_ratio": 0.37,
+        "evidence_passages_found_in_finetuning_pairs": [
+          "train.jsonl:430"
+        ],
+        "note": "No manual concern. Some evidence passages also appear in fine-tuning pair passages: this does not affect the base embedding model used by the application, but a comparison with the fine-tuned model would be biased on this question."
+      },
+      "answerable": true
+    },
+    {
+      "id": "bench-k8s-net-02",
+      "split": "test",
+      "category": "kubernetes-networking",
+      "domain": "kubernetes",
+      "technologies": [
+        "kubernetes",
+        "networking"
+      ],
+      "difficulty": "medium",
+      "question_type": "diagnostic",
+      "question": "On our bare-metal Kubernetes cluster, which has no cloud provider integration, we changed a Service to type LoadBalancer. Two hours later kubectl get services still shows EXTERNAL-IP <pending>. Why, and how can external clients reach the service in the meantime?",
+      "reference_answer": "The LoadBalancer type relies on the cloud: it can be used if you have support from the cloud you are running on and your cluster is configured to take advantage of it. It builds on the NodePort type by additionally configuring the cloud to create a new load balancer directed at the cluster nodes. EXTERNAL-IP shows <pending> until the cloud has assigned an address; on a bare-metal cluster without cloud integration, nothing creates that load balancer, so the field stays pending. Because a LoadBalancer Service builds on NodePort, the system has picked a node port: every node of the cluster forwards traffic on that port to the Service. External clients can therefore reach the Service on any node's IP address at that node port (visible with kubectl describe service), or through an external load balancer configured to point at the nodes on that port.",
+      "expected_answer_criteria": [
+        "explains that the LoadBalancer type needs cloud support/integration to provision a load balancer",
+        "explains that without it the external IP stays <pending>",
+        "explains that LoadBalancer builds on NodePort and that every node forwards the node port to the Service",
+        "proposes reaching the service through a node IP and the node port (or a load balancer pointed at the nodes)"
+      ],
+      "expected_causes": [
+        "no cloud provider integration to provision the load balancer requested by the LoadBalancer Service"
+      ],
+      "expected_investigation_steps": [
+        "kubectl describe service to read the events and the allocated node port",
+        "check whether the cluster has a cloud provider integration",
+        "test access through a node IP and the node port"
+      ],
+      "expected_doc_ids": [
+        "pdf-o-reilly-kubernetes-up-and-running"
+      ],
+      "evidence": [
+        {
+          "doc_id": "pdf-o-reilly-kubernetes-up-and-running",
+          "source_path": "pdf/kubernetes/O'Reilly Kubernetes Up and Running.pdf",
+          "source_pdf": "O'Reilly Kubernetes Up and Running.pdf",
+          "page_number": 101,
+          "printed_page": 81,
+          "section": "Chapter 7. Service Discovery > Cloud Integration",
+          "exact_evidence_passage": "if you have support from the cloud that you are running on (and your cluster is configured to take advantage of it), you can use the LoadBalancer type. This builds on the NodePort type by additionally configuring the cloud to create a new load balancer and direct it at nodes in your cluster.",
+          "explanation": "The LoadBalancer type requires cloud support and builds on NodePort."
+        },
+        {
+          "doc_id": "pdf-o-reilly-kubernetes-up-and-running",
+          "source_path": "pdf/kubernetes/O'Reilly Kubernetes Up and Running.pdf",
+          "source_pdf": "O'Reilly Kubernetes Up and Running.pdf",
+          "page_number": 101,
+          "printed_page": 81,
+          "section": "Chapter 7. Service Discovery > Cloud Integration",
+          "exact_evidence_passage": "If you do a kubectl get services right away you’ll see that the EXTERNAL-IP column for alpaca-prod now says <pending>. Wait a bit and you should see a public address assigned by your cloud.",
+          "explanation": "The external IP is assigned by the cloud; until then it is <pending>."
+        },
+        {
+          "doc_id": "pdf-o-reilly-kubernetes-up-and-running",
+          "source_path": "pdf/kubernetes/O'Reilly Kubernetes Up and Running.pdf",
+          "source_pdf": "O'Reilly Kubernetes Up and Running.pdf",
+          "page_number": 100,
+          "printed_page": 80,
+          "section": "Chapter 7. Service Discovery > Looking Beyond the Cluster",
+          "exact_evidence_passage": "the system picks a port (or the user can specify one), and every node in the cluster then forwards traffic to that port to the service. With this feature, if you can reach any node in the cluster you can contact a service.",
+          "explanation": "NodePort access works without any cloud load balancer."
+        }
+      ],
+      "independence_check": {
+        "status": "pass",
+        "checked_on": "2026-11-13",
+        "method": "Compared with the 640 questions of incidents_eval.json (63), evidence_validation_negatives.json (20), train.jsonl (499) and validation.jsonl (58): exact match, cosine similarity of all-MiniLM-L6-v2 embeddings (rejection threshold 0.85, as in finetuning/generate_pairs.py; manual review of every question at 0.70 or more and of the closest neighbours), and difflib lexical ratio.",
+        "exact_duplicate": false,
+        "max_cosine_similarity": 0.622,
+        "closest_existing": "train.jsonl:442",
+        "max_lexical_ratio": 0.38,
+        "evidence_passages_found_in_finetuning_pairs": [],
+        "note": "No manual concern."
+      },
+      "answerable": true
+    },
+    {
+      "id": "bench-k8s-net-03",
+      "split": "test",
+      "category": "kubernetes-networking",
+      "domain": "kubernetes",
+      "technologies": [
+        "kubernetes",
+        "networking"
+      ],
+      "difficulty": "hard",
+      "question_type": "multi_source",
+      "question": "We applied a NetworkPolicy that should block all ingress to the pods of our payments namespace except traffic coming from the api namespace. kubectl get networkpolicy -n payments shows the policy, yet a test pod in an unrelated namespace can still connect to the payments pods. What could explain that the policy has no effect?",
+      "reference_answer": "A NetworkPolicy object is only enforced if the cluster network supports it: to create network policies, a container network interface (CNI) plugin that supports the NetworkPolicy API is required, and Kubernetes distributions support network policies to different degrees. If the CNI plugin does not implement network policies, the object is accepted by the API server but nothing filters the traffic, which matches the symptom. Also check the selection: Pods are selected with podSelector and/or namespaceSelector, and only a Pod selected by a policy becomes isolated and rejects the connections not explicitly allowed; by default no policy applies and traffic is unrestricted. A selector that does not match the payments pods leaves them unrestricted. Policy formatting may also differ depending on the CNI plugin. Verify which CNI plugin the cluster uses and whether it supports NetworkPolicy, check that the podSelector matches the pod labels, and consider a default policy that denies all ingress and egress, relaxed by explicit allow policies.",
+      "expected_answer_criteria": [
+        "states that a CNI plugin supporting the NetworkPolicy API is required for policies to be enforced",
+        "states that pods are only isolated when a policy selects them (podSelector / namespaceSelector), otherwise traffic is unrestricted",
+        "proposes checking the CNI plugin and the selectors of the policy"
+      ],
+      "expected_causes": [
+        "the CNI plugin of the cluster does not support or enforce the NetworkPolicy API",
+        "the podSelector or namespaceSelector of the policy does not select the payments pods"
+      ],
+      "expected_investigation_steps": [
+        "identify the CNI plugin of the cluster and check its NetworkPolicy support",
+        "compare the policy selectors with the labels of the payments pods and namespaces",
+        "test again with a default deny policy"
+      ],
+      "expected_doc_ids": [
+        "pdf-ctr-kubernetes-hardening-guidance-1-2-20220829",
+        "pdf-container-networking-docker-kubernetes"
+      ],
+      "evidence": [
+        {
+          "doc_id": "pdf-ctr-kubernetes-hardening-guidance-1-2-20220829",
+          "source_path": "pdf/kubernetes/CTR_KUBERNETES_HARDENING_GUIDANCE_1.2_20220829.pdf",
+          "source_pdf": "CTR_KUBERNETES_HARDENING_GUIDANCE_1.2_20220829.pdf",
+          "page_number": 23,
+          "printed_page": 16,
+          "section": "Network separation and hardening > Network policies",
+          "exact_evidence_passage": "By default, no network policies are applied to Pods or namespaces, resulting in unrestricted ingress and egress traffic within the Pod network. Pods become isolated through a network policy that applies to the Pod or the Pod’s namespace. Once a Pod is selected in a network policy, it rejects any connections that are not specifically allowed by any applicable policy object. To create network policies, a container network interface (CNI) plugin that supports the NetworkPolicy API is required. Pods are selected using the podSelector and/or the namespaceSelector options.",
+          "explanation": "Policies need a CNI plugin that supports them, and only selected pods are isolated."
+        },
+        {
+          "doc_id": "pdf-container-networking-docker-kubernetes",
+          "source_path": "pdf/kubernetes/Container-Networking-Docker-Kubernetes.pdf",
+          "source_pdf": "Container-Networking-Docker-Kubernetes.pdf",
+          "page_number": 66,
+          "printed_page": 56,
+          "section": "Chapter 7. Kubernetes Networking > Advanced Kubernetes Networking Topics > Network Policies",
+          "exact_evidence_passage": "Note that different Kubernetes distros support network policies to different degrees",
+          "explanation": "Support for network policies depends on the distribution and its networking."
+        }
+      ],
+      "independence_check": {
+        "status": "pass",
+        "checked_on": "2026-11-13",
+        "method": "Compared with the 640 questions of incidents_eval.json (63), evidence_validation_negatives.json (20), train.jsonl (499) and validation.jsonl (58): exact match, cosine similarity of all-MiniLM-L6-v2 embeddings (rejection threshold 0.85, as in finetuning/generate_pairs.py; manual review of every question at 0.70 or more and of the closest neighbours), and difflib lexical ratio.",
+        "exact_duplicate": false,
+        "max_cosine_similarity": 0.647,
+        "closest_existing": "train.jsonl:366",
+        "max_lexical_ratio": 0.34,
+        "evidence_passages_found_in_finetuning_pairs": [],
+        "note": "No manual concern."
+      },
+      "answerable": true
+    },
+    {
+      "id": "bench-k8s-sec-01",
+      "split": "test",
+      "category": "kubernetes-security",
+      "domain": "kubernetes",
+      "technologies": [
+        "kubernetes",
+        "security"
+      ],
+      "difficulty": "medium",
+      "question_type": "diagnostic",
+      "question": "A penetration test reports that it could send requests to our Kubernetes API server without any token and still get answers on some endpoints, although RBAC is enabled. How is that possible, and what should we change on the API server?",
+      "reference_answer": "These are anonymous requests: requests that are not rejected by the other configured authentication methods and are not tied to any individual user or Pod. With token authentication and anonymous requests enabled, a request without a token is performed as an anonymous request, and anonymous requests are enabled by default in Kubernetes 1.6 and newer. With RBAC enabled, they still need an explicit authorization of the system:anonymous user or the system:unauthenticated group, so the answers obtained mean that some RBAC binding grants permissions to these subjects. Leaving anonymous requests enabled could allow an attacker to access cluster resources without authenticating. Disable them by passing --anonymous-auth=false to the API server, and review the RBAC bindings that reference system:anonymous or system:unauthenticated. At least one real user authentication method should be configured, avoiding weak methods such as static password files.",
+      "expected_answer_criteria": [
+        "explains anonymous requests and that they are enabled by default (Kubernetes 1.6 and newer)",
+        "explains that with RBAC they require an authorization of system:anonymous or system:unauthenticated, so a binding grants them access",
+        "recommends --anonymous-auth=false on the API server",
+        "recommends reviewing the RBAC bindings for these subjects"
+      ],
+      "expected_causes": [
+        "anonymous requests are enabled on the API server (default)",
+        "an RBAC binding authorizes system:anonymous or system:unauthenticated"
+      ],
+      "expected_investigation_steps": [
+        "check the --anonymous-auth flag of the API server",
+        "list the RoleBindings and ClusterRoleBindings that reference system:anonymous or system:unauthenticated",
+        "test an unauthenticated request again after the change"
+      ],
+      "expected_doc_ids": [
+        "pdf-ctr-kubernetes-hardening-guidance-1-2-20220829"
+      ],
+      "evidence": [
+        {
+          "doc_id": "pdf-ctr-kubernetes-hardening-guidance-1-2-20220829",
+          "source_path": "pdf/kubernetes/CTR_KUBERNETES_HARDENING_GUIDANCE_1.2_20220829.pdf",
+          "source_pdf": "CTR_KUBERNETES_HARDENING_GUIDANCE_1.2_20220829.pdf",
+          "page_number": 30,
+          "printed_page": 23,
+          "section": "Authentication and authorization > Authentication",
+          "exact_evidence_passage": "Anonymous requests are requests that are not rejected by other configured authentication methods and are not tied to any individual user or Pod. In a server setup for token authentication with anonymous requests enabled, a request without a token present would be performed as an anonymous request. In Kubernetes 1.6 and newer, anonymous requests are enabled by default. When RBAC is enabled, anonymous requests require explicit authorization of the system:anonymous user or system:unauthenticated group.",
+          "explanation": "Defines anonymous requests, their default state and how RBAC authorizes them."
+        },
+        {
+          "doc_id": "pdf-ctr-kubernetes-hardening-guidance-1-2-20220829",
+          "source_path": "pdf/kubernetes/CTR_KUBERNETES_HARDENING_GUIDANCE_1.2_20220829.pdf",
+          "source_pdf": "CTR_KUBERNETES_HARDENING_GUIDANCE_1.2_20220829.pdf",
+          "page_number": 30,
+          "printed_page": 23,
+          "section": "Authentication and authorization > Authentication",
+          "exact_evidence_passage": "Anonymous requests should be disabled by passing the --anonymous-auth=false option to the API server.",
+          "explanation": "Gives the recommended configuration change."
+        }
+      ],
+      "independence_check": {
+        "status": "pass",
+        "checked_on": "2026-11-13",
+        "method": "Compared with the 640 questions of incidents_eval.json (63), evidence_validation_negatives.json (20), train.jsonl (499) and validation.jsonl (58): exact match, cosine similarity of all-MiniLM-L6-v2 embeddings (rejection threshold 0.85, as in finetuning/generate_pairs.py; manual review of every question at 0.70 or more and of the closest neighbours), and difflib lexical ratio.",
+        "exact_duplicate": false,
+        "max_cosine_similarity": 0.552,
+        "closest_existing": "train.jsonl:289",
+        "max_lexical_ratio": 0.39,
+        "evidence_passages_found_in_finetuning_pairs": [],
+        "note": "No manual concern."
+      },
+      "answerable": true
+    },
+    {
+      "id": "bench-k8s-sec-02",
+      "split": "test",
+      "category": "kubernetes-security",
+      "domain": "kubernetes",
+      "technologies": [
+        "kubernetes",
+        "etcd",
+        "security"
+      ],
+      "difficulty": "medium",
+      "question_type": "factual",
+      "question": "A security review of our self-managed cluster found that the etcd members run on the same nodes as regular workloads and accept client connections from the whole node network. Why is this considered a critical risk, and which hardening measures does the NSA/CISA guidance recommend for etcd?",
+      "reference_answer": "etcd is the backend database that stores the cluster state information and the cluster Secrets. It is a critical control plane component: gaining write access to etcd could give an attacker root access to the entire cluster, so accepting connections from the whole node network exposes it far too widely. The guidance recommends: configuring the etcd server to trust only the certificates assigned to the API server; running etcd on a separate control plane node so that a firewall can limit access to the API servers only; setting up TLS certificates to enforce HTTPS communication between the etcd server and the API servers; and possibly using a separate certificate authority for etcd. The API server itself must then be protected by the cluster authentication method and RBAC policies.",
+      "expected_answer_criteria": [
+        "states that etcd stores the cluster state and Secrets and that write access can give root access to the whole cluster",
+        "recommends that etcd trusts only the API server certificates",
+        "recommends isolating etcd on control plane nodes with a firewall limiting access to the API servers",
+        "recommends TLS/HTTPS between etcd and the API servers (optionally a separate CA)"
+      ],
+      "expected_causes": [
+        "etcd reachable from untrusted nodes and workloads",
+        "etcd not restricted to API server certificates"
+      ],
+      "expected_investigation_steps": [
+        "check which hosts can reach the etcd client port",
+        "check the client certificate configuration of etcd",
+        "check that etcd and API server communications use TLS"
+      ],
+      "expected_doc_ids": [
+        "pdf-ctr-kubernetes-hardening-guidance-1-2-20220829"
+      ],
+      "evidence": [
+        {
+          "doc_id": "pdf-ctr-kubernetes-hardening-guidance-1-2-20220829",
+          "source_path": "pdf/kubernetes/CTR_KUBERNETES_HARDENING_GUIDANCE_1.2_20220829.pdf",
+          "source_pdf": "CTR_KUBERNETES_HARDENING_GUIDANCE_1.2_20220829.pdf",
+          "page_number": 26,
+          "printed_page": 19,
+          "section": "Control plane hardening > Etcd",
+          "exact_evidence_passage": "The etcd backend database stores state information and cluster Secrets. It is a critical control plane component, and gaining write access to etcd could give a cyber actor root access to the entire cluster. The etcd server should be configured to trust only certificates assigned to the API server. Etcd can be run on a separate control plane node, allowing a firewall to limit access to only the API servers.",
+          "explanation": "Risk and isolation measures for etcd."
+        },
+        {
+          "doc_id": "pdf-ctr-kubernetes-hardening-guidance-1-2-20220829",
+          "source_path": "pdf/kubernetes/CTR_KUBERNETES_HARDENING_GUIDANCE_1.2_20220829.pdf",
+          "source_pdf": "CTR_KUBERNETES_HARDENING_GUIDANCE_1.2_20220829.pdf",
+          "page_number": 26,
+          "printed_page": 19,
+          "section": "Control plane hardening > Etcd",
+          "exact_evidence_passage": "Administrators should set up TLS certificates to enforce Hypertext Transfer Protocol Secure (HTTPS) communication between the etcd server and API servers. Using a separate certificate authority (CA) for etcd may also be beneficial",
+          "explanation": "Encryption of the etcd communications."
+        }
+      ],
+      "independence_check": {
+        "status": "pass",
+        "checked_on": "2026-11-13",
+        "method": "Compared with the 640 questions of incidents_eval.json (63), evidence_validation_negatives.json (20), train.jsonl (499) and validation.jsonl (58): exact match, cosine similarity of all-MiniLM-L6-v2 embeddings (rejection threshold 0.85, as in finetuning/generate_pairs.py; manual review of every question at 0.70 or more and of the closest neighbours), and difflib lexical ratio.",
+        "exact_duplicate": false,
+        "max_cosine_similarity": 0.557,
+        "closest_existing": "train.jsonl:432",
+        "max_lexical_ratio": 0.42,
+        "evidence_passages_found_in_finetuning_pairs": [],
+        "note": "No manual concern."
+      },
+      "answerable": true
+    },
+    {
+      "id": "bench-k8s-sec-03",
+      "split": "test",
+      "category": "kubernetes-security",
+      "domain": "kubernetes",
+      "technologies": [
+        "kubernetes",
+        "docker",
+        "security"
+      ],
+      "difficulty": "medium",
+      "question_type": "factual",
+      "question": "Our security scanner flags that most of our application containers run as UID 0, although none of them needs privileged operations. The developers propose to simply add runAsUser to the Pod specs. What risk does running as root create, and what does the hardening guidance recommend in addition to runAsUser?",
+      "reference_answer": "By default, many container services run as the privileged root user, and applications execute inside the container as root even when they do not need privileged execution. Preventing root execution, with non-root containers or a rootless container engine, limits the impact of a container compromise. Kubernetes can force non-root execution at deployment with SecurityContext:runAsUser set to a non-zero user, but NSA and CISA encourage developers to build the container applications so that they execute as a non-root user: non-root execution integrated at build time (for example a Dockerfile that runs the application as a non-root user, see Appendix A of the guidance) gives better assurance that the application works correctly without root privileges. Both approaches change the runtime environment significantly, so the applications must be tested thoroughly for compatibility.",
+      "expected_answer_criteria": [
+        "explains that running as root increases the impact of a container compromise",
+        "acknowledges that runAsUser with a non-zero user forces non-root execution at deployment",
+        "recommends building the images to run as a non-root user (build time)",
+        "mentions testing the applications for compatibility"
+      ],
+      "expected_causes": [
+        "container images run their application as root by default"
+      ],
+      "expected_investigation_steps": [
+        "check the USER of the images and the securityContext of the Pods",
+        "rebuild the images to run as a non-root user and test them",
+        "add runAsUser / non-root settings to the Pod specs"
+      ],
+      "expected_doc_ids": [
+        "pdf-ctr-kubernetes-hardening-guidance-1-2-20220829"
+      ],
+      "evidence": [
+        {
+          "doc_id": "pdf-ctr-kubernetes-hardening-guidance-1-2-20220829",
+          "source_path": "pdf/kubernetes/CTR_KUBERNETES_HARDENING_GUIDANCE_1.2_20220829.pdf",
+          "source_pdf": "CTR_KUBERNETES_HARDENING_GUIDANCE_1.2_20220829.pdf",
+          "page_number": 16,
+          "printed_page": 9,
+          "section": "Kubernetes Pod security > “Non-root” containers and “rootless” container engines",
+          "exact_evidence_passage": "By default, many container services run as the privileged root user, and applications execute inside the container as root despite not requiring privileged execution. Preventing root execution by using non-root containers or a rootless container engine limits the impact of a container compromise.",
+          "explanation": "Risk of root execution and mitigation."
+        },
+        {
+          "doc_id": "pdf-ctr-kubernetes-hardening-guidance-1-2-20220829",
+          "source_path": "pdf/kubernetes/CTR_KUBERNETES_HARDENING_GUIDANCE_1.2_20220829.pdf",
+          "source_pdf": "CTR_KUBERNETES_HARDENING_GUIDANCE_1.2_20220829.pdf",
+          "page_number": 16,
+          "printed_page": 9,
+          "section": "Kubernetes Pod security > “Non-root” containers and “rootless” container engines",
+          "exact_evidence_passage": "While the runAsUser directive effectively forces non-root execution at deployment, NSA and CISA encourage developers to build container applications to execute as a non-root user. Having non-root execution integrated at build time provides better assurance that applications will function correctly without root privileges.",
+          "explanation": "runAsUser is not enough on its own: build-time non-root execution is recommended."
+        }
+      ],
+      "independence_check": {
+        "status": "pass",
+        "checked_on": "2026-11-13",
+        "method": "Compared with the 640 questions of incidents_eval.json (63), evidence_validation_negatives.json (20), train.jsonl (499) and validation.jsonl (58): exact match, cosine similarity of all-MiniLM-L6-v2 embeddings (rejection threshold 0.85, as in finetuning/generate_pairs.py; manual review of every question at 0.70 or more and of the closest neighbours), and difflib lexical ratio.",
+        "exact_duplicate": false,
+        "max_cosine_similarity": 0.485,
+        "closest_existing": "train.jsonl:375",
+        "max_lexical_ratio": 0.33,
+        "evidence_passages_found_in_finetuning_pairs": [],
+        "note": "No manual concern."
+      },
+      "answerable": true
+    },
+    {
+      "id": "bench-git-01",
+      "split": "test",
+      "category": "git",
+      "domain": "git",
+      "technologies": [
+        "git"
+      ],
+      "difficulty": "hard",
+      "question_type": "multi_source",
+      "question": "A teammate rebased our shared feature/payments branch onto main and force-pushed it. When I pulled, Git created a merge, and my history now contains duplicated commits with identical messages. What happened, and how can I bring my local work onto the rewritten branch cleanly?",
+      "reference_answer": "Rebasing abandons existing commits and creates new ones that are similar but different. The commits of the shared branch had been pushed and others, including you, had based work on them; once they were rewritten with git rebase and force-pushed, pulling merged the old commits (still in your history) with their rewritten copies, hence the duplicates. Pro Git sums up the rule as: do not rebase commits that exist outside your repository and that people may have based work on. To recover, do not merge: rebase your work on top of the rewritten branch (for example git rebase <remote>/<branch>). Git computes a patch-id for each commit and can often figure out which commits are uniquely yours and apply only those on top of the new branch. For the team: avoid force-pushing shared branches; if history really must be rewritten on your own branch, prefer --force-with-lease, which fails if the remote ref is not the expected value and is safer than a plain force push.",
+      "expected_answer_criteria": [
+        "explains that rebase rewrites commits (new commits that are similar but different) and that the published ones were replaced",
+        "explains that merging the rewritten branch duplicates the commits",
+        "states the rule: do not rebase commits that others have based work on",
+        "recommends rebasing local work onto the rewritten branch instead of merging (Git detects already applied patches)",
+        "recommends not force-pushing shared branches (or using --force-with-lease)"
+      ],
+      "expected_causes": [
+        "published commits of a shared branch were rewritten by a rebase and force-pushed",
+        "the rewritten branch was merged with the old commits still present locally"
+      ],
+      "expected_investigation_steps": [
+        "compare the local history with the rewritten remote branch (git log)",
+        "identify the commits that are really yours",
+        "rebase the local work on the rewritten remote branch instead of merging"
+      ],
+      "expected_doc_ids": [
+        "pdf-progit",
+        "md-git-push-rejected-ssh"
+      ],
+      "evidence": [
+        {
+          "doc_id": "pdf-progit",
+          "source_path": "pdf/git/progit.pdf",
+          "source_pdf": "progit.pdf",
+          "page_number": 106,
+          "printed_page": 100,
+          "section": "Git Branching > Rebasing > The Perils of Rebasing",
+          "exact_evidence_passage": "Do not rebase commits that exist outside your repository and that people may have based work on.",
+          "explanation": "The rule that was broken."
+        },
+        {
+          "doc_id": "pdf-progit",
+          "source_path": "pdf/git/progit.pdf",
+          "source_pdf": "progit.pdf",
+          "page_number": 106,
+          "printed_page": 100,
+          "section": "Git Branching > Rebasing > The Perils of Rebasing",
+          "exact_evidence_passage": "When you rebase stuff, you’re abandoning existing commits and creating new ones that are similar but different. If you push commits somewhere and others pull them down and base work on them, and then you rewrite those commits with git rebase and push them up again, your collaborators will have to re-merge their work and things will get messy when you try to pull their work back into yours.",
+          "explanation": "Explains the duplicated commits after pulling a rewritten branch."
+        },
+        {
+          "doc_id": "pdf-progit",
+          "source_path": "pdf/git/progit.pdf",
+          "source_pdf": "progit.pdf",
+          "page_number": 108,
+          "printed_page": 102,
+          "section": "Git Branching > Rebasing > Rebase When You Rebase",
+          "exact_evidence_passage": "If you pull down work that was rewritten and rebase it on top of the new commits from your partner, Git can often successfully figure out what is uniquely yours and apply them back on top of the new branch.",
+          "explanation": "Recovery: rebase instead of merge."
+        },
+        {
+          "doc_id": "md-git-push-rejected-ssh",
+          "source_path": "markdown/git/git-push-rejected-ssh-auth.md",
+          "source_pdf": null,
+          "page_number": null,
+          "printed_page": null,
+          "section": "Possible Solutions",
+          "exact_evidence_passage": "`--force-with-lease` overrides the restriction \"if the current value of the remote ref is the expected value\", and fails otherwise. It is safer than a plain force push [R1]. Do not force-push shared branches (team recommendation).",
+          "explanation": "Prevention: no force push on shared branches, --force-with-lease otherwise."
+        }
+      ],
+      "independence_check": {
+        "status": "pass_with_note",
+        "checked_on": "2026-11-13",
+        "method": "Compared with the 640 questions of incidents_eval.json (63), evidence_validation_negatives.json (20), train.jsonl (499) and validation.jsonl (58): exact match, cosine similarity of all-MiniLM-L6-v2 embeddings (rejection threshold 0.85, as in finetuning/generate_pairs.py; manual review of every question at 0.70 or more and of the closest neighbours), and difflib lexical ratio.",
+        "exact_duplicate": false,
+        "max_cosine_similarity": 0.719,
+        "closest_existing": "train.jsonl:340",
+        "max_lexical_ratio": 0.4,
+        "evidence_passages_found_in_finetuning_pairs": [
+          "train.jsonl:340",
+          "validation.jsonl:10"
+        ],
+        "note": "Close to train.jsonl:340 (asking what went wrong after rebasing a pushed branch); this question is about the receiving side (duplicated commits) and the recovery by rebasing. Kept, to be reviewed. Some evidence passages also appear in fine-tuning pair passages: this does not affect the base embedding model used by the application, but a comparison with the fine-tuned model would be biased on this question."
+      },
+      "answerable": true
+    },
+    {
+      "id": "bench-git-02",
+      "split": "test",
+      "category": "git",
+      "domain": "git",
+      "technologies": [
+        "git"
+      ],
+      "difficulty": "medium",
+      "question_type": "multi_source",
+      "question": "I forgot to add a configuration file to my last commit, so I ran git commit --amend and then git push. The push is rejected as non-fast-forward, although nobody else has pushed to this branch: the original commit had already been pushed an hour ago. Why is it rejected, and what is the safe way to proceed?",
+      "reference_answer": "git commit --amend does not fix the last commit: it replaces it entirely with a new commit that pushes the old one out of the way, as if the previous commit never happened. The remote branch still contains the original commit, which is no longer in your local branch, so your push is not a fast-forward and is rejected. Pro Git advises to only amend commits that are still local and have not been pushed: amending previously pushed commits and force pushing the branch causes problems for collaborators. If the branch is really only yours, you can push the rewritten history with --force-with-lease, which only overrides the remote if its current value is the expected one, and is safer than a plain force push. If others may use the branch, do not force-push: keep the published commit and add the missing file in a new commit instead.",
+      "expected_answer_criteria": [
+        "explains that --amend replaces the last commit with a new one",
+        "explains that the pushed commit is no longer in the local branch, hence the non-fast-forward rejection",
+        "states that only local, unpushed commits should be amended",
+        "proposes --force-with-lease for a personal branch, or a new commit instead of rewriting a shared branch"
+      ],
+      "expected_causes": [
+        "an already pushed commit was rewritten with git commit --amend"
+      ],
+      "expected_investigation_steps": [
+        "compare the local and remote branch history (git log, git status)",
+        "decide whether the branch is shared",
+        "push with --force-with-lease on a personal branch, or add a new commit on a shared branch"
+      ],
+      "expected_doc_ids": [
+        "pdf-progit",
+        "md-git-push-rejected-ssh"
+      ],
+      "evidence": [
+        {
+          "doc_id": "pdf-progit",
+          "source_path": "pdf/git/progit.pdf",
+          "source_pdf": "progit.pdf",
+          "page_number": 53,
+          "printed_page": 47,
+          "section": "Git Basics > Undoing Things",
+          "exact_evidence_passage": "It’s important to understand that when you’re amending your last commit, you’re not so much fixing it as replacing it entirely with a new, improved commit that pushes the old commit out of the way and puts the new commit in its place.",
+          "explanation": "--amend creates a new commit, so the pushed one disappears from the local branch."
+        },
+        {
+          "doc_id": "pdf-progit",
+          "source_path": "pdf/git/progit.pdf",
+          "source_pdf": "progit.pdf",
+          "page_number": 53,
+          "printed_page": 47,
+          "section": "Git Basics > Undoing Things",
+          "exact_evidence_passage": "Only amend commits that are still local and have not been pushed somewhere. Amending previously pushed commits and force pushing the branch will cause problems for your collaborators.",
+          "explanation": "Rule broken here and consequence of a force push."
+        },
+        {
+          "doc_id": "md-git-push-rejected-ssh",
+          "source_path": "markdown/git/git-push-rejected-ssh-auth.md",
+          "source_pdf": null,
+          "page_number": null,
+          "printed_page": null,
+          "section": "Possible Solutions",
+          "exact_evidence_passage": "`--force-with-lease` overrides the restriction \"if the current value of the remote ref is the expected value\", and fails otherwise. It is safer than a plain force push [R1]. Do not force-push shared branches (team recommendation).",
+          "explanation": "Safe way to publish a rewritten personal branch."
+        }
+      ],
+      "independence_check": {
+        "status": "pass_with_note",
+        "checked_on": "2026-11-13",
+        "method": "Compared with the 640 questions of incidents_eval.json (63), evidence_validation_negatives.json (20), train.jsonl (499) and validation.jsonl (58): exact match, cosine similarity of all-MiniLM-L6-v2 embeddings (rejection threshold 0.85, as in finetuning/generate_pairs.py; manual review of every question at 0.70 or more and of the closest neighbours), and difflib lexical ratio.",
+        "exact_duplicate": false,
+        "max_cosine_similarity": 0.767,
+        "closest_existing": "train.jsonl:320",
+        "max_lexical_ratio": 0.4,
+        "evidence_passages_found_in_finetuning_pairs": [
+          "validation.jsonl:10"
+        ],
+        "note": "Close to train.jsonl:320 and incidents_eval.json:git-001 (non-fast-forward push); the cause here is a rewritten commit (--amend), not a concurrent push. Kept. Some evidence passages also appear in fine-tuning pair passages: this does not affect the base embedding model used by the application, but a comparison with the fine-tuned model would be biased on this question."
+      },
+      "answerable": true
+    },
+    {
+      "id": "bench-git-03",
+      "split": "test",
+      "category": "git",
+      "domain": "git",
+      "technologies": [
+        "git"
+      ],
+      "difficulty": "medium",
+      "question_type": "diagnostic",
+      "question": "Yesterday a teammate merged the unfinished feature branch billing-v2 into main and pushed it. Several colleagues have already pulled main and pushed new commits on top of that merge. We need the billing-v2 changes out of main today. Why is git reset not appropriate here, and how do we undo the merge?",
+      "reference_answer": "Resetting main to the commit before the merge would rewrite history: if other people have the commits you are rewriting, you should avoid reset, and the approach does not work anyway when other commits have been created since the merge, because moving the branch pointer would lose those changes. Here colleagues have pulled the merge and pushed commits on top of it, so both conditions apply. Instead, revert the merge: git revert creates a new commit that undoes all the changes of an existing commit, without rewriting history. For a merge commit, use git revert -m 1 <merge-commit>: the -m 1 flag indicates which parent is the mainline to keep. The first parent is main as it was before the merge, the second is the tip of billing-v2, so the revert undoes all the changes brought by billing-v2 while keeping the content of main. Then push the revert commit normally. Be aware of a documented consequence of reverting a merge: the commits of billing-v2 remain reachable from main, so merging billing-v2 again later returns 'Already up-to-date', and if work is added to billing-v2 and merged again, Git only brings in the changes made since the reverted merge. When billing-v2 is ready, first un-revert the original merge (revert the revert commit) to bring back the reverted changes, then merge billing-v2 again.",
+      "expected_answer_criteria": [
+        "explains that reset rewrites history that others already have and would lose the commits created after the merge",
+        "recommends git revert of the merge commit (a new commit undoing its changes)",
+        "explains the -m 1 option: keep the first parent (main) as mainline and undo the changes of the merged branch",
+        "warns that merging billing-v2 again after the revert will not bring back the reverted changes ('Already up-to-date', or only the newer changes) and that the revert must first be reverted (un-revert the original merge) before merging again"
+      ],
+      "expected_causes": [
+        "an unfinished branch was merged into main and the merge was pushed and built upon"
+      ],
+      "expected_investigation_steps": [
+        "identify the merge commit in the history of main (git log)",
+        "check that other commits were created after the merge",
+        "git revert -m 1 <merge-commit> and push the revert commit"
+      ],
+      "expected_doc_ids": [
+        "pdf-progit"
+      ],
+      "evidence": [
+        {
+          "doc_id": "pdf-progit",
+          "source_path": "pdf/git/progit.pdf",
+          "source_pdf": "progit.pdf",
+          "page_number": 289,
+          "printed_page": 283,
+          "section": "Git Tools > Advanced Merging > Undoing Merges",
+          "exact_evidence_passage": "the short version is that if other people have the commits you’re rewriting, you should probably avoid reset. This approach also won’t work if any other commits have been created since the merge; moving the refs would effectively lose those changes.",
+          "explanation": "Why reset is not appropriate in this situation."
+        },
+        {
+          "doc_id": "pdf-progit",
+          "source_path": "pdf/git/progit.pdf",
+          "source_pdf": "progit.pdf",
+          "page_number": 289,
+          "printed_page": 283,
+          "section": "Git Tools > Advanced Merging > Undoing Merges > Reverse the commit",
+          "exact_evidence_passage": "If moving the branch pointers around isn’t going to work for you, Git gives you the option of making a new commit which undoes all the changes from an existing one. Git calls this operation a “revert”, and in this particular scenario, you’d invoke it like this: $ git revert -m 1 HEAD",
+          "explanation": "Reverting the merge commit."
+        },
+        {
+          "doc_id": "pdf-progit",
+          "source_path": "pdf/git/progit.pdf",
+          "source_pdf": "progit.pdf",
+          "page_number": 289,
+          "printed_page": 283,
+          "section": "Git Tools > Advanced Merging > Undoing Merges > Reverse the commit",
+          "exact_evidence_passage": "The -m 1 flag indicates which parent is the “mainline” and should be kept.",
+          "explanation": "Meaning of -m 1."
+        },
+        {
+          "doc_id": "pdf-progit",
+          "source_path": "pdf/git/progit.pdf",
+          "source_pdf": "progit.pdf",
+          "page_number": 289,
+          "printed_page": 283,
+          "section": "Git Tools > Advanced Merging > Undoing Merges > Reverse the commit",
+          "exact_evidence_passage": "In this case, we want to undo all the changes introduced by merging in parent #2 (C4), while keeping all the content from parent #1 (C6).",
+          "explanation": "The revert removes the merged branch changes and keeps the mainline."
+        },
+        {
+          "doc_id": "pdf-progit",
+          "source_path": "pdf/git/progit.pdf",
+          "source_pdf": "progit.pdf",
+          "page_number": 290,
+          "printed_page": 284,
+          "section": "Git Tools > Advanced Merging > Undoing Merges > Reverse the commit",
+          "exact_evidence_passage": "Git will get confused if you try to merge topic into master again: $ git merge topic Already up-to-date. There’s nothing in topic that isn’t already reachable from master. What’s worse, if you add work to topic and merge again, Git will only bring in the changes since the reverted merge: Figure 158. History with a bad merge The best way around this is to un-revert the original merge, since now you want to bring in the changes that were reverted out, then create a new merge commit:",
+          "explanation": "Consequence of reverting a merge for a later re-merge, and the documented way around it."
+        }
+      ],
+      "independence_check": {
+        "status": "pass_with_note",
+        "checked_on": "2026-11-13",
+        "method": "Compared with the 640 questions of incidents_eval.json (63), evidence_validation_negatives.json (20), train.jsonl (499) and validation.jsonl (58): exact match, cosine similarity of all-MiniLM-L6-v2 embeddings (rejection threshold 0.85, as in finetuning/generate_pairs.py; manual review of every question at 0.70 or more and of the closest neighbours), and difflib lexical ratio.",
+        "exact_duplicate": false,
+        "max_cosine_similarity": 0.637,
+        "closest_existing": "incidents_eval.json:git-005",
+        "max_lexical_ratio": 0.36,
+        "evidence_passages_found_in_finetuning_pairs": [],
+        "note": "Replaced during drafting: the first version (git stash) tested the same scenario as train.jsonl:301."
+      },
+      "answerable": true
+    },
+    {
+      "id": "bench-git-04",
+      "split": "test",
+      "category": "git",
+      "domain": "git",
+      "technologies": [
+        "git"
+      ],
+      "difficulty": "medium",
+      "question_type": "diagnostic",
+      "question": "Since our last release, the export feature produces corrupted CSV files. The previous release tag v2.3 worked, and about 40 commits have been merged since then. We can reproduce the bug locally but cannot see which change caused it. Which Git-based method lets us find the offending commit efficiently, and how does it work step by step?",
+      "reference_answer": "Use git bisect, which does a binary search through the commit history to identify as quickly as possible which commit introduced an issue. Run git bisect start, then git bisect bad to mark the current (broken) commit, and git bisect good v2.3 to mark the last known good state. Git checks out a commit in the middle of the range; run your test (reproduce the CSV export) and tell Git the result with git bisect good or git bisect bad. Git halves the remaining range each time until it reports the SHA-1 of the first bad commit, with its information and modified files. With about 40 commits, only a handful of tests are needed. If you have a script that exits 0 when the project is good and non-zero when it is bad, the whole bisection can be automated.",
+      "expected_answer_criteria": [
+        "recommends git bisect (binary search in the history)",
+        "gives the sequence: git bisect start, git bisect bad, git bisect good <last good commit or tag>",
+        "explains the loop: test the checked-out commit, mark it good or bad, until Git reports the first bad commit",
+        "mentions that the process can be automated with a test script (exit code 0 / non-zero)"
+      ],
+      "expected_causes": [
+        "a commit merged since tag v2.3 introduced the regression"
+      ],
+      "expected_investigation_steps": [
+        "git bisect start, git bisect bad, git bisect good v2.3",
+        "test each commit proposed by Git and mark it good or bad",
+        "inspect the first bad commit reported by Git"
+      ],
+      "expected_doc_ids": [
+        "pdf-progit"
+      ],
+      "evidence": [
+        {
+          "doc_id": "pdf-progit",
+          "source_path": "pdf/git/progit.pdf",
+          "source_pdf": "progit.pdf",
+          "page_number": 302,
+          "printed_page": 296,
+          "section": "Git Tools > Debugging with Git > Binary Search",
+          "exact_evidence_passage": "The bisect command does a binary search through your commit history to help you identify as quickly as possible which commit introduced an issue.",
+          "explanation": "The tool suited to the question."
+        },
+        {
+          "doc_id": "pdf-progit",
+          "source_path": "pdf/git/progit.pdf",
+          "source_pdf": "progit.pdf",
+          "page_number": 302,
+          "printed_page": 296,
+          "section": "Git Tools > Debugging with Git > Binary Search",
+          "exact_evidence_passage": "First you run git bisect start to get things going, and then you use git bisect bad to tell the system that the current commit you’re on is broken. Then, you must tell bisect when the last known good state was, using git bisect good <good_commit>:",
+          "explanation": "Start of the procedure."
+        },
+        {
+          "doc_id": "pdf-progit",
+          "source_path": "pdf/git/progit.pdf",
+          "source_pdf": "progit.pdf",
+          "page_number": 303,
+          "printed_page": 297,
+          "section": "Git Tools > Debugging with Git > Binary Search",
+          "exact_evidence_passage": "At this point, you can run your test to see if the issue exists as of this commit. If it does, then it was introduced sometime before this middle commit; if it doesn’t, then the problem was introduced sometime after the middle commit.",
+          "explanation": "Test and mark loop."
+        },
+        {
+          "doc_id": "pdf-progit",
+          "source_path": "pdf/git/progit.pdf",
+          "source_pdf": "progit.pdf",
+          "page_number": 304,
+          "printed_page": 298,
+          "section": "Git Tools > Debugging with Git > Binary Search",
+          "exact_evidence_passage": "if you have a script that will exit 0 if the project is good or non-0 if the project is bad, you can fully automate git bisect.",
+          "explanation": "Automation of the bisection."
+        }
+      ],
+      "independence_check": {
+        "status": "pass",
+        "checked_on": "2026-11-13",
+        "method": "Compared with the 640 questions of incidents_eval.json (63), evidence_validation_negatives.json (20), train.jsonl (499) and validation.jsonl (58): exact match, cosine similarity of all-MiniLM-L6-v2 embeddings (rejection threshold 0.85, as in finetuning/generate_pairs.py; manual review of every question at 0.70 or more and of the closest neighbours), and difflib lexical ratio.",
+        "exact_duplicate": false,
+        "max_cosine_similarity": 0.567,
+        "closest_existing": "train.jsonl:329",
+        "max_lexical_ratio": 0.33,
+        "evidence_passages_found_in_finetuning_pairs": [],
+        "note": "No manual concern."
+      },
+      "answerable": true
+    },
+    {
+      "id": "bench-cicd-01",
+      "split": "test",
+      "category": "ci-cd",
+      "domain": "github",
+      "technologies": [
+        "github-actions"
+      ],
+      "difficulty": "medium",
+      "question_type": "diagnostic",
+      "question": "We added a nightly schedule trigger to a workflow file on our develop branch to run integration tests, but after three nights it has never started, while manual runs of other workflows work. Our default branch is main. What is the most likely reason, and what else should we check?",
+      "reference_answer": "Some GitHub Actions events only run from the default branch, and schedule is one of them: a scheduled workflow defined only on develop is never triggered, because the default branch is main. The workflow file with the schedule trigger must be on main. Other trigger conditions to check: branch or path filters can skip the run, and a disabled workflow does not respond to triggers.",
+      "expected_answer_criteria": [
+        "states that schedule events only run from the default branch",
+        "concludes that the workflow must be on main (the default branch)",
+        "mentions the other trigger checks: branch/path filters and disabled workflow"
+      ],
+      "expected_causes": [
+        "the scheduled workflow is not on the default branch (main)",
+        "branch or path filters skip the run",
+        "the workflow is disabled"
+      ],
+      "expected_investigation_steps": [
+        "check on which branch the workflow file with the schedule trigger exists",
+        "check the branch and path filters of the workflow",
+        "check that the workflow is enabled"
+      ],
+      "expected_doc_ids": [
+        "md-github-actions-failures"
+      ],
+      "evidence": [
+        {
+          "doc_id": "md-github-actions-failures",
+          "source_path": "markdown/github/github-actions-workflow-failures.md",
+          "source_pdf": null,
+          "page_number": null,
+          "printed_page": null,
+          "section": "Possible Causes",
+          "exact_evidence_passage": "Some events only run from the default branch (for example `schedule`); branch/path filters can skip the run; a disabled workflow does not respond to triggers [R7]",
+          "explanation": "Trigger conditions that explain a scheduled workflow that never runs."
+        }
+      ],
+      "independence_check": {
+        "status": "pass",
+        "checked_on": "2026-11-13",
+        "method": "Compared with the 640 questions of incidents_eval.json (63), evidence_validation_negatives.json (20), train.jsonl (499) and validation.jsonl (58): exact match, cosine similarity of all-MiniLM-L6-v2 embeddings (rejection threshold 0.85, as in finetuning/generate_pairs.py; manual review of every question at 0.70 or more and of the closest neighbours), and difflib lexical ratio.",
+        "exact_duplicate": false,
+        "max_cosine_similarity": 0.494,
+        "closest_existing": "train.jsonl:41",
+        "max_lexical_ratio": 0.37,
+        "evidence_passages_found_in_finetuning_pairs": [],
+        "note": "No manual concern."
+      },
+      "answerable": true
+    },
+    {
+      "id": "bench-cicd-02",
+      "split": "test",
+      "category": "ci-cd",
+      "domain": "github",
+      "technologies": [
+        "github-actions"
+      ],
+      "difficulty": "medium",
+      "question_type": "factual",
+      "question": "Our end-to-end test job on a GitHub-hosted runner is cancelled after exactly six hours whenever the full suite runs, and another job targeting our self-hosted runner pool sometimes never starts and disappears after a day in the queue. Are these two behaviours related to GitHub Actions limits, and what are the values?",
+      "reference_answer": "Yes, both match documented time limits. Jobs on GitHub-hosted runners can run up to 6 hours, so the full suite is cancelled at that limit; it must be split into several jobs (or parallelized) or moved to a self-hosted runner, where jobs can run up to 5 days. Jobs queued for self-hosted runners are cancelled after 24 hours: the second job waited for a runner that never picked it up. Check that a self-hosted runner with matching labels is online; a label that matches existing preset labels can also cause runner assignment issues.",
+      "expected_answer_criteria": [
+        "gives the 6-hour limit for jobs on GitHub-hosted runners",
+        "gives the 24-hour limit for jobs queued for self-hosted runners",
+        "mentions the 5-day limit for jobs on self-hosted runners",
+        "proposes splitting the suite and checking the availability/labels of self-hosted runners"
+      ],
+      "expected_causes": [
+        "the job exceeds the 6-hour limit of GitHub-hosted runners",
+        "no self-hosted runner picked the queued job within 24 hours (offline runners or label mismatch)"
+      ],
+      "expected_investigation_steps": [
+        "check the job duration against the hosted runner limit",
+        "check the status and labels of the self-hosted runners",
+        "check the runs-on labels of the queued job"
+      ],
+      "expected_doc_ids": [
+        "md-github-actions-failures"
+      ],
+      "evidence": [
+        {
+          "doc_id": "md-github-actions-failures",
+          "source_path": "markdown/github/github-actions-workflow-failures.md",
+          "source_pdf": null,
+          "page_number": null,
+          "printed_page": null,
+          "section": "Possible Causes",
+          "exact_evidence_passage": "Jobs on GitHub-hosted runners can run up to 6 hours; self-hosted runners up to 5 days; queued self-hosted jobs are cancelled after 24 hours [R8]",
+          "explanation": "Time limits matching both symptoms."
+        },
+        {
+          "doc_id": "md-github-actions-failures",
+          "source_path": "markdown/github/github-actions-workflow-failures.md",
+          "source_pdf": null,
+          "page_number": null,
+          "printed_page": null,
+          "section": "Possible Causes",
+          "exact_evidence_passage": "A label that matches existing preset labels can cause runner assignment issues [R7]",
+          "explanation": "Runner label issue that can keep a job queued."
+        }
+      ],
+      "independence_check": {
+        "status": "pass",
+        "checked_on": "2026-11-13",
+        "method": "Compared with the 640 questions of incidents_eval.json (63), evidence_validation_negatives.json (20), train.jsonl (499) and validation.jsonl (58): exact match, cosine similarity of all-MiniLM-L6-v2 embeddings (rejection threshold 0.85, as in finetuning/generate_pairs.py; manual review of every question at 0.70 or more and of the closest neighbours), and difflib lexical ratio.",
+        "exact_duplicate": false,
+        "max_cosine_similarity": 0.5,
+        "closest_existing": "train.jsonl:42",
+        "max_lexical_ratio": 0.32,
+        "evidence_passages_found_in_finetuning_pairs": [],
+        "note": "No manual concern."
+      },
+      "answerable": true
+    },
+    {
+      "id": "bench-cicd-03",
+      "split": "test",
+      "category": "ci-cd",
+      "domain": "gitlab",
+      "technologies": [
+        "gitlab-ci",
+        "docker"
+      ],
+      "difficulty": "medium",
+      "question_type": "diagnostic",
+      "question": "A GitLab CI job in our app-backend project uses a build image stored in the container registry of the private project platform/build-images. The job fails while pulling the image, although the same image is pulled fine by the pipelines of build-images itself. Using a project access token created in app-backend did not help. What is the cause and how do we fix it?",
+      "reference_answer": "The image belongs to another private project. The CI/CD job token of app-backend is only allowed to access build-images if app-backend is in the CI/CD job token allowlist of build-images; here it is not, so the pull fails, while pipelines of build-images itself have access. Project access tokens cannot access images in other projects, which is why the token created in app-backend did not help. Fix: add app-backend to the job token allowlist of the private project build-images, then rerun the job.",
+      "expected_answer_criteria": [
+        "identifies the CI/CD job token allowlist of the private project as the cause",
+        "explains that project access tokens cannot access images in other projects",
+        "recommends adding the project running the job to the allowlist of the project that owns the image"
+      ],
+      "expected_causes": [
+        "the project running the job is not in the CI/CD job token allowlist of the private project that owns the image",
+        "project access tokens cannot access images in other projects"
+      ],
+      "expected_investigation_steps": [
+        "read the job log at the image pull step",
+        "check the CI/CD job token allowlist of the project that owns the image",
+        "add the project running the job to the allowlist and rerun"
+      ],
+      "expected_doc_ids": [
+        "md-gitlab-ci-job-failures"
+      ],
+      "evidence": [
+        {
+          "doc_id": "md-gitlab-ci-job-failures",
+          "source_path": "markdown/gitlab/gitlab-ci-job-failures.md",
+          "source_pdf": null,
+          "page_number": null,
+          "printed_page": null,
+          "section": "Possible Causes",
+          "exact_evidence_passage": "The CI/CD job token allowlist of the private project does not include the project running the job. Project access tokens cannot access images in other projects [R1]",
+          "explanation": "Cause of the failure and why the project access token does not help."
+        }
+      ],
+      "independence_check": {
+        "status": "pass",
+        "checked_on": "2026-11-13",
+        "method": "Compared with the 640 questions of incidents_eval.json (63), evidence_validation_negatives.json (20), train.jsonl (499) and validation.jsonl (58): exact match, cosine similarity of all-MiniLM-L6-v2 embeddings (rejection threshold 0.85, as in finetuning/generate_pairs.py; manual review of every question at 0.70 or more and of the closest neighbours), and difflib lexical ratio.",
+        "exact_duplicate": false,
+        "max_cosine_similarity": 0.615,
+        "closest_existing": "incidents_eval.json:gitlab-002",
+        "max_lexical_ratio": 0.31,
+        "evidence_passages_found_in_finetuning_pairs": [],
+        "note": "No manual concern."
+      },
+      "answerable": true
+    },
+    {
+      "id": "bench-docker-01",
+      "split": "test",
+      "category": "docker",
+      "domain": "docker",
+      "technologies": [
+        "docker"
+      ],
+      "difficulty": "medium",
+      "question_type": "diagnostic",
+      "question": "In our Node.js service, every one-line code change makes the CI rebuild and push the whole 600 MB dependency layer, and every deployment pulls it again. The Dockerfile copies the full source tree first and runs npm install afterwards. Why does a small code change invalidate the dependency layer, and how should the Dockerfile be reordered?",
+      "reference_answer": "A Docker image is made of layers, and each layer is an independent delta from the layer below it. Every time a layer changes, every layer that comes after it changes too, and these layers must be rebuilt, pushed again and pulled again. Because the Dockerfile copies the whole source tree before running npm install, any code change modifies the source layer, and the dependency layer built after it is invalidated and transferred again although the dependencies did not change. Layers should be ordered from least likely to change to most likely to change: first copy only the package*.json files and install the dependencies, then copy the rest of the program files. A code change then only rebuilds and transfers the small source layer, since developers change the program files much more often than the dependencies.",
+      "expected_answer_criteria": [
+        "explains that a change in one layer invalidates every layer after it, which must be rebuilt, pushed and pulled",
+        "links the problem to copying the source code before installing the dependencies",
+        "recommends ordering the layers from least to most likely to change",
+        "recommends copying package*.json and installing dependencies before copying the rest of the code"
+      ],
+      "expected_causes": [
+        "the source code is copied before the dependencies are installed, so every code change invalidates the dependency layer"
+      ],
+      "expected_investigation_steps": [
+        "read the order of the COPY and RUN instructions in the Dockerfile",
+        "inspect the image layers and their sizes (docker history)",
+        "reorder the Dockerfile and check that a code change only rebuilds the last layers"
+      ],
+      "expected_doc_ids": [
+        "pdf-o-reilly-kubernetes-up-and-running"
+      ],
+      "evidence": [
+        {
+          "doc_id": "pdf-o-reilly-kubernetes-up-and-running",
+          "source_path": "pdf/kubernetes/O'Reilly Kubernetes Up and Running.pdf",
+          "source_pdf": "O'Reilly Kubernetes Up and Running.pdf",
+          "page_number": 39,
+          "printed_page": 19,
+          "section": "Chapter 2. Creating and Running Containers > Optimizing Image Sizes",
+          "exact_evidence_passage": "Remember that each layer is an independent delta from the layer below it. Every time you change a layer, it changes every layer that comes after it. Changing the preceding layers means that they need to be rebuilt, repushed, and repulled to deploy your image to development.",
+          "explanation": "Why a code change invalidates the following layers."
+        },
+        {
+          "doc_id": "pdf-o-reilly-kubernetes-up-and-running",
+          "source_path": "pdf/kubernetes/O'Reilly Kubernetes Up and Running.pdf",
+          "source_pdf": "O'Reilly Kubernetes Up and Running.pdf",
+          "page_number": 39,
+          "printed_page": 19,
+          "section": "Chapter 2. Creating and Running Containers > Optimizing Image Sizes",
+          "exact_evidence_passage": "In one case, it is only the change that needs to be pulled or pushed, but in the other case, both server.js and the layer providing the node package need to be pulled and pushed, since the node layer is dependent on the server.js layer.",
+          "explanation": "Same situation in the book: code copied before the node package layer."
+        },
+        {
+          "doc_id": "pdf-o-reilly-kubernetes-up-and-running",
+          "source_path": "pdf/kubernetes/O'Reilly Kubernetes Up and Running.pdf",
+          "source_pdf": "O'Reilly Kubernetes Up and Running.pdf",
+          "page_number": 39,
+          "printed_page": 19,
+          "section": "Chapter 2. Creating and Running Containers > Optimizing Image Sizes",
+          "exact_evidence_passage": "In general, you want to order your layers from least likely to change to most likely to change in order to optimize the image size for pushing and pulling. This is why, in Example 2-4, we copy the package*.json files and install dependencies before copying the rest of the program files. A developer is going to update and change the program files much more often than the dependencies.",
+          "explanation": "Recommended ordering of the Dockerfile."
+        }
+      ],
+      "independence_check": {
+        "status": "pass_with_note",
+        "checked_on": "2026-11-13",
+        "method": "Compared with the 640 questions of incidents_eval.json (63), evidence_validation_negatives.json (20), train.jsonl (499) and validation.jsonl (58): exact match, cosine similarity of all-MiniLM-L6-v2 embeddings (rejection threshold 0.85, as in finetuning/generate_pairs.py; manual review of every question at 0.70 or more and of the closest neighbours), and difflib lexical ratio.",
+        "exact_duplicate": false,
+        "max_cosine_similarity": 0.418,
+        "closest_existing": "train.jsonl:468",
+        "max_lexical_ratio": 0.35,
+        "evidence_passages_found_in_finetuning_pairs": [
+          "train.jsonl:468"
+        ],
+        "note": "Replaced during drafting: the first version (file deleted in a later layer) tested the same scenario as train.jsonl:468. Some evidence passages also appear in fine-tuning pair passages: this does not affect the base embedding model used by the application, but a comparison with the fine-tuned model would be biased on this question."
+      },
+      "answerable": true
+    },
+    {
+      "id": "bench-docker-02",
+      "split": "test",
+      "category": "docker",
+      "domain": "docker",
+      "technologies": [
+        "docker",
+        "networking"
+      ],
+      "difficulty": "medium",
+      "question_type": "diagnostic",
+      "question": "To avoid NAT overhead, we started two containers of the same web image with --net=host on one server. The first one serves on port 80, but the second one exits at start-up complaining that the address is already in use, and the -p 8080:80 option we kept seems to change nothing. What does host networking change compared with the default mode, and what risks does it bring?",
+      "reference_answer": "Bridge mode is the Docker default: each container gets its own network namespace, and ports are made reachable from outside the host by publishing them with -P (all exposed ports) or -p <host_port>:<container_port>. Host mode instead disables the network isolation of the container: the container shares the network namespace of the host. As a consequence, port allocations must be managed by you: both containers try to bind port 80 of the host itself, so the second one fails with 'address already in use', and a port mapping such as -p 8080:80, which belongs to the published-port mechanism of bridge mode, does not remap the port. The other risk is security: a host-mode container may be directly exposed to the public network if the host network is not firewalled. Use bridge mode with distinct published ports, or configure each application to listen on a different port, and firewall the host if host mode is kept.",
+      "expected_answer_criteria": [
+        "explains that host mode shares the host network namespace and disables network isolation",
+        "explains that port allocation must then be managed manually, hence the conflict on port 80",
+        "explains that port publishing (-p/-P) is the mechanism of the default bridge mode",
+        "mentions the exposure risk if the host is not firewalled"
+      ],
+      "expected_causes": [
+        "both containers share the host network namespace and try to bind the same port 80",
+        "port publishing does not apply as in bridge mode"
+      ],
+      "expected_investigation_steps": [
+        "check the network mode of the containers (docker inspect)",
+        "check which process already listens on port 80 of the host",
+        "switch back to bridge mode with distinct published ports, or change the listening port"
+      ],
+      "expected_doc_ids": [
+        "pdf-container-networking-docker-kubernetes"
+      ],
+      "evidence": [
+        {
+          "doc_id": "pdf-container-networking-docker-kubernetes",
+          "source_path": "pdf/kubernetes/Container-Networking-Docker-Kubernetes.pdf",
+          "source_pdf": "Container-Networking-Docker-Kubernetes.pdf",
+          "page_number": 18,
+          "printed_page": 8,
+          "section": "Chapter 2. Introduction to Container Networking > Modes for Docker Networking > Host Mode Networking",
+          "exact_evidence_passage": "This mode effectively disables network isolation of a Docker container. Because the container shares the network namespace of the host, it may be directly exposed to the public network if the host network is not firewalled. As a consequence of the shared namespace, you need to manage port allocations somehow.",
+          "explanation": "Host mode semantics, port conflicts and exposure risk."
+        },
+        {
+          "doc_id": "pdf-container-networking-docker-kubernetes",
+          "source_path": "pdf/kubernetes/Container-Networking-Docker-Kubernetes.pdf",
+          "source_pdf": "Container-Networking-Docker-Kubernetes.pdf",
+          "page_number": 18,
+          "printed_page": 8,
+          "section": "Chapter 2. Introduction to Container Networking > Modes for Docker Networking > Bridge Mode Networking",
+          "exact_evidence_passage": "If you do not use the -P argument, which publishes all exposed ports of the container, or -p <host_port>:<container_port>, which publishes a specific port, the IP packets will not be routable to the container outside of the host.",
+          "explanation": "Port publishing belongs to the bridge mode."
+        },
+        {
+          "doc_id": "pdf-container-networking-docker-kubernetes",
+          "source_path": "pdf/kubernetes/Container-Networking-Docker-Kubernetes.pdf",
+          "source_pdf": "Container-Networking-Docker-Kubernetes.pdf",
+          "page_number": 17,
+          "printed_page": 7,
+          "section": "Chapter 2. Introduction to Container Networking > Modes for Docker Networking",
+          "exact_evidence_passage": "Bridge mode Usually used for apps running in standalone containers; this is the default network driver.",
+          "explanation": "Bridge is the default mode."
+        }
+      ],
+      "independence_check": {
+        "status": "pass",
+        "checked_on": "2026-11-13",
+        "method": "Compared with the 640 questions of incidents_eval.json (63), evidence_validation_negatives.json (20), train.jsonl (499) and validation.jsonl (58): exact match, cosine similarity of all-MiniLM-L6-v2 embeddings (rejection threshold 0.85, as in finetuning/generate_pairs.py; manual review of every question at 0.70 or more and of the closest neighbours), and difflib lexical ratio.",
+        "exact_duplicate": false,
+        "max_cosine_similarity": 0.493,
+        "closest_existing": "train.jsonl:36",
+        "max_lexical_ratio": 0.34,
+        "evidence_passages_found_in_finetuning_pairs": [],
+        "note": "No manual concern."
+      },
+      "answerable": true
+    },
+    {
+      "id": "bench-docker-03",
+      "split": "test",
+      "category": "docker",
+      "domain": "docker",
+      "technologies": [
+        "docker",
+        "linux"
+      ],
+      "difficulty": "medium",
+      "question_type": "multi_source",
+      "question": "Our self-hosted CI build server runs Docker and now fails image builds with 'no space left on device'. df -h shows /var at 100%, and /var/lib/docker is by far the largest directory. Nothing else changed, except that we build dozens of image versions every day. What is consuming the space, and how should we clean up and prevent it from happening again?",
+      "reference_answer": "Building many images creates many images and build layers that take up unnecessary space: on container hosts, images, volumes and build caches accumulate. Confirm it by finding the biggest directories under /var on the same filesystem (du -x --max-depth=1) and by listing the images with docker images. Clean up by deleting unused tags (docker rmi) and with docker system prune, which removes all stopped containers, all untagged images and all unused image layers cached by the build process; it must be used carefully. To prevent a recurrence, schedule an image garbage collector as a recurring cron job (for example the docker-gc tool), once per day or per hour depending on the number of images built.",
+      "expected_answer_criteria": [
+        "identifies accumulated images, build layers/caches (and volumes) as the consumers",
+        "proposes to confirm with du on /var and docker images",
+        "proposes docker system prune (with care) and/or deleting unused images",
+        "proposes a recurring cleanup (image garbage collector in cron)"
+      ],
+      "expected_causes": [
+        "accumulated images, build caches and unused layers on the Docker host",
+        "stopped containers and volumes not removed"
+      ],
+      "expected_investigation_steps": [
+        "du -x -h --max-depth=1 /var to find the biggest directories",
+        "docker images to list the images",
+        "docker system prune and a scheduled cleanup"
+      ],
+      "expected_doc_ids": [
+        "pdf-o-reilly-kubernetes-up-and-running",
+        "md-linux-disk-full"
+      ],
+      "evidence": [
+        {
+          "doc_id": "pdf-o-reilly-kubernetes-up-and-running",
+          "source_path": "pdf/kubernetes/O'Reilly Kubernetes Up and Running.pdf",
+          "source_pdf": "O'Reilly Kubernetes Up and Running.pdf",
+          "page_number": 45,
+          "printed_page": 25,
+          "section": "Chapter 2. Creating and Running Containers > Cleanup",
+          "exact_evidence_passage": "you will often create many, many different images that end up taking up unnecessary space on your computer.",
+          "explanation": "Repeated builds accumulate images."
+        },
+        {
+          "doc_id": "pdf-o-reilly-kubernetes-up-and-running",
+          "source_path": "pdf/kubernetes/O'Reilly Kubernetes Up and Running.pdf",
+          "source_pdf": "O'Reilly Kubernetes Up and Running.pdf",
+          "page_number": 45,
+          "printed_page": 25,
+          "section": "Chapter 2. Creating and Running Containers > Cleanup",
+          "exact_evidence_passage": "Docker provides a tool called docker system prune for doing general cleanup. This will remove all stopped containers, all untagged images, and all unused image layers cached as part of the build process. Use it carefully. A slightly more sophisticated approach is to set up a cron job to run an image garbage collector.",
+          "explanation": "Cleanup and prevention."
+        },
+        {
+          "doc_id": "md-linux-disk-full",
+          "source_path": "markdown/linux/linux-disk-full-no-space-left.md",
+          "source_pdf": null,
+          "page_number": null,
+          "printed_page": null,
+          "section": "Possible Causes",
+          "exact_evidence_passage": "On container hosts, images and volumes accumulate",
+          "explanation": "Known cause of full disks on container hosts."
+        },
+        {
+          "doc_id": "md-linux-disk-full",
+          "source_path": "markdown/linux/linux-disk-full-no-space-left.md",
+          "source_pdf": null,
+          "page_number": null,
+          "printed_page": null,
+          "section": "Diagnostic Commands",
+          "exact_evidence_passage": "# Biggest directories under /var, staying on the same filesystem, one level deep\nsudo du -x -h --max-depth=1 /var | sort -h",
+          "explanation": "Command to confirm which directory uses the space."
+        }
+      ],
+      "independence_check": {
+        "status": "pass",
+        "checked_on": "2026-11-13",
+        "method": "Compared with the 640 questions of incidents_eval.json (63), evidence_validation_negatives.json (20), train.jsonl (499) and validation.jsonl (58): exact match, cosine similarity of all-MiniLM-L6-v2 embeddings (rejection threshold 0.85, as in finetuning/generate_pairs.py; manual review of every question at 0.70 or more and of the closest neighbours), and difflib lexical ratio.",
+        "exact_duplicate": false,
+        "max_cosine_similarity": 0.566,
+        "closest_existing": "train.jsonl:70",
+        "max_lexical_ratio": 0.35,
+        "evidence_passages_found_in_finetuning_pairs": [
+          "train.jsonl:67",
+          "train.jsonl:69"
+        ],
+        "note": "No manual concern. Some evidence passages also appear in fine-tuning pair passages: this does not affect the base embedding model used by the application, but a comparison with the fine-tuned model would be biased on this question."
+      },
+      "answerable": true
+    },
+    {
+      "id": "bench-tf-01",
+      "split": "test",
+      "category": "terraform",
+      "domain": "terraform",
+      "technologies": [
+        "terraform",
+        "aws"
+      ],
+      "difficulty": "easy",
+      "question_type": "multi_source",
+      "question": "During a code review we noticed that our Terraform project contains a terraform.tfvars file with access_key and secret_key values for AWS, and this file is tracked in Git. Why is this a problem, and how should the credentials be provided instead?",
+      "reference_answer": "Putting credentials in terraform.tfvars is a very poor security model: the file can easily be accidentally distributed or added to version control, which is exactly what happened. Instead of specifying credentials in the configuration, configure the AWS client tools: they provide a shared credential configuration that Terraform can consume, which removes the need to put credentials in the Terraform files. More generally, credential arguments should be left unset in the configuration and provided through the credentials files or environment variables that are conventional for the target system. Since the keys were committed, they should also be considered exposed and replaced (team recommendation, not stated in the sources).",
+      "expected_answer_criteria": [
+        "explains that credentials in a tfvars file can be distributed or committed to version control",
+        "recommends the shared credential configuration of the AWS client tools",
+        "recommends leaving credentials out of the configuration and using credentials files or environment variables"
+      ],
+      "expected_causes": [
+        "AWS credentials stored in terraform.tfvars and committed to Git"
+      ],
+      "expected_investigation_steps": [
+        "remove the credentials from the Terraform files",
+        "configure the AWS shared credentials (client tools) or environment variables",
+        "rotate the exposed keys"
+      ],
+      "expected_doc_ids": [
+        "pdf-terraform",
+        "md-terraform-init-errors"
+      ],
+      "evidence": [
+        {
+          "doc_id": "pdf-terraform",
+          "source_path": "pdf/terraform/Terraform.pdf",
+          "source_pdf": "Terraform.pdf",
+          "page_number": 28,
+          "printed_page": 23,
+          "section": "Chapter 3. Building an application stack with Terraform > Using AWS shared credentials",
+          "exact_evidence_passage": "it’s often a very poor security model to specify these credentials in a file that could easily be accidentally distributed or added to version control. Instead of specifying the credentials in your configuration, you should configure the AWS client tools.",
+          "explanation": "Risk of credentials in a file and recommended alternative."
+        },
+        {
+          "doc_id": "pdf-terraform",
+          "source_path": "pdf/terraform/Terraform.pdf",
+          "source_pdf": "Terraform.pdf",
+          "page_number": 28,
+          "printed_page": 23,
+          "section": "Chapter 3. Building an application stack with Terraform > Using AWS shared credentials",
+          "exact_evidence_passage": "that Terraform can consume, removing the need to specify credentials.",
+          "explanation": "How Terraform uses the shared credentials."
+        },
+        {
+          "doc_id": "md-terraform-init-errors",
+          "source_path": "markdown/terraform/terraform-init-backend-provider-errors.md",
+          "source_pdf": null,
+          "page_number": null,
+          "printed_page": null,
+          "section": "Possible Solutions",
+          "exact_evidence_passage": "leave credential arguments unset in the configuration, and provide them \"using the credentials files or environment variables that are conventional for the target system\" [R2].",
+          "explanation": "General rule for credentials in Terraform configurations."
+        }
+      ],
+      "independence_check": {
+        "status": "pass",
+        "checked_on": "2026-11-13",
+        "method": "Compared with the 640 questions of incidents_eval.json (63), evidence_validation_negatives.json (20), train.jsonl (499) and validation.jsonl (58): exact match, cosine similarity of all-MiniLM-L6-v2 embeddings (rejection threshold 0.85, as in finetuning/generate_pairs.py; manual review of every question at 0.70 or more and of the closest neighbours), and difflib lexical ratio.",
+        "exact_duplicate": false,
+        "max_cosine_similarity": 0.566,
+        "closest_existing": "validation.jsonl:41",
+        "max_lexical_ratio": 0.39,
+        "evidence_passages_found_in_finetuning_pairs": [],
+        "note": "No manual concern."
+      },
+      "answerable": true
+    },
+    {
+      "id": "bench-tf-02",
+      "split": "test",
+      "category": "terraform",
+      "domain": "terraform",
+      "technologies": [
+        "terraform",
+        "git"
+      ],
+      "difficulty": "medium",
+      "question_type": "diagnostic",
+      "question": "Our Terraform configuration uses a shared VPC module stored in a Git repository, referenced with ?ref=v0.0.1. A colleague pushed a fix to the module repository, but our plans still use the old module code. Why don't we get the fix, and what must we do?",
+      "reference_answer": "Two mechanisms keep the old code. First, Terraform does not read the module from its repository at each plan: terraform get downloads the module code and stores it in the .terraform/modules directory, and when the module has been updated you need to run terraform get again with the -update flag; without -update, Terraform does not update the module. Second, the ref parameter pins a version of the module: referencing ?ref=v0.0.1 always selects that version, which lets you use a new version (for example v0.0.2) only when you change the ref. So the fix must be published as a new version (tag) of the module, the ref must be changed to that version, and the module must be fetched again with terraform get -update before planning. Note: the Terraform book describes Terraform 0.12; with recent versions, modules are also installed by terraform init (team note, not stated in the source).",
+      "expected_answer_criteria": [
+        "explains that modules are downloaded into .terraform/modules and are not refreshed automatically",
+        "states that terraform get -update is needed to update a module",
+        "explains that the ref parameter pins the module version and must be changed to get a new version"
+      ],
+      "expected_causes": [
+        "the module code cached in .terraform/modules was not updated (terraform get without -update)",
+        "the module reference is pinned with ref=v0.0.1"
+      ],
+      "expected_investigation_steps": [
+        "check the ref used in the module source",
+        "check whether the fix was released as a new tag of the module",
+        "update the ref and run terraform get -update before planning"
+      ],
+      "expected_doc_ids": [
+        "pdf-terraform"
+      ],
+      "evidence": [
+        {
+          "doc_id": "pdf-terraform",
+          "source_path": "pdf/terraform/Terraform.pdf",
+          "source_pdf": "Terraform.pdf",
+          "page_number": 53,
+          "printed_page": 48,
+          "section": "Chapter 3. Building an application stack with Terraform > Modules > Getting our module",
+          "exact_evidence_passage": "This gets the module code and stores it in the .terraform/modules directory inside the ~/terraform/web directory. If you change your module, or the module you’re using has been updated, you’ll need to run the get command again, with the -update flag set.",
+          "explanation": "Modules are cached locally and must be updated explicitly."
+        },
+        {
+          "doc_id": "pdf-terraform",
+          "source_path": "pdf/terraform/Terraform.pdf",
+          "source_pdf": "Terraform.pdf",
+          "page_number": 53,
+          "printed_page": 48,
+          "section": "Chapter 3. Building an application stack with Terraform > Modules > Getting our module",
+          "exact_evidence_passage": "If you run the terraform get command without the -update flag, Terraform will not update the module.",
+          "explanation": "Without -update the old module code is kept."
+        },
+        {
+          "doc_id": "pdf-terraform",
+          "source_path": "pdf/terraform/Terraform.pdf",
+          "source_pdf": "Terraform.pdf",
+          "page_number": 57,
+          "printed_page": 52,
+          "section": "Chapter 3. Building an application stack with Terraform > Modules > Moving our module to a repository",
+          "exact_evidence_passage": "This also means we can manage multiple versions of the module—for example, we could create v0.0.2 of the module, and then use the ref parameter to refer to that.",
+          "explanation": "The ref parameter selects the module version."
+        }
+      ],
+      "independence_check": {
+        "status": "pass",
+        "checked_on": "2026-11-13",
+        "method": "Compared with the 640 questions of incidents_eval.json (63), evidence_validation_negatives.json (20), train.jsonl (499) and validation.jsonl (58): exact match, cosine similarity of all-MiniLM-L6-v2 embeddings (rejection threshold 0.85, as in finetuning/generate_pairs.py; manual review of every question at 0.70 or more and of the closest neighbours), and difflib lexical ratio.",
+        "exact_duplicate": false,
+        "max_cosine_similarity": 0.645,
+        "closest_existing": "validation.jsonl:44",
+        "max_lexical_ratio": 0.39,
+        "evidence_passages_found_in_finetuning_pairs": [],
+        "note": "No manual concern."
+      },
+      "answerable": true
+    },
+    {
+      "id": "bench-tf-03",
+      "split": "test",
+      "category": "terraform",
+      "domain": "terraform",
+      "technologies": [
+        "terraform"
+      ],
+      "difficulty": "medium",
+      "question_type": "diagnostic",
+      "question": "We raised the AWS provider constraint in required_providers to >= 5.0 because we need a newer resource argument, but terraform init on the CI agent keeps refusing because of the provider version recorded in our .terraform.lock.hcl, which was committed last year. What is going on, and how should we fix it for the whole team?",
+      "reference_answer": "terraform init reuses the provider versions recorded in the dependency lock file; it does not select newer versions on its own, and -upgrade is needed to select newer versions. The lock file still records the old version, which does not satisfy the new >= 5.0 constraint. Fix: keep the adjusted version constraint in required_providers, run terraform init -upgrade to select a newer provider version and update the lock file, then commit the updated .terraform.lock.hcl to version control so that Terraform selects exactly the same provider versions for everyone, including the CI agent. If the team uses several platforms, pre-populate the checksums for all of them with terraform providers lock.",
+      "expected_answer_criteria": [
+        "explains that init reuses the versions recorded in the lock file",
+        "recommends terraform init -upgrade to select a newer version",
+        "recommends committing the updated .terraform.lock.hcl",
+        "mentions terraform providers lock for checksums of other platforms (optional)"
+      ],
+      "expected_causes": [
+        "the lock file pins an older provider version that does not satisfy the new constraint"
+      ],
+      "expected_investigation_steps": [
+        "read the provider version recorded in .terraform.lock.hcl",
+        "compare it with the version constraint in required_providers",
+        "run terraform init -upgrade and commit the new lock file"
+      ],
+      "expected_doc_ids": [
+        "md-terraform-init-errors"
+      ],
+      "evidence": [
+        {
+          "doc_id": "md-terraform-init-errors",
+          "source_path": "markdown/terraform/terraform-init-backend-provider-errors.md",
+          "source_pdf": null,
+          "page_number": null,
+          "printed_page": null,
+          "section": "Possible Causes",
+          "exact_evidence_passage": "`init` reuses the versions recorded in the lock file; `-upgrade` is needed to select newer versions [R1, R3]",
+          "explanation": "Cause of the refusal."
+        },
+        {
+          "doc_id": "md-terraform-init-errors",
+          "source_path": "markdown/terraform/terraform-init-backend-provider-errors.md",
+          "source_pdf": null,
+          "page_number": null,
+          "printed_page": null,
+          "section": "Possible Solutions",
+          "exact_evidence_passage": "adjust the `version` constraint in `required_providers` [R4], then run `terraform init -upgrade` if you want newer versions [R1].",
+          "explanation": "Upgrade procedure."
+        },
+        {
+          "doc_id": "md-terraform-init-errors",
+          "source_path": "markdown/terraform/terraform-init-backend-provider-errors.md",
+          "source_pdf": null,
+          "page_number": null,
+          "printed_page": null,
+          "section": "Possible Solutions",
+          "exact_evidence_passage": "commit `.terraform.lock.hcl` to version control so that \"Terraform will select exactly the same provider versions\" next time [R1]. Pre-populate checksums for all team platforms with `terraform providers lock` [R3].",
+          "explanation": "Sharing the result with the team."
+        }
+      ],
+      "independence_check": {
+        "status": "pass",
+        "checked_on": "2026-11-13",
+        "method": "Compared with the 640 questions of incidents_eval.json (63), evidence_validation_negatives.json (20), train.jsonl (499) and validation.jsonl (58): exact match, cosine similarity of all-MiniLM-L6-v2 embeddings (rejection threshold 0.85, as in finetuning/generate_pairs.py; manual review of every question at 0.70 or more and of the closest neighbours), and difflib lexical ratio.",
+        "exact_duplicate": false,
+        "max_cosine_similarity": 0.694,
+        "closest_existing": "train.jsonl:106",
+        "max_lexical_ratio": 0.36,
+        "evidence_passages_found_in_finetuning_pairs": [
+          "train.jsonl:106"
+        ],
+        "note": "No manual concern. Some evidence passages also appear in fine-tuning pair passages: this does not affect the base embedding model used by the application, but a comparison with the fine-tuned model would be biased on this question."
+      },
+      "answerable": true
+    },
+    {
+      "id": "bench-net-01",
+      "split": "test",
+      "category": "networking",
+      "domain": "networking",
+      "technologies": [
+        "aws",
+        "load-balancer",
+        "http"
+      ],
+      "difficulty": "medium",
+      "question_type": "diagnostic",
+      "question": "After replacing all the EC2 instances behind our Application Load Balancer with a new AMI, every request returns HTTP 503 Service Unavailable. The instances are running and the application answers locally on port 8081, while the target group health check still probes port 8080. What does the 503 indicate here, and how do you confirm it?",
+      "reference_answer": "On an Application Load Balancer, a 503 means that the target group has no registered targets, or that all registered targets are in an unused state; targets failing their health checks are not in service until they pass one health check. The new application listens on 8081 while the health check probes 8080, so every target fails its health check and none is in service: the load balancer itself returns 503. To confirm: identify who returns the error by comparing HTTPCode_ELB_5XX_Count with HTTPCode_Target_5XX_Count, then check the backend pool, meaning the registered targets, their health check status, and the security groups and network ACLs used by the health checks. Fix the health check port (or the application port), and after a deployment compare the new version's port, readiness and startup time with the previous one.",
+      "expected_answer_criteria": [
+        "explains that an ALB returns 503 when no registered target is in service (none registered or all unhealthy/unused)",
+        "links the symptom to failing health checks on the wrong port",
+        "proposes to check target health status and health check settings",
+        "proposes to compare ELB and target 5XX metrics to know who returns the error"
+      ],
+      "expected_causes": [
+        "all targets fail the health check because the application listens on another port",
+        "no healthy target in the target group"
+      ],
+      "expected_investigation_steps": [
+        "compare HTTPCode_ELB_5XX_Count and HTTPCode_Target_5XX_Count",
+        "check the registered targets and their health check status",
+        "check the health check port and path, and the security groups / network ACLs used by health checks"
+      ],
+      "expected_doc_ids": [
+        "md-net-http-502-503-504"
+      ],
+      "evidence": [
+        {
+          "doc_id": "md-net-http-502-503-504",
+          "source_path": "markdown/networking/net-http-502-503-504.md",
+          "source_pdf": null,
+          "page_number": null,
+          "printed_page": null,
+          "section": "Possible Causes",
+          "exact_evidence_passage": "On an ALB, the target group has no registered targets, or all registered targets are in an unused state [R4].",
+          "explanation": "Meaning of a 503 returned by an ALB."
+        },
+        {
+          "doc_id": "md-net-http-502-503-504",
+          "source_path": "markdown/networking/net-http-502-503-504.md",
+          "source_pdf": null,
+          "page_number": null,
+          "printed_page": null,
+          "section": "Possible Causes",
+          "exact_evidence_passage": "Targets failing health checks are not in service until they pass one health check [R4].",
+          "explanation": "Failing health checks remove all targets from service."
+        },
+        {
+          "doc_id": "md-net-http-502-503-504",
+          "source_path": "markdown/networking/net-http-502-503-504.md",
+          "source_pdf": null,
+          "page_number": null,
+          "printed_page": null,
+          "section": "Investigation Steps",
+          "exact_evidence_passage": "**For 503**, check the backend pool: registered targets, health check status, and the security groups and network ACLs used by health checks [R4].",
+          "explanation": "Checks to confirm the diagnosis."
+        },
+        {
+          "doc_id": "md-net-http-502-503-504",
+          "source_path": "markdown/networking/net-http-502-503-504.md",
+          "source_pdf": null,
+          "page_number": null,
+          "printed_page": null,
+          "section": "Investigation Steps",
+          "exact_evidence_passage": "On AWS, compare `HTTPCode_ELB_5XX_Count` with `HTTPCode_Target_5XX_Count` [R4].",
+          "explanation": "Identifies whether the load balancer or the target returned the error."
+        }
+      ],
+      "independence_check": {
+        "status": "pass",
+        "checked_on": "2026-11-13",
+        "method": "Compared with the 640 questions of incidents_eval.json (63), evidence_validation_negatives.json (20), train.jsonl (499) and validation.jsonl (58): exact match, cosine similarity of all-MiniLM-L6-v2 embeddings (rejection threshold 0.85, as in finetuning/generate_pairs.py; manual review of every question at 0.70 or more and of the closest neighbours), and difflib lexical ratio.",
+        "exact_duplicate": false,
+        "max_cosine_similarity": 0.569,
+        "closest_existing": "train.jsonl:91",
+        "max_lexical_ratio": 0.36,
+        "evidence_passages_found_in_finetuning_pairs": [
+          "train.jsonl:89"
+        ],
+        "note": "No manual concern. Some evidence passages also appear in fine-tuning pair passages: this does not affect the base embedding model used by the application, but a comparison with the fine-tuned model would be biased on this question."
+      },
+      "answerable": true
+    },
+    {
+      "id": "bench-net-02",
+      "split": "test",
+      "category": "networking",
+      "domain": "networking",
+      "technologies": [
+        "dns",
+        "kubernetes"
+      ],
+      "difficulty": "medium",
+      "question_type": "multi_source",
+      "question": "From a pod in the namespace shop, curl http://inventory:8080 fails with 'Could not resolve host: inventory', but the inventory Service exists and is reachable by that name from pods of its own namespace stock. Why does the name fail from shop, and which names would work?",
+      "reference_answer": "The Kubernetes DNS service gives DNS names to the cluster IPs of Services, in the form <service>.<namespace>.svc.cluster.local. A short name such as inventory is only enough from a pod of the Service's own namespace: the resolver expands short names with the search list of the pod, which starts with the pod's namespace. From shop, inventory is therefore looked up in the shop namespace, where no such Service exists. A Service in another namespace needs <service>.<namespace>: use inventory.stock (inventory.stock:8080), or the fully qualified name inventory.stock.svc.cluster.local.",
+      "expected_answer_criteria": [
+        "explains that the short service name only resolves within the same namespace (search list)",
+        "states that a Service in another namespace needs <service>.<namespace>",
+        "gives inventory.stock and/or inventory.stock.svc.cluster.local as working names"
+      ],
+      "expected_causes": [
+        "short service name used from another namespace, expanded with the wrong search domain"
+      ],
+      "expected_investigation_steps": [
+        "check the namespace of the client pod and of the Service",
+        "look at the search list in the pod's /etc/resolv.conf",
+        "test inventory.stock and the fully qualified name"
+      ],
+      "expected_doc_ids": [
+        "md-net-dns-resolution-failure",
+        "pdf-o-reilly-kubernetes-up-and-running"
+      ],
+      "evidence": [
+        {
+          "doc_id": "md-net-dns-resolution-failure",
+          "source_path": "markdown/networking/net-dns-resolution-failure.md",
+          "source_pdf": null,
+          "page_number": null,
+          "printed_page": null,
+          "section": "Possible Causes",
+          "exact_evidence_passage": "are tried with each entry of the `search` list [R2]. In Kubernetes, a Service in another namespace needs `<service>.<namespace>` [R9]",
+          "explanation": "Short names are expanded with the search list; another namespace requires service.namespace."
+        },
+        {
+          "doc_id": "pdf-o-reilly-kubernetes-up-and-running",
+          "source_path": "pdf/kubernetes/O'Reilly Kubernetes Up and Running.pdf",
+          "source_pdf": "O'Reilly Kubernetes Up and Running.pdf",
+          "page_number": 97,
+          "printed_page": 77,
+          "section": "Chapter 7. Service Discovery > Service DNS",
+          "exact_evidence_passage": "The Kubernetes DNS service provides DNS names for cluster IPs.",
+          "explanation": "Services get DNS names."
+        },
+        {
+          "doc_id": "pdf-o-reilly-kubernetes-up-and-running",
+          "source_path": "pdf/kubernetes/O'Reilly Kubernetes Up and Running.pdf",
+          "source_pdf": "O'Reilly Kubernetes Up and Running.pdf",
+          "page_number": 98,
+          "printed_page": 78,
+          "section": "Chapter 7. Service Discovery > Service DNS",
+          "exact_evidence_passage": "When referring to a service in your own namespace you can just use the service name (alpaca-prod).",
+          "explanation": "The short name is enough only inside the same namespace."
+        }
+      ],
+      "independence_check": {
+        "status": "pass",
+        "checked_on": "2026-11-13",
+        "method": "Compared with the 640 questions of incidents_eval.json (63), evidence_validation_negatives.json (20), train.jsonl (499) and validation.jsonl (58): exact match, cosine similarity of all-MiniLM-L6-v2 embeddings (rejection threshold 0.85, as in finetuning/generate_pairs.py; manual review of every question at 0.70 or more and of the closest neighbours), and difflib lexical ratio.",
+        "exact_duplicate": false,
+        "max_cosine_similarity": 0.575,
+        "closest_existing": "validation.jsonl:19",
+        "max_lexical_ratio": 0.35,
+        "evidence_passages_found_in_finetuning_pairs": [
+          "validation.jsonl:20"
+        ],
+        "note": "No manual concern. Some evidence passages also appear in fine-tuning pair passages: this does not affect the base embedding model used by the application, but a comparison with the fine-tuned model would be biased on this question."
+      },
+      "answerable": true
+    },
+    {
+      "id": "bench-net-03",
+      "split": "test",
+      "category": "networking",
+      "domain": "networking",
+      "technologies": [
+        "tls",
+        "docker"
+      ],
+      "difficulty": "medium",
+      "question_type": "diagnostic",
+      "question": "docker pull from our internal registry registry.corp:5000 fails with 'x509: certificate signed by unknown authority'. On the Linux host, we copied our company root CA to /etc/docker/certs.d/registry.corp:5000/ca.cert and restarted Docker, but the error is unchanged. What is wrong?",
+      "reference_answer": "The CA file has the wrong extension. For a Docker registry, the CA must be placed in /etc/docker/certs.d/<registry-host>[:port]/ with a .crt extension; files ending in .cert are treated as client certificates, not as a CA. Rename the file to ca.crt in /etc/docker/certs.d/registry.corp:5000/ (the directory includes the port because the registry is used with port 5000; do not add a port to the directory name if the registry is used without one). Do not work around the error by disabling certificate verification in production.",
+      "expected_answer_criteria": [
+        "identifies the wrong extension: the CA must be a .crt file (ca.crt)",
+        "explains that .cert files are treated as client certificates",
+        "confirms the directory /etc/docker/certs.d/<host>:<port>/",
+        "advises against disabling verification in production"
+      ],
+      "expected_causes": [
+        "CA file named ca.cert instead of ca.crt, so Docker does not use it as a CA"
+      ],
+      "expected_investigation_steps": [
+        "list the files in /etc/docker/certs.d/registry.corp:5000/",
+        "rename the CA to ca.crt",
+        "retry the pull"
+      ],
+      "expected_doc_ids": [
+        "md-net-tls-certificate-errors"
+      ],
+      "evidence": [
+        {
+          "doc_id": "md-net-tls-certificate-errors",
+          "source_path": "markdown/networking/net-tls-certificate-errors.md",
+          "source_pdf": null,
+          "page_number": null,
+          "printed_page": null,
+          "section": "Possible Causes",
+          "exact_evidence_passage": "The CA must be placed in `/etc/docker/certs.d/<registry-host>[:port]/` with a `.crt` extension; `.cert` files are treated as client certificates [R5]",
+          "explanation": "Cause of the unchanged error."
+        },
+        {
+          "doc_id": "md-net-tls-certificate-errors",
+          "source_path": "markdown/networking/net-tls-certificate-errors.md",
+          "source_pdf": null,
+          "page_number": null,
+          "printed_page": null,
+          "section": "Possible Solutions",
+          "exact_evidence_passage": "put the registry's root CA as `ca.crt` under `/etc/docker/certs.d/<hostname>[:port]/` (on native Linux). Do not add a port to the directory name if the registry is used without a port [R5].",
+          "explanation": "Correct file name and directory."
+        },
+        {
+          "doc_id": "md-net-tls-certificate-errors",
+          "source_path": "markdown/networking/net-tls-certificate-errors.md",
+          "source_pdf": null,
+          "page_number": null,
+          "printed_page": null,
+          "section": "Possible Solutions",
+          "exact_evidence_passage": "**Do not disable verification in production.**",
+          "explanation": "What not to do."
+        }
+      ],
+      "independence_check": {
+        "status": "pass_with_note",
+        "checked_on": "2026-11-13",
+        "method": "Compared with the 640 questions of incidents_eval.json (63), evidence_validation_negatives.json (20), train.jsonl (499) and validation.jsonl (58): exact match, cosine similarity of all-MiniLM-L6-v2 embeddings (rejection threshold 0.85, as in finetuning/generate_pairs.py; manual review of every question at 0.70 or more and of the closest neighbours), and difflib lexical ratio.",
+        "exact_duplicate": false,
+        "max_cosine_similarity": 0.741,
+        "closest_existing": "validation.jsonl:30",
+        "max_lexical_ratio": 0.33,
+        "evidence_passages_found_in_finetuning_pairs": [
+          "validation.jsonl:32",
+          "validation.jsonl:37"
+        ],
+        "note": "Close to validation.jsonl:30 (docker pull certificate error: expired certificate or name mismatch); the cause here is the CA file extension (.cert vs .crt). Kept. Some evidence passages also appear in fine-tuning pair passages: this does not affect the base embedding model used by the application, but a comparison with the fine-tuned model would be biased on this question."
+      },
+      "answerable": true
+    },
+    {
+      "id": "bench-linux-01",
+      "split": "test",
+      "category": "linux",
+      "domain": "linux",
+      "technologies": [
+        "linux"
+      ],
+      "difficulty": "easy",
+      "question_type": "diagnostic",
+      "question": "On a mail relay server, applications fail with 'No space left on device' when they create files, yet df -h reports 40% free space on the same filesystem. The spool directory contains millions of tiny files. Explain the apparent contradiction and how to confirm it.",
+      "reference_answer": "A filesystem can run out of inodes while blocks (space) remain. Every file uses an inode, and many small files, such as caches, sessions or mail queues, can exhaust the inodes even though df -h still shows free space. Creating a new file then fails with 'No space left on device'. Confirm with df -i, which shows the inode usage per filesystem (IUse% at or near 100%), then find the directories with the most files (here the mail spool) and clean them up.",
+      "expected_answer_criteria": [
+        "identifies inode exhaustion while blocks remain free",
+        "links it to the many small files (mail queue)",
+        "proposes df -i to confirm"
+      ],
+      "expected_causes": [
+        "inodes exhausted by millions of small files while free blocks remain"
+      ],
+      "expected_investigation_steps": [
+        "df -i to check inode usage per filesystem",
+        "find the directories containing the most files",
+        "clean the spool / small files"
+      ],
+      "expected_doc_ids": [
+        "md-linux-disk-full"
+      ],
+      "evidence": [
+        {
+          "doc_id": "md-linux-disk-full",
+          "source_path": "markdown/linux/linux-disk-full-no-space-left.md",
+          "source_pdf": null,
+          "page_number": null,
+          "printed_page": null,
+          "section": "Possible Causes",
+          "exact_evidence_passage": "**Many small files** (cache, sessions, mail queues) | Inodes exhausted while blocks remain [R2]",
+          "explanation": "Cause matching the symptom."
+        },
+        {
+          "doc_id": "md-linux-disk-full",
+          "source_path": "markdown/linux/linux-disk-full-no-space-left.md",
+          "source_pdf": null,
+          "page_number": null,
+          "printed_page": null,
+          "section": "Diagnostic Commands",
+          "exact_evidence_passage": "# Inode usage per filesystem\ndf -i",
+          "explanation": "Command to confirm it."
+        }
+      ],
+      "independence_check": {
+        "status": "pass",
+        "checked_on": "2026-11-13",
+        "method": "Compared with the 640 questions of incidents_eval.json (63), evidence_validation_negatives.json (20), train.jsonl (499) and validation.jsonl (58): exact match, cosine similarity of all-MiniLM-L6-v2 embeddings (rejection threshold 0.85, as in finetuning/generate_pairs.py; manual review of every question at 0.70 or more and of the closest neighbours), and difflib lexical ratio.",
+        "exact_duplicate": false,
+        "max_cosine_similarity": 0.679,
+        "closest_existing": "train.jsonl:70",
+        "max_lexical_ratio": 0.42,
+        "evidence_passages_found_in_finetuning_pairs": [
+          "train.jsonl:67",
+          "train.jsonl:69"
+        ],
+        "note": "No manual concern. Some evidence passages also appear in fine-tuning pair passages: this does not affect the base embedding model used by the application, but a comparison with the fine-tuned model would be biased on this question."
+      },
+      "answerable": true
+    },
+    {
+      "id": "bench-linux-02",
+      "split": "test",
+      "category": "linux",
+      "domain": "linux",
+      "technologies": [
+        "linux",
+        "systemd"
+      ],
+      "difficulty": "medium",
+      "question_type": "diagnostic",
+      "question": "We migrated a legacy daemon to a systemd unit with Type=forking, but the program actually stays in the foreground. systemctl start hangs for a long time, then the unit is marked failed with a timeout, even though the application was serving requests during that time. What is happening and how should the unit be corrected?",
+      "reference_answer": "With Type=forking, systemd expects the ExecStart= process to fork and the parent process to exit when start-up is complete. A program that stays in the foreground never does that, so systemd keeps waiting for the start-up completion signal. If a daemon does not signal start-up completion within the configured time (TimeoutStartSec=), the service is considered failed, and systemd stops it, even though the program was working. Correct the unit with a Type= matching the program's real behaviour: the documentation discourages forking and recommends notify, notify-reload or dbus when the program supports them (for a program that simply stays in the foreground, a non-forking type is needed; this last point is a team inference). After editing the unit, run systemctl daemon-reload, then reset the failed state with systemctl reset-failed and start the service again.",
+      "expected_answer_criteria": [
+        "explains that Type=forking expects the ExecStart process to fork and its parent to exit",
+        "explains that start-up never completes and TimeoutStartSec marks the unit failed",
+        "recommends a Type= matching the program (forking discouraged; notify / notify-reload / dbus)",
+        "mentions systemctl daemon-reload after editing the unit"
+      ],
+      "expected_causes": [
+        "Type=forking declared for a program that does not fork",
+        "start-up completion never signalled within TimeoutStartSec"
+      ],
+      "expected_investigation_steps": [
+        "systemctl status and journalctl -u <unit> to read the timeout message",
+        "systemctl cat <unit> to check Type= and ExecStart=",
+        "fix Type=, run systemctl daemon-reload and restart"
+      ],
+      "expected_doc_ids": [
+        "md-linux-systemd-service-failure"
+      ],
+      "evidence": [
+        {
+          "doc_id": "md-linux-systemd-service-failure",
+          "source_path": "markdown/linux/linux-systemd-service-failure.md",
+          "source_pdf": null,
+          "page_number": null,
+          "printed_page": null,
+          "section": "Possible Causes",
+          "exact_evidence_passage": "With `Type=forking`, systemd expects the `ExecStart=` process to fork and the parent to exit when start-up is complete [R3]. A program that does not behave this way does not match the declared type (team inference)",
+          "explanation": "Mismatch between the declared type and the program."
+        },
+        {
+          "doc_id": "md-linux-systemd-service-failure",
+          "source_path": "markdown/linux/linux-systemd-service-failure.md",
+          "source_pdf": null,
+          "page_number": null,
+          "printed_page": null,
+          "section": "Possible Causes",
+          "exact_evidence_passage": "If a daemon \"does not signal start-up completion within the configured time\" (`TimeoutStartSec=`), the service is considered failed [R3]",
+          "explanation": "Explains the timeout failure."
+        },
+        {
+          "doc_id": "md-linux-systemd-service-failure",
+          "source_path": "markdown/linux/linux-systemd-service-failure.md",
+          "source_pdf": null,
+          "page_number": null,
+          "printed_page": null,
+          "section": "Possible Solutions",
+          "exact_evidence_passage": "appropriate `Type=` (the documentation discourages `forking` and recommends `notify`, `notify-reload` or `dbus` instead [R3])",
+          "explanation": "Correction of the unit."
+        },
+        {
+          "doc_id": "md-linux-systemd-service-failure",
+          "source_path": "markdown/linux/linux-systemd-service-failure.md",
+          "source_pdf": null,
+          "page_number": null,
+          "printed_page": null,
+          "section": "Possible Solutions",
+          "exact_evidence_passage": "**Reload after every edit**: `systemctl daemon-reload`",
+          "explanation": "Required after editing the unit."
+        }
+      ],
+      "independence_check": {
+        "status": "pass",
+        "checked_on": "2026-11-13",
+        "method": "Compared with the 640 questions of incidents_eval.json (63), evidence_validation_negatives.json (20), train.jsonl (499) and validation.jsonl (58): exact match, cosine similarity of all-MiniLM-L6-v2 embeddings (rejection threshold 0.85, as in finetuning/generate_pairs.py; manual review of every question at 0.70 or more and of the closest neighbours), and difflib lexical ratio.",
+        "exact_duplicate": false,
+        "max_cosine_similarity": 0.555,
+        "closest_existing": "train.jsonl:73",
+        "max_lexical_ratio": 0.38,
+        "evidence_passages_found_in_finetuning_pairs": [
+          "train.jsonl:75"
+        ],
+        "note": "No manual concern. Some evidence passages also appear in fine-tuning pair passages: this does not affect the base embedding model used by the application, but a comparison with the fine-tuned model would be biased on this question."
+      },
+      "answerable": true
+    },
+    {
+      "id": "bench-aws-01",
+      "split": "test",
+      "category": "aws",
+      "domain": "aws",
+      "technologies": [
+        "aws",
+        "iam"
+      ],
+      "difficulty": "medium",
+      "question_type": "diagnostic",
+      "question": "A developer's IAM role has an identity policy allowing s3:* on all resources, yet uploads to a bucket of the same account fail with AccessDenied. The role was created by our platform team's automation, which attaches a permissions boundary to every role it creates. Explain how the upload can be denied, and how to investigate.",
+      "reference_answer": "A permissions boundary limits the maximum permissions of a role: when the identity policies allow the request but the boundary does not, the request is denied. The s3:* identity policy is therefore not sufficient if the boundary attached by the automation does not allow the S3 action. Investigation: identify the caller with aws sts get-caller-identity; read the error message, which may include the type and ARN of the policy responsible for the denial (but if several policy types deny the request, AWS includes only one of them); then check, in order, the identity-based policies, the resource-based policy (bucket policy), the conditions, the permissions boundary, the SCPs and the session policies. The IAM policy simulator shows which policy produced an allow or an explicit deny, but its results can differ from the live environment.",
+      "expected_answer_criteria": [
+        "explains that the permissions boundary must also allow the action, otherwise the request is denied",
+        "proposes to identify the caller (sts get-caller-identity)",
+        "proposes to read the error message (policy type/ARN) and to review all policy types, including the boundary",
+        "mentions the other possible denials (bucket policy, SCP, session policy) or the policy simulator"
+      ],
+      "expected_causes": [
+        "the permissions boundary of the role does not allow the S3 action",
+        "another policy type (bucket policy, SCP, session policy) denies the request"
+      ],
+      "expected_investigation_steps": [
+        "aws sts get-caller-identity",
+        "read the AccessDenied message for the policy type and ARN",
+        "check identity policies, bucket policy, conditions, permissions boundary, SCPs and session policies"
+      ],
+      "expected_doc_ids": [
+        "md-aws-iam-access-denied"
+      ],
+      "evidence": [
+        {
+          "doc_id": "md-aws-iam-access-denied",
+          "source_path": "markdown/aws/aws-iam-access-denied.md",
+          "source_pdf": null,
+          "page_number": null,
+          "printed_page": null,
+          "section": "Possible Causes",
+          "exact_evidence_passage": "Identity policies allow the request, but the boundary does not, so the request is denied [R1]",
+          "explanation": "Mechanism of the denial."
+        },
+        {
+          "doc_id": "md-aws-iam-access-denied",
+          "source_path": "markdown/aws/aws-iam-access-denied.md",
+          "source_pdf": null,
+          "page_number": null,
+          "printed_page": null,
+          "section": "Investigation Steps",
+          "exact_evidence_passage": "**Check, in order**: identity-based policies, resource-based policy (and the other account if cross-account), conditions, permissions boundary, SCPs, and session policies for assumed roles [R1, R2].",
+          "explanation": "Review order of the policies."
+        },
+        {
+          "doc_id": "md-aws-iam-access-denied",
+          "source_path": "markdown/aws/aws-iam-access-denied.md",
+          "source_pdf": null,
+          "page_number": null,
+          "printed_page": null,
+          "section": "Investigation Steps",
+          "exact_evidence_passage": "If several policy types deny the request, \"AWS includes only one of those policy types in the error message\" [R1].",
+          "explanation": "Limit of the error message."
+        }
+      ],
+      "independence_check": {
+        "status": "pass",
+        "checked_on": "2026-11-13",
+        "method": "Compared with the 640 questions of incidents_eval.json (63), evidence_validation_negatives.json (20), train.jsonl (499) and validation.jsonl (58): exact match, cosine similarity of all-MiniLM-L6-v2 embeddings (rejection threshold 0.85, as in finetuning/generate_pairs.py; manual review of every question at 0.70 or more and of the closest neighbours), and difflib lexical ratio.",
+        "exact_duplicate": false,
+        "max_cosine_similarity": 0.546,
+        "closest_existing": "train.jsonl:12",
+        "max_lexical_ratio": 0.34,
+        "evidence_passages_found_in_finetuning_pairs": [],
+        "note": "No manual concern."
+      },
+      "answerable": true
+    },
+    {
+      "id": "bench-aws-02",
+      "split": "test",
+      "category": "aws",
+      "domain": "aws",
+      "technologies": [
+        "aws",
+        "ec2",
+        "networking"
+      ],
+      "difficulty": "medium",
+      "question_type": "multi_source",
+      "question": "The security group of our bastion EC2 instance allows TCP 22 from the office IP, and we added an inbound rule for port 22 from the office IP to the subnet's custom network ACL. SSH from the office still times out. The outbound rules of that network ACL only allow ports 80 and 443. What is missing?",
+      "reference_answer": "The return traffic. For SSH, the network ACL must allow inbound SSH from your IP on port 22 and also outbound traffic to the ephemeral ports 1024-65535, which carry the replies of the connection. With outbound rules limited to ports 80 and 443, the SSH replies are dropped by the ACL, which produces a timeout rather than a refusal: a network ACL that blocks the traffic or its return path is a classic cause of 'connection timed out'. Add an outbound rule allowing TCP 1024-65535 to the office IP (or the required range) in the network ACL, then retry.",
+      "expected_answer_criteria": [
+        "identifies the missing outbound rule for the ephemeral ports 1024-65535 in the network ACL",
+        "explains that the replies (return path) are blocked, hence a timeout",
+        "proposes adding the outbound ephemeral port rule"
+      ],
+      "expected_causes": [
+        "the network ACL blocks the return traffic to the ephemeral ports 1024-65535"
+      ],
+      "expected_investigation_steps": [
+        "review the inbound and outbound rules of the subnet network ACL",
+        "check the security group rules",
+        "add an outbound rule for ports 1024-65535 and retry SSH"
+      ],
+      "expected_doc_ids": [
+        "md-aws-ec2-unreachable",
+        "md-net-connection-refused-timeout"
+      ],
+      "evidence": [
+        {
+          "doc_id": "md-aws-ec2-unreachable",
+          "source_path": "markdown/aws/aws-ec2-instance-unreachable.md",
+          "source_pdf": null,
+          "page_number": null,
+          "printed_page": null,
+          "section": "Possible Causes",
+          "exact_evidence_passage": "It must allow inbound SSH from your IP on port 22 **and** outbound traffic to the ephemeral ports 1024-65535 [R1]",
+          "explanation": "Network ACL rules required for SSH."
+        },
+        {
+          "doc_id": "md-net-connection-refused-timeout",
+          "source_path": "markdown/networking/net-connection-refused-timeout.md",
+          "source_pdf": null,
+          "page_number": null,
+          "printed_page": null,
+          "section": "Possible Causes",
+          "exact_evidence_passage": "a network ACL blocks the traffic or its return path",
+          "explanation": "A blocked return path produces a timeout."
+        }
+      ],
+      "independence_check": {
+        "status": "pass",
+        "checked_on": "2026-11-13",
+        "method": "Compared with the 640 questions of incidents_eval.json (63), evidence_validation_negatives.json (20), train.jsonl (499) and validation.jsonl (58): exact match, cosine similarity of all-MiniLM-L6-v2 embeddings (rejection threshold 0.85, as in finetuning/generate_pairs.py; manual review of every question at 0.70 or more and of the closest neighbours), and difflib lexical ratio.",
+        "exact_duplicate": false,
+        "max_cosine_similarity": 0.569,
+        "closest_existing": "incidents_eval.json:aws-003",
+        "max_lexical_ratio": 0.38,
+        "evidence_passages_found_in_finetuning_pairs": [
+          "train.jsonl:80"
+        ],
+        "note": "No manual concern. Some evidence passages also appear in fine-tuning pair passages: this does not affect the base embedding model used by the application, but a comparison with the fine-tuned model would be biased on this question."
+      },
+      "answerable": true
+    },
+    {
+      "id": "bench-ansre-01",
+      "split": "test",
+      "category": "ansible-sre",
+      "domain": "ansible",
+      "technologies": [
+        "ansible"
+      ],
+      "difficulty": "easy",
+      "question_type": "diagnostic",
+      "question": "A playbook task that should create a database as the postgres user sets become_user: postgres, but the task runs as our deploy SSH user and fails with permission errors. Other tasks that use become: true work. What is wrong?",
+      "reference_answer": "Setting become_user does not set become: without become: true on the task (or the play), no privilege escalation happens, so the task runs as the connection user deploy. Add become: true together with become_user: postgres. If sudo asks for a password, provide it with --ask-become-pass (-K), otherwise the play may hang at the privilege escalation prompt. Also avoid restricting sudo to a fixed list of commands: Ansible runs its modules from temporary files, so privilege escalation cannot be limited to certain commands.",
+      "expected_answer_criteria": [
+        "states that become_user does not enable become",
+        "recommends setting become: true with become_user: postgres",
+        "mentions -K / --ask-become-pass when sudo requires a password (optional)"
+      ],
+      "expected_causes": [
+        "become_user set without become: true, so no privilege escalation"
+      ],
+      "expected_investigation_steps": [
+        "check the become settings of the task and the play",
+        "add become: true to the task",
+        "rerun with -K if sudo requires a password"
+      ],
+      "expected_doc_ids": [
+        "md-ansible-unreachable-become"
+      ],
+      "evidence": [
+        {
+          "doc_id": "md-ansible-unreachable-become",
+          "source_path": "markdown/ansible/ansible-unreachable-become-failures.md",
+          "source_pdf": null,
+          "page_number": null,
+          "printed_page": null,
+          "section": "Possible Causes",
+          "exact_evidence_passage": "\"setting become_user does not set become\" [R2]",
+          "explanation": "Cause of the problem."
+        },
+        {
+          "doc_id": "md-ansible-unreachable-become",
+          "source_path": "markdown/ansible/ansible-unreachable-become-failures.md",
+          "source_pdf": null,
+          "page_number": null,
+          "printed_page": null,
+          "section": "Possible Solutions",
+          "exact_evidence_passage": "**Privilege escalation**: set `become: true` explicitly (not only `become_user`), provide the password with `-K` when needed, and avoid restricting sudo to a fixed list of commands [R2].",
+          "explanation": "Correction."
+        }
+      ],
+      "independence_check": {
+        "status": "pass",
+        "checked_on": "2026-11-13",
+        "method": "Compared with the 640 questions of incidents_eval.json (63), evidence_validation_negatives.json (20), train.jsonl (499) and validation.jsonl (58): exact match, cosine similarity of all-MiniLM-L6-v2 embeddings (rejection threshold 0.85, as in finetuning/generate_pairs.py; manual review of every question at 0.70 or more and of the closest neighbours), and difflib lexical ratio.",
+        "exact_duplicate": false,
+        "max_cosine_similarity": 0.493,
+        "closest_existing": "train.jsonl:7",
+        "max_lexical_ratio": 0.38,
+        "evidence_passages_found_in_finetuning_pairs": [
+          "train.jsonl:5",
+          "train.jsonl:9"
+        ],
+        "note": "No manual concern. Some evidence passages also appear in fine-tuning pair passages: this does not affect the base embedding model used by the application, but a comparison with the fine-tuned model would be biased on this question."
+      },
+      "answerable": true
+    },
+    {
+      "id": "bench-ansre-02",
+      "split": "test",
+      "category": "ansible-sre",
+      "domain": "sre",
+      "technologies": [
+        "incident-response"
+      ],
+      "difficulty": "medium",
+      "question_type": "diagnostic",
+      "question": "During a major outage, our on-call engineer spent an hour trying to prove that it was the same connection-pool bug as last month, while the dashboards showed that a configuration change had been deployed twenty minutes before the errors started. Which reasoning errors does the troubleshooting guidance warn about here, and what should the responder have done first?",
+      "reference_answer": "The engineer fell into documented troubleshooting errors: preferring an improbable theory, or assuming that the cause of a past incident is happening again ('when you hear hoofbeats, think of horses not zebras'), and possibly chasing correlations instead of causes. A frequent real cause to check early is what changed recently: working systems tend to keep working until acted upon by an external force, such as a configuration change or a shift in load. The recent configuration change was therefore the most likely hypothesis. The responder should first stop the bleeding with a mitigation such as rolling back the change, before searching for the root cause, then examine the system, check what touched it last, and test hypotheses in decreasing order of likelihood, taking clear notes.",
+      "expected_answer_criteria": [
+        "names the error of assuming a past incident's cause / preferring improbable theories (horses, not zebras)",
+        "states that recent changes (here the configuration change) must be checked early",
+        "recommends mitigating first (for example rolling back) before searching for the root cause",
+        "recommends testing hypotheses in decreasing order of likelihood"
+      ],
+      "expected_causes": [
+        "the configuration change deployed just before the errors",
+        "reasoning error: assuming the previous incident's cause happens again"
+      ],
+      "expected_investigation_steps": [
+        "check what changed recently (deployments, configuration, load)",
+        "mitigate first, for example roll back the configuration change",
+        "test hypotheses in decreasing order of likelihood and take notes"
+      ],
+      "expected_doc_ids": [
+        "md-sre-incident-triage"
+      ],
+      "evidence": [
+        {
+          "doc_id": "md-sre-incident-triage",
+          "source_path": "markdown/sre/sre-incident-triage.md",
+          "source_pdf": null,
+          "page_number": null,
+          "printed_page": null,
+          "section": "Possible Causes",
+          "exact_evidence_passage": "preferring improbable theories, or assuming that the cause of a past incident is happening again. The book's advice: \"when you hear hoofbeats, think of horses not zebras\" [R1];",
+          "explanation": "Reasoning error of the engineer."
+        },
+        {
+          "doc_id": "md-sre-incident-triage",
+          "source_path": "markdown/sre/sre-incident-triage.md",
+          "source_pdf": null,
+          "page_number": null,
+          "printed_page": null,
+          "section": "Possible Causes",
+          "exact_evidence_passage": "A frequent real cause to check early is **what changed recently**: the book notes that working systems tend to keep working \"until acted upon by an external force\", such as a configuration change or a shift in load [R1].",
+          "explanation": "The recent configuration change should have been checked first."
+        },
+        {
+          "doc_id": "md-sre-incident-triage",
+          "source_path": "markdown/sre/sre-incident-triage.md",
+          "source_pdf": null,
+          "page_number": null,
+          "printed_page": null,
+          "section": "Investigation Steps",
+          "exact_evidence_passage": "**Stop the bleeding**: apply a mitigation (divert traffic, roll back, disable a feature) before searching for the root cause [R1].",
+          "explanation": "Mitigation first."
+        },
+        {
+          "doc_id": "md-sre-incident-triage",
+          "source_path": "markdown/sre/sre-incident-triage.md",
+          "source_pdf": null,
+          "page_number": null,
+          "printed_page": null,
+          "section": "Investigation Steps",
+          "exact_evidence_passage": "test hypotheses in decreasing order of likelihood, taking into account the risk of each test;",
+          "explanation": "Order of the hypothesis tests."
+        }
+      ],
+      "independence_check": {
+        "status": "pass",
+        "checked_on": "2026-11-13",
+        "method": "Compared with the 640 questions of incidents_eval.json (63), evidence_validation_negatives.json (20), train.jsonl (499) and validation.jsonl (58): exact match, cosine similarity of all-MiniLM-L6-v2 embeddings (rejection threshold 0.85, as in finetuning/generate_pairs.py; manual review of every question at 0.70 or more and of the closest neighbours), and difflib lexical ratio.",
+        "exact_duplicate": false,
+        "max_cosine_similarity": 0.521,
+        "closest_existing": "train.jsonl:103",
+        "max_lexical_ratio": 0.32,
+        "evidence_passages_found_in_finetuning_pairs": [
+          "train.jsonl:96",
+          "train.jsonl:97",
+          "train.jsonl:98"
+        ],
+        "note": "No manual concern. Some evidence passages also appear in fine-tuning pair passages: this does not affect the base embedding model used by the application, but a comparison with the fine-tuned model would be biased on this question."
+      },
+      "answerable": true
+    },
+    {
+      "id": "bench-oos-01",
+      "split": "test",
+      "category": "out-of-scope",
+      "domain": "out_of_scope",
+      "technologies": [
+        "microsoft-exchange"
+      ],
+      "difficulty": "medium",
+      "question_type": "out_of_scope",
+      "question": "After a storage maintenance window, one database copy of our Microsoft Exchange Server database availability group shows the status FailedAndSuspended. How do we reseed the copy and bring it back to Healthy?",
+      "reference_answer": "Expected behaviour: the assistant reports that its knowledge base does not contain documentation about Microsoft Exchange Server or its database availability groups, returns the insufficient-evidence status (or no documented cause), and does not present a reseed procedure as documented or certain. It may suggest consulting the official Microsoft documentation.",
+      "expected_answer_criteria": [
+        "states that the available documentation does not cover Microsoft Exchange / database availability groups",
+        "does not present any cause or procedure as documented by the knowledge base",
+        "does not cite unrelated passages as evidence"
+      ],
+      "expected_causes": [],
+      "expected_investigation_steps": [],
+      "expected_doc_ids": [],
+      "evidence": [],
+      "out_of_scope_reason": "No indexed document mentions Microsoft Exchange, database availability groups or database copy reseeding (keyword search on the 6 indexed PDFs and the 23 guides on 2026-11-13: 'exchange server' and 'availability group' found nowhere).",
+      "independence_check": {
+        "status": "pass",
+        "checked_on": "2026-11-13",
+        "method": "Compared with the 640 questions of incidents_eval.json (63), evidence_validation_negatives.json (20), train.jsonl (499) and validation.jsonl (58): exact match, cosine similarity of all-MiniLM-L6-v2 embeddings (rejection threshold 0.85, as in finetuning/generate_pairs.py; manual review of every question at 0.70 or more and of the closest neighbours), and difflib lexical ratio.",
+        "exact_duplicate": false,
+        "max_cosine_similarity": 0.356,
+        "closest_existing": "train.jsonl:99",
+        "max_lexical_ratio": 0.38,
+        "evidence_passages_found_in_finetuning_pairs": [],
+        "note": "No manual concern."
+      },
+      "answerable": false
+    },
+    {
+      "id": "bench-oos-02",
+      "split": "test",
+      "category": "out-of-scope",
+      "domain": "out_of_scope",
+      "technologies": [
+        "clickhouse"
+      ],
+      "difficulty": "medium",
+      "question_type": "out_of_scope",
+      "question": "Since we increased the ingestion rate, inserts into our ClickHouse table fail with 'Too many parts' errors. How should we tune merges and insert batching to fix it?",
+      "reference_answer": "Expected behaviour: the assistant reports that its knowledge base does not contain documentation about ClickHouse, its table parts or its merge settings, returns the insufficient-evidence status (or no documented cause), and does not present tuning advice as documented or certain.",
+      "expected_answer_criteria": [
+        "states that the available documentation does not cover ClickHouse",
+        "does not present any cause or setting as documented by the knowledge base",
+        "does not cite unrelated passages as evidence"
+      ],
+      "expected_causes": [],
+      "expected_investigation_steps": [],
+      "expected_doc_ids": [],
+      "evidence": [],
+      "out_of_scope_reason": "No indexed document mentions ClickHouse (keyword search on the 6 indexed PDFs and the 23 guides on 2026-11-13).",
+      "independence_check": {
+        "status": "pass",
+        "checked_on": "2026-11-13",
+        "method": "Compared with the 640 questions of incidents_eval.json (63), evidence_validation_negatives.json (20), train.jsonl (499) and validation.jsonl (58): exact match, cosine similarity of all-MiniLM-L6-v2 embeddings (rejection threshold 0.85, as in finetuning/generate_pairs.py; manual review of every question at 0.70 or more and of the closest neighbours), and difflib lexical ratio.",
+        "exact_duplicate": false,
+        "max_cosine_similarity": 0.293,
+        "closest_existing": "train.jsonl:18",
+        "max_lexical_ratio": 0.41,
+        "evidence_passages_found_in_finetuning_pairs": [],
+        "note": "No manual concern."
+      },
+      "answerable": false
+    },
+    {
+      "id": "bench-oos-03",
+      "split": "test",
+      "category": "out-of-scope",
+      "domain": "out_of_scope",
+      "technologies": [
+        "kerberos"
+      ],
+      "difficulty": "hard",
+      "question_type": "out_of_scope",
+      "question": "Since this morning, users who log in to our intranet portal through Kerberos single sign-on get KRB_AP_ERR_SKEW errors. What is the procedure to fix it?",
+      "reference_answer": "Expected behaviour: the assistant reports that its knowledge base does not contain documentation about Kerberos or the KRB_AP_ERR_SKEW error, returns the insufficient-evidence status (or no documented cause), and does not present a fix as documented or certain. Generic hypotheses (for example a clock difference between machines) may only be given as clearly labelled, undocumented hypotheses, without citing unrelated passages as evidence.",
+      "expected_answer_criteria": [
+        "states that the available documentation does not cover Kerberos",
+        "does not present any cause or procedure as documented by the knowledge base",
+        "if a generic hypothesis is given, it is labelled as not documented and not supported by citations"
+      ],
+      "expected_causes": [],
+      "expected_investigation_steps": [],
+      "expected_doc_ids": [],
+      "evidence": [],
+      "out_of_scope_reason": "No indexed document mentions Kerberos (keyword search on the 6 indexed PDFs and the 23 guides on 2026-11-13). Harder case: the word 'skew' suggests a time problem, which could tempt the assistant to answer from unrelated passages.",
+      "independence_check": {
+        "status": "pass",
+        "checked_on": "2026-11-13",
+        "method": "Compared with the 640 questions of incidents_eval.json (63), evidence_validation_negatives.json (20), train.jsonl (499) and validation.jsonl (58): exact match, cosine similarity of all-MiniLM-L6-v2 embeddings (rejection threshold 0.85, as in finetuning/generate_pairs.py; manual review of every question at 0.70 or more and of the closest neighbours), and difflib lexical ratio.",
+        "exact_duplicate": false,
+        "max_cosine_similarity": 0.372,
+        "closest_existing": "incidents_eval.json:sre-001",
+        "max_lexical_ratio": 0.41,
+        "evidence_passages_found_in_finetuning_pairs": [],
+        "note": "No manual concern."
+      },
+      "answerable": false
+    }
+  ]
+}

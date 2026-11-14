@@ -46,3 +46,10 @@ FINAL_PASSAGES = 6           # passages given to the investigation agent
 EVIDENCE_MIN_SCORE = float(os.getenv("EVIDENCE_MIN_SCORE", "-2.86"))
 EVIDENCE_MIN_PASSAGES = int(os.getenv("EVIDENCE_MIN_PASSAGES", "3"))
 MAX_REWRITES = 2
+
+# When true, the cross-encoder chooses the FINAL_PASSAGES passages among the RERANK_CANDIDATES
+# best RRF results. Off by default: the recorded benchmarks of the final system keep the RRF order.
+RERANK_PASSAGES = os.getenv("RERANK_PASSAGES", "false").strip().lower() in ("1", "true", "yes")
+
+# Interactions and user feedback (SQLite, not versioned): see incident_assistant/feedback.py
+DB_PATH = STORAGE_DIR / "assistant.db"

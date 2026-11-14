@@ -47,13 +47,20 @@ def build_queries_node(state: State) -> dict:
 
 
 def retrieve_node(state: State) -> dict:
-    # Passages keep the RRF order; the reranker only scores them for the evidence check.
-    passages = retrieval.hybrid_search(state["queries"], domains=state.get("domains"))
-    retrieval.score_passages(state["incident"], passages)
+    if config.RERANK_PASSAGES:
+        # The reranker chooses and orders the passages; its scores also serve the evidence check.
+        passages = retrieval.hybrid_search(state["queries"], domains=state.get("domains"),
+                                           use_reranker=True, rerank_query=state["incident"])
+        order = "reranked"
+    else:
+        # Passages keep the RRF order; the reranker only scores them for the evidence check.
+        passages = retrieval.hybrid_search(state["queries"], domains=state.get("domains"))
+        retrieval.score_passages(state["incident"], passages)
+        order = "RRF order"
     if not passages:
         return {"passages": [], "trace": ["hybrid_retrieve: no passage"]}
     scores = sorted((p["rerank_score"] for p in passages), reverse=True)
-    return {"passages": passages, "trace": [f"hybrid_retrieve: {len(passages)} passages (RRF order), "
+    return {"passages": passages, "trace": [f"hybrid_retrieve: {len(passages)} passages ({order}), "
                                             f"reranker scores {[round(s, 1) for s in scores]}"]}
 
 

@@ -1,0 +1,20 @@
+{
+  "calibration_questions": 10,
+  "passages": 60,
+  "relevant_passages": 50,
+  "reranker": "cross-encoder/ms-marco-MiniLM-L6-v2",
+  "best": {
+    "threshold": -0.22,
+    "balanced_accuracy": 0.71,
+    "true_positive_rate": 0.92,
+    "true_negative_rate": 0.5
+  },
+  "relevant_score_range": [
+    -9.23,
+    8.41
+  ],
+  "non_relevant_score_range": [
+    -9.89,
+    4.97
+  ]
+}

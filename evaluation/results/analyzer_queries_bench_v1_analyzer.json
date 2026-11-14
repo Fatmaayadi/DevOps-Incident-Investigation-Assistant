@@ -1,0 +1,177 @@
+{
+  "bench-k8s-wl-01": [
+    "kubernetes job pod error state without restarts",
+    "kubernetes job crashloopbackoff restart count difference",
+    "kubernetes job backoffLimit vs restartPolicy behavior",
+    "CrashLoopBackOff"
+  ],
+  "bench-k8s-wl-02": [
+    "kubernetes pod connection errors after deployment without readiness probe",
+    "java application cache warmup delay causing service unavailability kubernetes",
+    "use readiness probe for cache initialization in kubernetes"
+  ],
+  "bench-k8s-wl-03": [
+    "kubernetes pod pending insufficient memory init container request",
+    "kubernetes scheduler memory request init container impact",
+    "kubernetes pod pending due to init container resource requests",
+    "Insufficient memory"
+  ],
+  "bench-k8s-wl-04": [
+    "kubernetes kubelet eviction policy memory request limit",
+    "kubernetes pod eviction without resource requests",
+    "kubernetes how to protect batch pods from eviction"
+  ],
+  "bench-k8s-wl-05": [
+    "kubernetes init container pod stuck Init:0/1",
+    "init container waiting for service never completes",
+    "kubernetes pod init container timeout"
+  ],
+  "bench-k8s-wl-06": [
+    "kubernetes pod termination grace period rolling update",
+    "node.js process signal handling SIGTERM SIGKILL kubernetes",
+    "kubernetes preStop hook to finish in\u2011flight requests"
+  ],
+  "bench-k8s-net-01": [
+    "kube-proxy ClusterIP traffic timeout on single node",
+    "iptables rules missing on Kubernetes node causing Service access failure",
+    "CNI plugin node specific ClusterIP connectivity issue"
+  ],
+  "bench-k8s-net-02": [
+    "kubernetes loadbalancer service external-ip pending bare metal",
+    "kubernetes service type LoadBalancer on bare metal without cloud provider",
+    "how to expose service on bare metal kubernetes without external load balancer"
+  ],
+  "bench-k8s-net-03": [
+    "Kubernetes NetworkPolicy ingress not enforced",
+    "NetworkPolicy allow traffic from specific namespace not working"
+  ],
+  "bench-k8s-sec-01": [
+    "kubernetes API server unauthenticated access RBAC",
+    "kubernetes anonymous authentication enabled",
+    "kubernetes apiserver --anonymous-auth flag"
+  ],
+  "bench-k8s-sec-02": [
+    "NSA CISA etcd hardening recommendations",
+    "etcd security risk same nodes as workloads",
+    "etcd client connections network exposure mitigation"
+  ],
+  "bench-k8s-sec-03": [
+    "kubernetes pod runAsUser root container security risk",
+    "kubernetes hardening guidance nonRoot runAsUser additional settings"
+  ],
+  "bench-git-01": [
+    "git duplicated commits after force push rebased branch",
+    "git clean local branch after upstream rewrite",
+    "git avoid merge commit when pulling rewritten branch"
+  ],
+  "bench-git-02": [
+    "git push rejected non-fast-forward after amend",
+    "how to force push safely after git commit amend",
+    "git non-fast-forward push explanation",
+    "non-fast-forward"
+  ],
+  "bench-git-03": [
+    "undo merge after additional commits git",
+    "revert merge commit without losing subsequent commits",
+    "why not use git reset after merge with later commits"
+  ],
+  "bench-git-04": [
+    "git bisect how to find offending commit",
+    "step by step git bisect tutorial"
+  ],
+  "bench-cicd-01": [
+    "github actions scheduled workflow not triggering on non-default branch",
+    "github actions schedule only runs on default branch",
+    "github actions workflow on develop branch schedule disabled"
+  ],
+  "bench-cicd-02": [
+    "GitHub Actions job timeout limit six hours",
+    "GitHub Actions self-hosted runner queue timeout limit",
+    "GitHub Actions job cancellation after 6h"
+  ],
+  "bench-cicd-03": [
+    "gitlab ci job cannot pull image from private container registry",
+    "gitlab project access token pull image permission",
+    "gitlab ci authentication to container registry from different project"
+  ],
+  "bench-docker-01": [
+    "dockerfile copy source before npm install cache invalidation",
+    "optimize nodejs docker image layer caching small code changes",
+    "docker build cache npm install layer invalidated by source copy"
+  ],
+  "bench-docker-02": [
+    "docker host network address already in use second container",
+    "docker --net=host port mapping effect",
+    "risks of using host networking in Docker",
+    "address is already in use"
+  ],
+  "bench-docker-03": [
+    "docker disk space usage /var/lib/docker cleanup",
+    "docker system prune remove unused images containers volumes",
+    "prevent docker storage exhaustion CI build server",
+    "no space left on device"
+  ],
+  "bench-tf-01": [
+    "terraform tfvars file containing AWS access_key secret_key security risk",
+    "best practices for providing AWS credentials to Terraform",
+    "how to use AWS provider credentials without hardcoding in version control"
+  ],
+  "bench-tf-02": [
+    "terraform module ref not updating after git push",
+    "terraform get latest module version from git ref"
+  ],
+  "bench-tf-03": [
+    "terraform init ignore .terraform.lock.hcl provider version",
+    "update aws provider version in .terraform.lock.hcl",
+    "terraform required_providers version constraint lock file conflict"
+  ],
+  "bench-net-01": [
+    "ALB 503 target group health check wrong port",
+    "AWS Application Load Balancer 503 Service Unavailable after instance replacement",
+    "HTTP 503 Service Unavailable"
+  ],
+  "bench-net-02": [
+    "kubernetes service DNS cross-namespace resolution",
+    "kubernetes service name resolution from different namespace",
+    "kubernetes DNS search domains pod namespace",
+    "Could not resolve host: inventory"
+  ],
+  "bench-net-03": [
+    "docker pull custom registry certificate unknown authority",
+    "docker daemon custom CA /etc/docker/certs.d path",
+    "docker registry.corp 5000 x509 unknown authority",
+    "x509: certificate signed by unknown authority"
+  ],
+  "bench-linux-01": [
+    "no space left on device but df shows free space",
+    "inode exhaustion linux mail spool",
+    "filesystem millions of tiny files no space left error",
+    "No space left on device"
+  ],
+  "bench-linux-02": [
+    "systemd Type=forking foreground process timeout",
+    "systemd unit start hangs when daemon does not fork",
+    "systemd service fails with timeout but process is running"
+  ],
+  "bench-aws-01": [
+    "AWS IAM permissions boundary overrides identity policy s3 access denied",
+    "S3 AccessDenied despite s3:* permission in role policy",
+    "AWS IAM role permissions boundary troubleshooting",
+    "AccessDenied"
+  ],
+  "bench-aws-02": [
+    "AWS network ACL outbound rule for SSH return traffic",
+    "AWS security group inbound SSH timeout custom NACL",
+    "AWS NACL allow ephemeral ports for SSH"
+  ],
+  "bench-ansre-01": [
+    "ansible become_user not applied for specific task",
+    "ansible task runs as wrong user despite become_user",
+    "ansible postgres user permission error become_user"
+  ],
+  "bench-ansre-02": [
+    "troubleshooting confirmation bias connection pool bug",
+    "devops reasoning errors anchoring recency bias",
+    "first step troubleshooting guidance prioritize recent changes"
+  ]
+}
